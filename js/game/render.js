@@ -12,7 +12,7 @@
     S, $, el, RES, RES_ORDER, ITEMS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX,
     has, costText, builtCount, maxHealth, isNight, bumps, session, view,
     button, section, fill, ACTIONS, RECIPES, RAFT, LOCS,
-    doAction, make, buildRaft, launch, expedition, knownLocs, blockedReason, scout, SCOUT_COST,
+    doAction, make, buildRaft, launch, expedition, knownLocs, blockedReason, scout, SCOUT_COST, darkness, tripCost,
   } = G;
 
   /* ---------------- the action panel ---------------- */
@@ -47,13 +47,16 @@
 
   /** The map tab's section: a button to go exploring, and a journey button for every known place. */
   function chartSections() {
-    const sec = section('chart', 'The Island', 'Explore to find new places, or choose a destination on your map. Every trip costs supplies.');
-    const explore = button('scout', 'explore the island', costText(SCOUT_COST), has(SCOUT_COST), scout, 'Search for places not yet on your map');
+    const sec = section('chart', 'The Island', 'Explore to find new places, or choose a destination on your map. Every trip costs supplies, and at night a torch as well.');
+    const dark = darkness();
+    const scoutCost = tripCost(SCOUT_COST);
+    const explore = button('scout', 'explore the island', dark || costText(scoutCost), !dark && has(scoutCost), scout, dark || 'Search for places not yet on your map');
     fill(sec.querySelector('.btn-row'), [explore].concat(knownLocs().map((l) => {
       const L = LOCS[l.id];
       const why = blockedReason(L);
-      const sub = why || costText(L.cost) + (S.visits[l.id] ? ` · visited ${S.visits[l.id]}×` : '');
-      return button(`loc:${l.id}`, L.name, sub, !why && has(L.cost), () => expedition(l.id), why || '');
+      const cost = tripCost(L.cost);
+      const sub = why || costText(cost) + (S.visits[l.id] ? ` · visited ${S.visits[l.id]}×` : '');
+      return button(`loc:${l.id}`, L.name, sub, !why && has(cost), () => expedition(l.id), why || '');
     })));
     return [sec];
   }

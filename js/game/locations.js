@@ -9,7 +9,7 @@
   const ART = window.DW.art;
   const {
     S, $, el, rand, chance, pick, gainLine, CAMP_POS,
-    has, pay, costText, gain, log, save, session,
+    has, pay, costText, gain, log, save, session, isNight,
     modal, leave, fight, armed, done, wreck, journal, hut,
   } = G;
 
@@ -273,8 +273,14 @@
   const FIND_DROP = 0.05;
   const MIN_FIND = 0.15;
 
+  /** Why no trip can be made just now, or null: at night, there must be a torch to light the way. */
+  G.darkness = () => (isNight() && !S.res.torch ? 'too dark to go without a torch' : null);
+
+  /** What a trip costing `cost` costs just now: at night, a torch as well, unless one is needed anyway. */
+  G.tripCost = (cost) => (isNight() && !cost.torch ? Object.assign({}, cost, { torch: 1 }) : cost);
+
   /** The reason location `L` can't be reached right now, or null. */
-  G.blockedReason = (L) => (L.blocked && L.blocked()) || null;
+  G.blockedReason = (L) => (L.blocked && L.blocked()) || G.darkness();
 
   /** Whether location `id` is on the map: drawn there, and not since gone. */
   const onMap = (id) => !!S.mapped[id] && !(LOCS[id].gone && LOCS[id].gone());
@@ -326,11 +332,13 @@
       log(`${L.name}: ${why}.`);
       return;
     }
-    if (!has(L.cost)) {
-      log(`You lack the supplies for that journey: ${costText(L.cost)}.`);
+    const cost = G.tripCost(L.cost);
+    if (!has(cost)) {
+      log(`You lack the supplies for that journey: ${costText(cost)}.`);
       return;
     }
-    journey(L.name, ART.scene(L.art), `You set out for ${L.name.toLowerCase()}…`, L.cost, L.time, () => {
+    const lit = cost.torch && !L.cost.torch ? ' by torchlight' : '';
+    journey(L.name, ART.scene(L.art), `You set out for ${L.name.toLowerCase()}${lit}…`, cost, L.time, () => {
       S.visits[id] = (S.visits[id] || 0) + 1;
       if (S.visits[id] === 1) L.first();
       else L.repeat();
@@ -385,11 +393,18 @@
    * otherwise something else happens along the way.
    */
   G.scout = function () {
-    if (!has(SCOUT_COST)) {
-      log(`You lack the supplies to go exploring: ${costText(SCOUT_COST)}.`);
+    const dark = G.darkness();
+    if (dark) {
+      log(`It is ${dark}.`);
       return;
     }
-    journey('Exploring', G.mapArt(), 'You set out with your map, into the parts of the island it does not show…', SCOUT_COST, SCOUT_TIME, () => {
+    const cost = G.tripCost(SCOUT_COST);
+    if (!has(cost)) {
+      log(`You lack the supplies to go exploring: ${costText(cost)}.`);
+      return;
+    }
+    const how = isNight() ? 'You set out by torchlight' : 'You set out with your map';
+    journey('Exploring', G.mapArt(), `${how}, into the parts of the island it does not show…`, cost, SCOUT_TIME, () => {
       const found = Object.keys(LOCS).filter(canFind);
       if (found.length && chance(findChance())) discover(pick(found));
       else G.wander();

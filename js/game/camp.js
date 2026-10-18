@@ -261,7 +261,7 @@
     },
     {
       id: 'torch', label: 'torch', cost: { wood: 1, fibre: 2 }, gives: { torch: 1 },
-      show: () => S.mapped.cave,
+      show: () => S.flags.chart,
       msg: 'Fibre bound tight about a stick. It will burn an hour, perhaps.',
     },
     {

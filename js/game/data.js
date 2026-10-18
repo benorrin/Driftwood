@@ -36,7 +36,7 @@
     cloth: 'sailcloth',
     iron: 'iron nails',
     hide: 'boar hide',
-    torch: 'torches',
+    torch: 'torch',
     shot: 'powder & shot',
   };
 
