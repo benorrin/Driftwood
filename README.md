@@ -56,9 +56,10 @@ xdg-open index.html        # macOS: open index.html
 |---|---|
 | **Survival** | A day/night cycle, a fire to feed, and hunger and thirst every dawn. Nights without a fire are cold, and something prowls beyond the light. |
 | **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish traps and a smoking rack. |
-| **Exploration** | A hand-drawn chart with eight places to find: a palm grove, tide pools, a spring, the jungle, a cave, a wreck on the reef, a hut, and the summit. |
-| **Combat** | Real-time fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball. |
+| **Exploration** | A makeshift map drawn on a page torn from your Bible, with eight places to find and draw on it: a palm grove, tide pools, a spring, the jungle, a cave, a wreck on the reef, a hut, and the summit. Some you must go exploring to find, some you spot from other places, and the story leads you to the rest. |
+| **Combat** | Turn-based fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball, and watch for the moment to brace against a heavy blow. |
 | **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
+| **Happenings** | Sails that pass you by, things the tide brings in, and stranger finds inland. Some are nods to other castaways. |
 | **Endings** | Build a raft and brave the open sea, or light a signal pyre and pray a ship sees it. |
 
 <p align="center">
@@ -94,7 +95,7 @@ The game has **no asset files at all.** Everything you see and hear is generated
 |---|---|
 | [`js/art/`](js/art) | Draws every illustration as SVG in code, in the manner of a 19th-century wood engraving: hatching, stipple and ink line, roughened with an SVG displacement filter so nothing is quite ruler-straight. `draw.js` holds the palette and SVG helpers; `nature.js` and `objects.js` draw the parts; `camp.js`, `chart.js`, `scenes.js` and `foes.js` compose the pictures. |
 | [`js/audio/`](js/audio) | Synthesises all the sound with the Web Audio API: breaking surf, a crackling fire (`ambience.js`), an original fiddle lament in D dorian and a heartbeat drum for fights (`music.js`), ship's bells at dawn and every sound effect (`effects.js`), all built on the engine in `synth.js`. |
-| [`js/game/`](js/game) | The game itself: state and saving (`state.js`), camp actions and crafting (`camp.js`), the clock (`clock.js`), exploration (`locations.js`, `story.js`), combat (`combat.js`), endings (`endings.js`), and drawing the screen (`ui.js`, `render.js`). `main.js` starts it all. |
+| [`js/game/`](js/game) | The game itself: state and saving (`state.js`), camp actions and crafting (`camp.js`), the clock (`clock.js`), exploration (`locations.js`, `story.js`), random happenings (`events.js`), combat (`combat.js`), endings (`endings.js`), and drawing the screen (`ui.js`, `render.js`). `main.js` starts it all. |
 | [`js/styles.js`](js/styles.js) | The visual style palettes. |
 | [`js/core.js`](js/core.js) | The shared `DW` namespace and safe `localStorage` helpers. |
 | [`css/`](css) | Layout (`base.css`, `screens.css`, `game.css`, `modal.css`) and the screen effects of the visual styles (`themes.css`). |
