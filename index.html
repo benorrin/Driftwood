@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Driftwood</title>
+<meta name="description" content="A castaway's tale of the South Seas, 1846.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="defs"></div>
+
+<section id="title-screen" class="screen">
+  <div class="title-art" id="title-art"></div>
+  <h1 class="title">Driftwood</h1>
+  <p class="subtitle">a castaway's tale of the South Seas &middot; 1846</p>
+  <div class="title-buttons">
+    <button class="btn" id="btn-new"><span>begin</span></button>
+    <button class="btn hidden" id="btn-continue"><span>continue</span></button>
+  </div>
+  <p class="hint">best with sound &middot; progress is saved in this browser</p>
+</section>
+
+<section id="intro" class="screen hidden">
+  <div id="intro-text"></div>
+  <div class="intro-buttons">
+    <button class="btn" id="btn-intro-next"><span>&hellip;</span></button>
+    <button class="link" id="btn-intro-skip">skip</button>
+  </div>
+</section>
+
+<section id="game" class="screen hidden">
+  <header class="topbar">
+    <h1>Driftwood</h1>
+    <div id="clock"></div>
+    <div class="toggles">
+      <button class="link" id="tgl-music">music: on</button>
+      <button class="link" id="tgl-sfx">sound: on</button>
+      <button class="link" id="btn-restart">restart</button>
+    </div>
+  </header>
+  <div class="layout">
+    <div class="col-log"><div id="log" aria-live="polite"></div></div>
+    <div class="col-main">
+      <div id="scene"></div>
+      <nav id="tabs"></nav>
+      <div id="panel"></div>
+    </div>
+    <aside class="col-side">
+      <div id="status"></div>
+      <div id="stores"></div>
+    </aside>
+  </div>
+</section>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <div id="modal-art"></div>
+    <h2 id="modal-title"></h2>
+    <div id="modal-body"></div>
+    <div id="modal-choices"></div>
+  </div>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/art.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
