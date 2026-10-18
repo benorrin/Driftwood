@@ -46,7 +46,8 @@
   /** Possessions: [name, note shown beside it]. */
   G.ITEMS = {
     pistol: ['flintlock pistol', 'one ball, one choice'],
-    bible: ["the ship's Bible", 'a chart inside its cover'],
+    bible: ["the ship's Bible", 'the Authorised Version'],
+    map: ['a makeshift map', 'drawn on its flyleaf'],
     knife: ['stone knife', ''],
     spear: ['fishing spear', ''],
     axe: ['stone axe', ''],

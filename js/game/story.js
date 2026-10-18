@@ -11,7 +11,8 @@
 
   /**
    * The end of a visit to `id`: a card of `text`, the resources `got` (if
-   * any), and a "return to camp" that logs `logLine` as lore.
+   * any), any places spotted from here, and a "return to camp" that logs
+   * `logLine` as lore.
    */
   function done(id, text, got, logLine) {
     const L = G.LOCS[id];
@@ -19,15 +20,18 @@
     modal({
       art: ART.scene(L.art),
       title: L.name,
-      text: [text].concat(g ? [gainLine(`You return with ${g}.`)] : []),
+      text: [text].concat(g ? [gainLine(`You return with ${g}.`)] : [], G.sightings(id)),
       choices: [leave('return to camp', logLine, 'lore')],
     });
   }
 
   /* ---------------- the wreck ---------------- */
 
-  /** Aboard the wreck of the Calliope: the cabin and the hold may each be searched once. */
-  function wreck(first) {
+  /**
+   * Aboard the wreck of the Calliope: the cabin and the hold may each be
+   * searched once. `seen` tells of any places spotted from her deck.
+   */
+  function wreck(first, seen) {
     const intro = first
       ? 'At the lowest ebb the reef stands clear of the water, and on it lies what is left of the <i>Calliope</i>: her ribs bare as a whale\'s, her mainmast snapped and trailing. You make your line fast to a coral head and haul yourself aboard.'
       : "The Calliope's bones creak in the swell. Her decks tilt like a roof.";
@@ -35,13 +39,14 @@
     if (!S.flags.wreckCabin) choices.push({ label: "search the captain's cabin", fn: wreckCabin });
     if (!S.flags.wreckHold) choices.push({ label: 'go down into the hold', fn: wreckHold });
     choices.push(leave('return to camp'));
-    modal({ art: ART.scene('wreck'), title: 'The Wreck of the Calliope', text: [intro], choices });
+    modal({ art: ART.scene('wreck'), title: 'The Wreck of the Calliope', text: [intro].concat(seen || []), choices });
   }
 
   /** The captain's cabin: a cutlass, dry powder, and a log page that points to the cave. */
   function wreckCabin() {
+    const news = !S.mapped.cave;
     S.flags.wreckCabin = 1;
-    S.flags.caveKnown = 1;
+    S.mapped.cave = 1;
     S.items.cutlass = 1;
     AU.sfx('pickup');
     modal({
@@ -52,7 +57,13 @@
         quote('Fever among the men. I have moved the sick to the cave beneath the north headland, where it is dry. The boy Hollis will not come. He says the island is watching us.'),
         gainLine(`You take the cutlass and ${gain({ shot: 2 })}.`),
       ],
-      choices: [{ label: 'go on', fn: () => wreck(false) }],
+      choices: [{
+        label: 'go on',
+        fn: () => {
+          if (news) log('You draw the north headland on your map, and a cave beneath it.', 'lore');
+          wreck(false);
+        },
+      }],
     });
   }
 
@@ -83,10 +94,10 @@
 
   /** Captain Hale's journal, which tells of the summit; then a choice to bury the dead. */
   function journal() {
+    const summitLine = S.mapped.summit ? null : "You copy Hale's way to the summit onto your map.";
     S.items.journal = 1;
-    S.flags.summitKnown = 1;
+    S.mapped.summit = 1;
     AU.sfx('page');
-    const summitLine = 'You know the way to the summit now.';
     modal({
       art: ART.scene('bones'),
       title: "Hale's Journal",
@@ -139,7 +150,7 @@
   function hollisPeace() {
     S.flags.hollisDone = 1;
     S.flags.ally = 1;
-    S.flags.summitKnown = 1;
+    S.mapped.summit = 1;
     modal({
       art: ART.foe('hollis'),
       title: 'Thomas Hollis',
@@ -148,7 +159,7 @@
         quote('"The ships," he says. "I\'ve seen \'em, from the high rock, when the trade winds turn. I lit fires. They never came. Too small, my fires." He looks at you. "Two of us could make a bigger one."'),
         gainLine(`He gives you ${gain({ hide: 3, rope: 4 })}, and shows you the way to the summit.`),
       ],
-      choices: [leave('walk back together', 'Hollis comes back to the beach with you. He does not say much, but he works, and he keeps the fire.', 'lore')],
+      choices: [leave('walk back together', 'Hollis comes back to the beach with you, and traces the way to the summit on your map with a cracked fingernail. He does not say much, but he works, and he keeps the fire.', 'lore')],
     });
   }
 
