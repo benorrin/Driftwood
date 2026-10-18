@@ -44,9 +44,7 @@
 
   /** The captain's cabin: a cutlass, dry powder, and a log page that points to the cave. */
   function wreckCabin() {
-    const news = !S.mapped.cave;
     S.flags.wreckCabin = 1;
-    S.mapped.cave = 1;
     S.items.cutlass = 1;
     AU.sfx('pickup');
     modal({
@@ -60,7 +58,7 @@
       choices: [{
         label: 'go on',
         fn: () => {
-          if (news) log('You draw the north headland on your map, and a cave beneath it.', 'lore');
+          if (!S.mapped.cave) log('Somewhere beneath the north headland is the cave where Hale took his sick. You will have to go and find it.', 'lore');
           wreck(false);
         },
       }],
@@ -94,9 +92,8 @@
 
   /** Captain Hale's journal, which tells of the summit; then a choice to bury the dead. */
   function journal() {
-    const summitLine = S.mapped.summit ? null : "You copy Hale's way to the summit onto your map.";
+    const summitLine = S.mapped.summit ? null : "Somewhere above the island is Hollis's high rock. You will have to find the way up.";
     S.items.journal = 1;
-    S.mapped.summit = 1;
     AU.sfx('page');
     modal({
       art: ART.scene('bones'),

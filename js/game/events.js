@@ -142,7 +142,7 @@
     },
     {
       id: 'parrot', limit: 1,
-      when: () => S.day >= 3 && !S.flags.metHollis,
+      when: () => S.flags.wreckCabin && !S.flags.metHollis,
       run: () => log('A green parrot lands on a branch above the fire and fixes you with one eye. "Poor Tom!" it screeches. "Poor Tom! Where are you, Tom?" Then it is gone. Someone taught it that.', 'lore'),
     },
     {

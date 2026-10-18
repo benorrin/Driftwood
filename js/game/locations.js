@@ -22,14 +22,17 @@
    * scene `art`, an optional `blocked()` that returns the reason it can't
    * be reached, and `first()` and `repeat()` for the first and later visits.
    *
-   * A place is on the map once `S.mapped[id]` is set. Those with a
-   * `sighted` text can be found by exploring (see `canFind`), and are
-   * announced with it; the story puts the rest there. `sees` lists places
-   * that may be spotted from this one on a visit: [id, chance, what is seen].
+   * A place is on the map once `S.mapped[id]` is set. Those with
+   * `findable()` can be found by exploring, or spotted from elsewhere, once
+   * the story has given reason to look for them (the bottle tells of the
+   * wreck, Hale's log of the cave, and so on), and are announced with their
+   * `sighted` text; the story leads the castaway to the rest. `sees` lists
+   * places that may be spotted from this one on a visit: [id, chance, what is seen].
    */
   const LOCS = (G.LOCS = {
     grove: {
       name: 'The Palm Grove', x: 204, y: 232, cost: { water: 1 }, time: 4, art: 'grove',
+      findable: () => true,
       sighted: 'Inland, past the dunes, you push through sea-grape and scrub until the ground firms underfoot and the light turns green: a grove of coconut palms, a hundred strong.',
       sees: [
         ['spring', 0.3, 'From the crown of a palm you catch a glint of falling water, high in the hills to the north.'],
@@ -64,6 +67,7 @@
 
     tidepools: {
       name: 'The Tide Pools', x: 446, y: 236, cost: { water: 1, food: 1 }, time: 5, art: 'tidepools',
+      findable: () => S.mapped.wreck,
       sighted: 'You follow the shore east until the sand gives out and black rock begins, stepping down into the sea in shelves. At low water every shelf holds a pool, bright with life.',
       sees: [['summit', 0.25, "From the rocks the island's highest peak stands plain, and you can make out a way up its eastern shoulder."]],
       first() {
@@ -102,6 +106,7 @@
     spring: {
       name: 'The Spring', x: 252, y: 176, cost: { food: 1 }, time: 5, art: 'spring',
       sees: [['jungle', 0.4, "From the ridge above the spring you look down on a sea of green: jungle, dense and dark, filling the island's heart."]],
+      findable: () => S.mapped.wreck,
       sighted: 'Pushing up a gully choked with thorn, you stop dead. Under the din of the insects: running water. Fresh water, somewhere beyond the thicket. You will need a blade to cut your way through.',
       blocked: requires('knife', 'the thicket is too dense without a blade'),
       first() {
@@ -139,6 +144,7 @@
 
     wreck: {
       name: 'The Wreck', x: 540, y: 284, cost: { water: 1, food: 1 }, time: 6, art: 'wreck',
+      findable: () => S.mapped.grove && S.flags.bottle,
       sighted: "You pick your way east along the rocks, as Hale's letter said, until the reef comes clear of the water. And there on it, heeled over and black with weed, lie the ribs of a ship. The <i>Calliope</i>.",
       sees: [['tidepools', 0.5, "From the Calliope's tilted deck you look back at the island, and see black rock shelves along the shore to the west, glittering with pools."]],
       blocked: () => {
@@ -155,6 +161,8 @@
 
     jungle: {
       name: 'The Jungle', x: 356, y: 158, cost: { water: 2, food: 1 }, time: 6, art: 'jungle',
+      // only once the footprint at the spring has been seen
+      findable: () => S.flags.spring,
       sighted: "From a ridge in the hills you look down on a sea of green: jungle, dense and dark, filling the island's heart. There is no way in without an axe to cut one.",
       sees: [['summit', 0.3, 'Through a gap in the canopy you see the island\'s peak, close and clear, and a track winding up toward it.']],
       blocked: requires('axe', 'you need an axe to cut a path'),
@@ -204,6 +212,7 @@
 
     cave: {
       name: 'The Cave', x: 216, y: 106, cost: { water: 1, food: 1, torch: 1 }, time: 6, art: 'cave',
+      findable: () => S.flags.wreckCabin,
       sighted: 'Under the north headland, half hidden by a fall of rock, a black mouth breathes cold air at you. A cave. You will want a torch to go in.',
       first() {
         AU.sfx('bats');
@@ -231,6 +240,7 @@
 
     summit: {
       name: 'The Summit', x: 300, y: 70, cost: { water: 2, food: 2 }, time: 8, art: 'summit',
+      findable: () => S.items.journal,
       sighted: 'A track, faint as a crease in cloth, winds up from the scrub toward the highest peak. A long climb, and a dry one: you will want a waterskin.',
       blocked: requires('waterskin', 'too long a climb without a waterskin'),
       first() {
@@ -345,17 +355,8 @@
     });
   };
 
-  /**
-   * Whether place `id` can be found yet, by exploring or by sighting it: the
-   * grove from the start, the wreck once the grove is found and the bottle
-   * has told of it, and the rest once the wreck is on the map.
-   */
-  function canFind(id) {
-    if (S.mapped[id] || !LOCS[id].sighted) return false;
-    if (id === 'grove') return true;
-    if (id === 'wreck') return !!(S.mapped.grove && S.flags.bottle);
-    return !!S.mapped.wreck;
-  }
+  /** Whether place `id` can be found yet, by exploring or by sighting it. */
+  const canFind = (id) => !S.mapped[id] && !!LOCS[id].findable && !!LOCS[id].findable();
 
   /** The chance that a trip exploring finds a new place. */
   const findChance = () => Math.max(MIN_FIND, FIRST_FIND - FIND_DROP * Object.values(S.mapped).filter(Boolean).length);
