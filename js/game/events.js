@@ -10,8 +10,8 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, rand, chance, pick, quote, gainLine,
-    add, gain, log, damage, isNight, modal, leave, closeModal, fight,
+    S, rand, chance, pick, quote, gainLine, RES,
+    add, gain, log, damage, setFire, maxHealth, isNight, modal, leave, closeModal, fight,
   } = G;
 
   /**
@@ -46,8 +46,196 @@
     ], [leave('turn back to camp', 'The ship never saw you. It would take a far bigger fire, and a far higher one.', 'lore')]);
   }
 
+  /* ---------------- the storm ---------------- */
+
+  /** The least number of days between storms, and the first day one can come. */
+  const STORM_GAP = 6;
+  const FIRST_STORM = 4;
+
+  /** Stores the sea and the wind can take; water, iron and powder are kept safe. */
+  const STORM_STORES = ['food', 'wood', 'fibre', 'rope', 'stone', 'timber', 'cloth', 'hide', 'gum', 'torch'];
+
+  /**
+   * The storm has passed. `held` says whether the castaway stayed to hold
+   * the camp (losing less) or retreated inland. Each store loses a random
+   * share, the camp's works may be wrecked, and the catchers fill.
+   */
+  function afterStorm(held) {
+    const share = held ? [0.1, 0.25] : [0.2, 0.5];
+    const lost = [];
+    STORM_STORES.forEach((k) => {
+      const n = Math.floor((S.res[k] || 0) * (share[0] + Math.random() * (share[1] - share[0])));
+      if (n > 0) {
+        add(k, -n);
+        lost.push(`${n} ${RES[k]}`);
+      }
+    });
+    const odds = held ? 0.2 : 0.5;
+    if (S.built.leanto && chance(odds)) {
+      S.built.leanto = 0;
+      S.health = Math.min(S.health, maxHealth());
+      lost.push('the lean-to');
+    }
+    if (S.built.catcher && chance(odds)) {
+      S.built.catcher--;
+      lost.push('a rain catcher');
+    }
+    if (S.built.trap) {
+      const n = rand(0, held ? 1 : S.built.trap);
+      S.built.trap -= n;
+      if (n) lost.push(n > 1 ? `${n} fish traps` : 'a fish trap');
+    }
+    if (S.built.rack && chance(odds * 0.6)) {
+      S.built.rack = 0;
+      lost.push('the smoking rack');
+    }
+    setFire(held ? S.fire - 2 : 0, true);
+    const caught = S.built.catcher ? gain({ water: S.built.catcher * 3 }) : '';
+    const text = [held
+      ? 'You spend the night flat behind a dune with your arms around what you can hold, and the sea comes up the beach to meet you. At dawn the wind drops all at once.'
+      : 'You spend the night in the lee of the hills, soaked and shaking, listening to the island being torn apart. At dawn the wind drops all at once, and you go down to see what is left.'];
+    text.push(gainLine(lost.length ? `The storm has taken ${lost.join(', ')}.` : 'By some miracle, the storm has taken nothing.'));
+    if (caught) text.push(gainLine(`The rain catchers are brimming: ${caught}.`));
+    if (Object.keys(S.raft).length) text.push('The raft, lashed down above the tide line, has come through.');
+    modal({
+      art: ART.scene('beach'),
+      title: 'After the Storm',
+      text,
+      choices: [leave('begin again', 'The storm has passed. You set about putting the camp to rights.', 'lore')],
+    });
+  }
+
+  /** A storm comes in from the west: retreat inland, or stay and hold the camp at some cost. */
+  function storm() {
+    S.n.lastStorm = S.day;
+    AU.sfx('hurt');
+    modal({
+      art: ART.scene('tempest'),
+      title: 'A Storm',
+      text: [
+        'By noon the western sky has gone the colour of a bruise, and the birds have all gone inland. Then the wind comes, and the rain behind it like a wall, and the sea gets up and starts to climb the beach.',
+        S.flags.ally ? 'Hollis is already running for the hills. "Leave it!" he shouts. "Leave it all!"' : 'The camp will not stand this. Neither, perhaps, will you.',
+      ],
+      choices: [
+        { label: 'retreat inland', fn: () => afterStorm(false) },
+        {
+          label: 'stay and hold the camp',
+          fn: () => {
+            AU.sfx('hurt');
+            damage(rand(2, 3), 'storm');
+            if (!S.ended) afterStorm(true);
+          },
+        },
+      ],
+    });
+  }
+
+  /* ---------------- the light in the sea ---------------- */
+
+  /** Wading out to the light: a sunken longboat of the Calliope, and Hale's locket. */
+  function wadeToLight() {
+    S.items.locket = 1;
+    if (S.health > 2) damage(1, 'fall');
+    modal({
+      art: ART.scene('glow'),
+      title: 'The Light in the Sea',
+      text: [
+        'You go out along the reef at the bottom of the tide, the water to your chest, and the light grows up around you: thousands of tiny glowing creatures, drifting in a slow ring over something dark on the sand.',
+        'A boat. A ship\'s longboat, stove in and half buried, the name on her transom still just readable: <i>CALLIOPE</i>. Torn from the wreck when she struck, and never found.',
+        'Under a thwart, wrapped in oilcloth, your fingers close on something small and hard: a gold locket. Inside is a painted face, a woman\'s, and a curl of brown hair. On the back: <i>J.H. from M.H., 1819.</i>',
+        gainLine('Something stings your legs all the way back to the beach.'),
+      ],
+      choices: [leave('return to camp', "You have Captain Hale's locket. Someone, somewhere, gave it to him.", 'lore')],
+    });
+  }
+
+  /* ---------------- the carved figure ---------------- */
+
+  /** The carved figure brings ill luck to whoever keeps it. */
+  function curse() {
+    const ills = [() => log('You turned the little figure to face the wall last night. This morning it is facing you.', 'lore')];
+    if (S.fire > 0) ills.push(() => {
+      setFire(S.fire - 1, true);
+      log('A gust from nowhere, on a still day, flattens the fire.', 'warn');
+    });
+    if (S.res.food > 0) ills.push(() => {
+      add('food', -1);
+      log('The fish you put by yesterday is crawling with maggots.', 'warn');
+    });
+    if (S.health > 3) ills.push(() => {
+      damage(1, 'fever');
+      log('You dream of drowning, and wake on the tide line with no memory of walking there, your hands torn and bleeding.', 'warn');
+    });
+    pick(ills)();
+  }
+
+  /** Throwing the figure into the sea: it will not stay there. */
+  function throwFigure() {
+    delete S.items.idol;
+    S.flags.idolThrown = 1;
+    log('You throw the little figure as far out as you can. It does not sink. It floats, face up, watching you, until the dark takes it.', 'lore');
+    closeModal();
+  }
+
   /** Things that happen around the camp, now and then, as the days go by. */
   const AT_CAMP = [
+    {
+      id: 'storm', weight: 0.6,
+      when: () => S.day >= FIRST_STORM && S.day - (S.n.lastStorm || 0) >= STORM_GAP && !isNight(),
+      run: storm,
+    },
+    {
+      id: 'glow', limit: 1,
+      when: () => isNight() && S.day >= 3,
+      run() {
+        S.flags.glow = 1;
+        log('Far out beyond the reef a patch of the sea is glowing: a soft green light, steady as a lamp, nothing like the sea-fire in the surf. In the morning there is nothing there.', 'lore');
+      },
+    },
+    {
+      id: 'glowAgain', limit: 3, weight: 1.5,
+      when: () => isNight() && S.flags.glow && !S.items.locket,
+      run() {
+        modal({
+          art: ART.scene('glow'),
+          title: 'The Light in the Sea',
+          text: ['It is there again tonight, in the same place beyond the reef: a green glow, as steady as a lamp left burning in a window. The tide is low. You could wade out to it, along the reef.'],
+          choices: [
+            { label: 'wade out to the light', fn: wadeToLight },
+            leave('leave it be', 'You watch the light until it fades. Some things are better left alone.', 'lore'),
+          ],
+        });
+      },
+    },
+    {
+      id: 'curse', weight: 2.5,
+      when: () => S.items.idol,
+      run: curse,
+    },
+    {
+      id: 'idolSea', limit: 1,
+      when: () => S.items.idol,
+      run() {
+        modal({
+          art: ART.scene('beach'),
+          title: 'The Carved Figure',
+          text: ['You are sure of it now. Since you took the little figure from its cleft in the rock, nothing has gone right. It sits by the fire with its shell eyes, and watches.'],
+          choices: [
+            { label: 'throw it into the sea', fn: throwFigure },
+            leave('keep it', 'You wrap the figure in a rag. It does not help.'),
+          ],
+        });
+      },
+    },
+    {
+      id: 'idolBack', weight: 8,
+      when: () => S.flags.idolThrown,
+      run() {
+        S.flags.idolThrown = 0;
+        S.items.idol = 1;
+        log('In the morning the little figure is lying beside the fire, bone dry, facing you. Perhaps it does not want the sea. Perhaps it wants to go home.', 'lore');
+      },
+    },
     {
       id: 'ship', limit: 3, weight: 1.5,
       when: () => S.day >= 3 && !S.built.pyre && !isNight(),
@@ -357,6 +545,28 @@
         AU.sfx('hurt');
         damage(1, 'fall');
         wanderCard('You put your foot in a hole hidden by the grass and wrench your ankle. You limp home empty-handed.');
+      },
+    },
+    {
+      id: 'idol', limit: 1,
+      when: () => S.visits.platform,
+      run() {
+        modal({
+          art: ART.scene('platform'),
+          title: 'Exploring',
+          text: ['In a cleft of the rock near the old platform, wrapped in rotted bark cloth, is a small carved figure of some dark wood, arms folded across its belly, its eyes inlaid with shell. It is beautiful. It is looking at you.'],
+          choices: [
+            {
+              label: 'take it',
+              fn: () => {
+                S.items.idol = 1;
+                log('You take the little figure home. It is heavier than it looks.', 'lore');
+                closeModal();
+              },
+            },
+            leave('leave it where it is', 'You leave the figure in its cleft, and feel its eyes on your back all the way home.'),
+          ],
+        });
       },
     },
     {

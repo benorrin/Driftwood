@@ -368,6 +368,37 @@
       return framed(b, 'An old stone platform in the jungle');
     },
 
+    /** A storm breaking on the beach: palms bent flat, driving rain, the surf over the camp. */
+    tempest() {
+      const r = rng(191);
+      let b = sky(r, SW, 0, 120, true) + sea(r, SW, 120, 200, true);
+      b += P('M0 170 Q60 130 130 160 Q190 186 250 150 Q320 110 380 160 Q440 196 520 150 Q570 128 600 150 L600 200 L0 200Z', pal.paper, 1.4);
+      b += ground('M0 200 C150 192 300 208 600 196', 'url(#dots)', 1.1);
+      b += palm(r, 90, 236, 150, 80) + palm(r, 470, 236, 130, 90);
+      // the lean-to, torn half away
+      b += P('M246 230 L290 196 L342 228 M300 230 L318 206', null, 3) + P('M258 222 L292 194 L336 214 L300 236Z', 'url(#h2)', 1.2);
+      let rain = '';
+      for (let i = 0; i < 160; i++) rain += `M${f(r() * 700)} ${f(r() * 240)}l-16 24`;
+      b += P(rain, null, 0.7, `stroke="${pal.paper}"`);
+      return framed(b, 'A storm breaking over the beach');
+    },
+
+    /** Night beyond the reef, and a patch of the sea glowing with a steady light. */
+    glow() {
+      const r = rng(201);
+      let b = sky(r, SW, 0, 110, true) + stars(r, SW, 100) + `<rect x="0" y="110" width="${SW}" height="130" fill="url(#hx)"/>`;
+      b += `<ellipse cx="380" cy="168" rx="130" ry="24" fill="${pal.paper}" opacity="0.4"/>` +
+        `<ellipse cx="380" cy="168" rx="80" ry="14" fill="${pal.paper}" opacity="0.75"/>`;
+      for (let i = 0; i < 40; i++) {
+        const a = r() * Math.PI * 2;
+        const d = 40 + r() * 70;
+        b += circle(f(380 + Math.cos(a) * d), f(168 + Math.sin(a) * d * 0.2), f(0.8 + r() * 1.4), pal.paper);
+      }
+      b += P('M0 218 C80 210 190 214 270 240 L0 240Z', pal.paper, 1.2);
+      b += stander(120, 232, 1.1, 1);
+      return framed(b, 'A glowing light in the sea at night');
+    },
+
     /** The finished raft under sail on the open sea. */
     raft() {
       const r = rng(111);

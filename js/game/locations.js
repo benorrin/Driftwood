@@ -385,6 +385,23 @@
           null, 'Long before any European ship, this island had its own people, and its own gods.');
       },
       repeat() {
+        if (S.items.idol) {
+          modal({
+            art: ART.scene('platform'),
+            title: 'The Stone Platform',
+            text: ['You climb to the top step with the little carved figure in your hands. The upright stones look down at you, and at it.'],
+            choices: [{
+              label: 'return the figure',
+              fn: () => {
+                delete S.items.idol;
+                S.flags.idolReturned = 1;
+                heal(3);
+                done('platform', 'You set the figure on the top step, facing the sea, as the great stones do. The clearing seems to let go of a breath it has been holding. On the way home, for the first time in days, nothing goes wrong.', null, 'The carved figure is home, and its ill luck with it.');
+              },
+            }],
+          });
+          return;
+        }
         heal(1);
         done('platform', pick(['You sit a while on the lowest step. It is the most peaceful place on the island.', 'Someone has laid a ring of white shells on the top step. Hollis, you suppose.']), null);
       },

@@ -58,6 +58,8 @@
     crusoe: ['Robinson Crusoe', 'of York, Mariner'],
     bristow: ['Bristow', 'a good listener'],
     parcel: ['a sealed parcel', 'for Valparaíso'],
+    locket: ["Hale's locket", 'J.H. from M.H.'],
+    idol: ['a carved figure', 'it is watching you'],
     dollar: ['a Spanish dollar', 'of no use at all'],
   };
 
