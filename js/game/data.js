@@ -76,19 +76,20 @@
   /**
    * The island's creatures: hp, damage per hit, chance to hit, the verbs
    * of their attacks, the `tell` that warns of a heavy blow and the `heavy`
-   * blow itself, an introduction, and an optional sound effect when the
-   * fight begins.
+   * blow itself, an introduction, an optional sound effect when the fight
+   * begins, and optional `miss` and `dead` lines for foes that are not one
+   * creature.
    */
   G.FOES = {
     crab: {
-      name: 'the land crab', art: 'crab', hp: 7, dmg: 1, hit: 0.7,
+      name: 'the land crab', art: 'crab', hp: 9, dmg: 1, hit: 0.7,
       verbs: ['clamps a claw on your leg', 'nips your hand to the bone'],
       tell: 'The crab rears up on its back legs, both claws spread wide.',
       heavy: 'brings both claws down on you',
       intro: 'It rears up on its legs, claws wide, big as a dinner plate and twice as hard.',
     },
     boar: {
-      name: 'the boar', art: 'boar', hp: 12, dmg: 2, hit: 0.65,
+      name: 'the boar', art: 'boar', hp: 14, dmg: 2, hit: 0.6,
       verbs: ['gores your thigh', 'slams into you', 'rakes you with a tusk'],
       tell: 'The boar backs off a pace, pawing the ground, and drops its tusks.',
       heavy: 'charges, and throws you off your feet',
@@ -96,7 +97,7 @@
       sound: 'growl',
     },
     viper: {
-      name: 'the viper', art: 'viper', hp: 4, dmg: 3, hit: 0.5,
+      name: 'the viper', art: 'viper', hp: 6, dmg: 2, hit: 0.55,
       verbs: ['strikes', 'sinks its fangs into your wrist'],
       tell: 'The viper draws its head back into a tight, trembling S.',
       heavy: 'strikes like a whip',
@@ -104,14 +105,14 @@
       sound: 'hiss',
     },
     hollis: {
-      name: 'the wild man', art: 'hollis', hp: 15, dmg: 2, hit: 0.7,
+      name: 'the wild man', art: 'hollis', hp: 18, dmg: 2, hit: 0.65,
       verbs: ['jabs with his spear', 'screams and lunges', 'catches you with the spear-butt'],
       tell: 'He crouches low, spear drawn back, to throw his whole weight behind it.',
       heavy: 'drives the spear in with all his weight',
       intro: 'He howls, and comes at you with the spear.',
     },
     shark: {
-      name: 'the shark', art: 'shark', hp: 14, dmg: 3, hit: 0.6,
+      name: 'the shark', art: 'shark', hp: 20, dmg: 2, hit: 0.6,
       verbs: ['tears at the logs, and at you', 'lunges from the water'],
       tell: 'The shark swings away in a wide circle, then turns straight for the raft.',
       heavy: 'heaves itself half onto the logs and bites',

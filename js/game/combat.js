@@ -9,7 +9,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, chance, pick, cap, replayAnimation,
+    S, $, el, rand, chance, pick, cap, replayAnimation,
     RES, FOES, heal, damage, maxHealth, modal, closeModal, session, log,
   } = G;
 
@@ -22,17 +22,22 @@
   /** Extra damage a heavy blow does. */
   const HEAVY_BONUS = 2;
 
+  /** The castaway's chance to land a blow, and a shot. */
+  const HIT_CHANCE = 0.75;
+  const SHOT_CHANCE = 0.9;
+
   /**
-   * The castaway's weapons, best last. Only the best blade (or fists, with
-   * none) is offered, beside the pistol, which uses powder & shot.
+   * The castaway's weapons, best last, each doing `dmg` [least, most]
+   * damage. Only the best blade (or fists, with none) is offered, beside
+   * the pistol, which uses powder & shot.
    */
   const BLADES = [
-    { id: 'fists', label: 'strike', dmg: 2, has: () => true, snd: 'hit', verb: 'You strike' },
-    { id: 'knife', label: 'stab', dmg: 3, has: () => S.items.knife, snd: 'hit', verb: 'You stab' },
-    { id: 'spear', label: 'thrust the spear', dmg: 4, has: () => S.items.spear, snd: 'swing', verb: 'You run the spear into' },
-    { id: 'cutlass', label: 'swing the cutlass', dmg: 5, has: () => S.items.cutlass, snd: 'swing', verb: 'You cut' },
+    { id: 'fists', label: 'strike', dmg: [1, 2], has: () => true, snd: 'hit', verb: 'You strike' },
+    { id: 'knife', label: 'stab', dmg: [2, 3], has: () => S.items.knife, snd: 'hit', verb: 'You stab' },
+    { id: 'spear', label: 'thrust the spear', dmg: [2, 4], has: () => S.items.spear, snd: 'swing', verb: 'You run the spear into' },
+    { id: 'cutlass', label: 'swing the cutlass', dmg: [3, 5], has: () => S.items.cutlass, snd: 'swing', verb: 'You cut' },
   ];
-  const PISTOL = { id: 'pistol', label: 'fire the pistol', dmg: 8, snd: 'shot', ammo: 'shot', verb: 'The ball takes' };
+  const PISTOL = { id: 'pistol', label: 'fire the pistol', dmg: [6, 9], snd: 'shot', ammo: 'shot', verb: 'The ball takes' };
 
   /** Whether the castaway has a blade to fight with. Until then, nothing picks a fight with them. */
   G.armed = () => BLADES.some((w) => w.id !== 'fists' && w.has());
@@ -51,6 +56,7 @@
    *   onFlee   — called after a successful escape
    *   canFlee  — false to offer no escape
    *   ally     — Hollis fights alongside, adding 1 to every hit
+   *   ambush   — the foe strikes first, before the castaway can move
    */
   G.fight = function (key, opts) {
     opts = opts || {};
@@ -119,7 +125,7 @@
         return;
       }
       if (chance(braced ? E.hit / 2 : E.hit)) struck(E.dmg, pick(E.verbs));
-      else say(braced ? `You take ${E.name}'s attack on your guard.` : `${cap(E.name)} misses.`);
+      else say(braced ? 'You take the attack on your guard.' : E.miss || `${cap(E.name)} misses.`);
     }
 
     /**
@@ -168,11 +174,11 @@
       }
       const sure = opening;
       opening = false;
-      if (!sure && !chance(w.ammo ? 0.9 : 0.8)) {
+      if (!sure && !chance(w.ammo ? SHOT_CHANCE : HIT_CHANCE)) {
         say('You miss.');
         return;
       }
-      const d = w.dmg + allyBonus;
+      const d = rand(w.dmg[0], w.dmg[1]) + allyBonus;
       E.hp -= d;
       replayAnimation($('#modal-art'), 'hit');
       say(opts.ally ? `You and Hollis strike together. (${d})` : `${w.verb} ${E.name}. (${d})`);
@@ -197,7 +203,7 @@
       over = true;
       AU.sfx('victory');
       AU.setMood('calm');
-      say(`${cap(E.name)} is dead.`);
+      say(E.dead || `${cap(E.name)} is dead.`);
       update();
       moves.innerHTML = '';
       const b = el('button', 'btn', '<span>continue</span>');
@@ -210,7 +216,7 @@
     }
 
     const blade = BLADES.filter((w) => w.has()).pop();
-    moveButton(blade.label, `${blade.dmg + allyBonus} damage`, () => true, () => attack(blade));
+    moveButton(blade.label, `${blade.dmg[0] + allyBonus}–${blade.dmg[1] + allyBonus} damage`, () => true, () => attack(blade));
     if (S.items.pistol) {
       PISTOL.btn = moveButton(PISTOL.label, `${S.res.shot || 0} ${RES.shot}`, () => S.res.shot > 0, () => attack(PISTOL));
     }
@@ -225,6 +231,10 @@
       say('You wolf down a mouthful and feel stronger.');
     });
     if (opts.canFlee !== false) moveButton('flee', '', () => true, flee);
+    if (opts.ambush) {
+      foeTurn();
+      if (S.ended) return;
+    }
     say('What will you do?');
     update();
   };
