@@ -98,7 +98,7 @@
   /** Whether it is night on the clock. */
   G.isNight = () => S.t >= NIGHT_AT;
 
-  /** Adds a line to the top of the log. `cls` may be 'lore' or 'warn'. */
+  /** Adds a line to the top of the log. `cls` may be 'lore', 'warn', or 'day' for a day divider. */
   G.log = function (msg, cls) {
     S.log.unshift({ m: msg, c: cls || '' });
     if (S.log.length > LOG_MAX) S.log.length = LOG_MAX;

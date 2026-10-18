@@ -34,7 +34,7 @@
     if (S.flags.ally) lines.push('Tom Hollis stands at the rail long after the island has sunk from sight. You do not disturb him.');
     if (S.flags.killedHollis) lines.push('You never speak of the man in the jungle. But you count the notches, some nights, when you cannot sleep.');
     if (S.flags.buried) lines.push('Captain Hale\'s journal you send to his widow in Liverpool, if she still lives. You never learn whether it reaches her.');
-    lines.push('In Valparaíso, months later, you give your testimony before the British consul. The <i>Meridian</i> was taken off Callao; Mr Crane hanged. You are asked if you have anything to add. You think of the surf, the fire, the long nights. "No," you say. "Nothing."');
+    lines.push('In Valparaíso, months later, you give your testimony before the British consul. The <i>Meridian</i> was captured off Callao, and Mr Crane was hanged. You are asked if you have anything to add. You think of the surf, the fire, the long nights. "No," you say. "Nothing."');
     lines.push(gainLine(`${S.day} days upon the island.`));
     return lines;
   }
@@ -74,7 +74,7 @@
       art: ART.scene('summit', { ship: 1, pyre: 1, lit: 1 }),
       title: 'The Pyre',
       text: [
-        'You run. Up the scree, up the chimney, lungs on fire, and put a brand to the pyre. It goes up with a roar you feel in your teeth: a pillar of smoke a mile high.',
+        'You run. Up the loose stones, up the narrow crack, lungs on fire, and put a burning stick to the pyre. It goes up with a roar you feel in your teeth: a pillar of smoke a mile high.',
         'For an hour the ship holds her course. Then, slowly, she comes about.',
       ],
       choices: [{
@@ -99,7 +99,7 @@
       art: ART.scene('raft'),
       title: 'Put to Sea',
       text: [
-        `You and the raft go down to the water at the top of the tide${companion}. The surf lifts you, drops you, lifts you — and then you are over the bar and the sail fills.`,
+        `You and the raft go down to the water at the top of the tide${companion}. The surf lifts you, drops you, lifts you — and then you are over the sandbar and the sail fills.`,
         'The island falls behind: green, then grey, then gone. The raft rides better than you dared to hope.',
       ],
       choices: [{ label: 'sail on', fn: storm }],

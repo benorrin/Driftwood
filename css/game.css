@@ -214,6 +214,38 @@ svg.art {
   content: '\2020\00a0';
 }
 
-#log p:first-child {
-  animation: fadein 1s ease;
+/* new lines slide in one at a time; see renderLog */
+#log p.arriving {
+  animation: log-in 0.6s ease;
+}
+
+@keyframes log-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* a divider marking the start of each day */
+#log p.day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sc);
+  font-size: 0.85em;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+}
+
+#log p.day::before,
+#log p.day::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--rule);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #log p.arriving {
+    animation-name: none;
+  }
 }

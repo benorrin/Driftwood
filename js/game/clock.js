@@ -1,5 +1,5 @@
 /* Driftwood — the clock.
- * Each second is a tick. Fires burn down, catchers fill, weirs trap fish,
+ * Each second is a tick. Fires burn down, catchers fill, traps catch fish,
  * and Hollis (once befriended) gathers wood; night falls and day breaks,
  * and every dawn the castaway must eat and drink. */
 (function () {
@@ -10,7 +10,7 @@
   const ART = window.DW.art;
   const {
     S, chance, pick, DAWNS, NIGHTFALLS, DAY_LEN, NIGHT_AT, FIRE_DECAY,
-    add, log, heal, damage, setFire, save, session, modal, closeModal, rescueEnding,
+    add, log, heal, damage, setFire, save, session, modal, modalOpen, closeModal, rescueEnding,
   } = G;
 
   /** What runs short each dawn, and how its lack is felt. */
@@ -35,7 +35,8 @@
         lack.push(msg);
       }
     });
-    log(`Day ${S.day}. ${pick(DAWNS)}`);
+    log(`Day ${S.day}`, 'day');
+    log(pick(DAWNS));
     lack.forEach((m) => log(m, 'warn'));
     if (hurt) damage(hurt, 'thirst');
     else heal(S.built.leanto ? 2 : 1);
@@ -43,8 +44,7 @@
 
     if (S.built.pyre && !S.flags.sailing) {
       S.n.pyreDays++;
-      const modalOpen = document.querySelector('#modal:not(.hidden)');
-      if (!modalOpen && chance(0.15 + S.n.pyreDays * 0.15)) sailSighted();
+      if (chance(0.15 + S.n.pyreDays * 0.15)) sailSighted();
     }
   }
 
@@ -127,9 +127,12 @@
     }
   }
 
-  /** Advances the game by one tick (one second). */
+  /**
+   * Advances the game by one tick (one second). Time stands still while a
+   * notice is open, so nothing happens behind it while it is being read.
+   */
   G.tick = function () {
-    if (!session.running || S.ended) return;
+    if (!session.running || S.ended || modalOpen()) return;
     S.t++;
     tendFire();
     if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));

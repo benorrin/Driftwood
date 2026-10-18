@@ -9,7 +9,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, RES, RES_ORDER, ITEMS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST,
+    S, $, el, RES, RES_ORDER, ITEMS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX,
     has, costText, builtCount, maxHealth, isNight, bumps, session, view,
     button, section, fill, ACTIONS, RECIPES, RAFT, LOCS,
     doAction, make, buildRaft, launch, expedition, knownLocs, blockedReason,
@@ -181,7 +181,7 @@
     const built = [];
     if (S.built.leanto) built.push(row('lean-to'));
     if (S.built.catcher) built.push(row('rain catchers', S.built.catcher));
-    if (S.built.trap) built.push(row('fish weirs', S.built.trap));
+    if (S.built.trap) built.push(row('fish traps', S.built.trap));
     if (S.built.rack) built.push(row('smoking rack'));
     if (S.built.pyre) built.push(row('signal pyre', null, 'on the summit'));
     if (S.flags.ally) built.push(row('Tom Hollis', null, 'companion'));
@@ -189,12 +189,64 @@
     $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + (built.length ? list('Camp', built) : '');
   }
 
-  /** Draws the log, newest first, each older line a little fainter. */
-  G.renderLog = function () {
-    $('#log').innerHTML = S.log.map((e, i) => {
-      const opacity = Math.max(0.18, 1 - i * 0.07).toFixed(2);
-      return `<p class="${e.c}" style="opacity:${opacity}">${e.m}</p>`;
-    }).join('');
+  /* ---------------- the log ---------------- */
+
+  /** Gap between lines that arrive together, in ms, so each can be read in turn. */
+  const LOG_STAGGER = 800;
+
+  /** The newest entry already drawn, when the last queued line is due, and the queued lines' timers. */
+  let logTop = null;
+  let logFreeAt = 0;
+  let logTimers = [];
+
+  /** The element for a log entry: a line of text, or a divider marking a new day. */
+  function logLine(e) {
+    if (e.c === 'day') return el('p', 'day', `<span>${e.m}</span>`);
+    return el('p', e.c, e.m);
+  }
+
+  /** Fades each line by its age, so the eye goes to the newest first. */
+  function fadeLog(box) {
+    Array.from(box.children).forEach((p, i) => {
+      p.style.opacity = Math.max(0.35, 1 - i * 0.05).toFixed(2);
+    });
+  }
+
+  /** Adds one entry to the top of the log, sliding it in. */
+  function showLine(box, e) {
+    const p = logLine(e);
+    p.classList.add('arriving');
+    box.prepend(p);
+    while (box.children.length > LOG_MAX) box.lastChild.remove();
+    fadeLog(box);
+  }
+
+  /**
+   * Draws the log, newest first. New entries are queued and added to the
+   * top one at a time, oldest first, LOG_STAGGER apart, so a burst of
+   * messages can be read in turn. `reset` redraws everything at once, as
+   * when a game is loaded.
+   */
+  G.renderLog = function (reset) {
+    const box = $('#log');
+    const known = reset ? -1 : S.log.indexOf(logTop);
+    if (known === -1) {
+      logTimers.forEach(clearTimeout);
+      logTimers = [];
+      logFreeAt = 0;
+      box.replaceChildren(...S.log.map(logLine));
+      fadeLog(box);
+    } else {
+      const now = performance.now();
+      let at = Math.max(now, logFreeAt);
+      S.log.slice(0, known).reverse().forEach((e) => {
+        if (at <= now) showLine(box, e);
+        else logTimers.push(setTimeout(() => showLine(box, e), at - now));
+        at += LOG_STAGGER;
+      });
+      logFreeAt = at;
+    }
+    logTop = S.log[0] || null;
   };
 
   /** Redraws the game screen, if a game is running. */

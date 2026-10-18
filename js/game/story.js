@@ -48,7 +48,7 @@
       art: ART.scene('wreck'),
       title: "The Captain's Cabin",
       text: [
-        'The cabin is a grotto of weed and sand. In a sea-chest, wrapped in oilcloth: a cutlass, bright still beneath its grease, and a tin of powder and ball the sea has somehow spared. The log is pulp, save for the last page:',
+        'The cabin is a grotto of weed and sand. In a sea-chest, wrapped in oilcloth: a cutlass, bright still beneath its grease, and a tin of powder and ball the sea has somehow spared. The ship\'s log has rotted to pulp, all but the last page:',
         quote('Fever among the men. I have moved the sick to the cave beneath the north headland, where it is dry. The boy Hollis will not come. He says the island is watching us.'),
         gainLine(`You take the cutlass and ${gain({ shot: 2 })}.`),
       ],
@@ -65,7 +65,7 @@
       art: ART.scene('wreck'),
       title: 'The Hold',
       text: [
-        "The hold is half full of sand and black water. Your hands find barrel hoops, bolts of canvas — some still sound — and a carpenter's chest, its tools rusted but whole: adze, auger, mallet, and a book of ship's lines.",
+        "The hold is half full of sand and black water. Your hands find barrel hoops, bolts of canvas — some still sound — and a carpenter's chest, its tools rusted but whole: axe, drill, mallet, and a book of ship's plans.",
         'With tools like these, you could build something that floats. Something to carry you over the horizon.',
         gainLine(`You take ${gain({ iron: 6, cloth: 4, timber: 2 })}.`),
       ],
@@ -93,7 +93,7 @@
       text: [
         'You lift the book gently. The bones do not object. The ink is brown and the hand unsteady.',
         quote('April 2nd. Buried Mr Tewkes. That makes six.'),
-        quote('April 19th. The boy Hollis says the whalers pass the north headland when the trades turn — he has seen their topsails from the high rock. I have not the strength to climb. If any man reads this: light a fire upon the summit. A great fire.'),
+        quote('April 19th. The boy Hollis says the whaling ships pass the north headland when the trade winds turn — he has seen their topsails from the high rock. I have not the strength to climb. If any man reads this: light a fire upon the summit. A great fire.'),
         quote('The boy has not come back. I pray he lives. I pray he does not.'),
         gainLine(`Beside the body, a powder horn: ${gain({ shot: 3 })}.`),
       ],
@@ -145,7 +145,7 @@
       title: 'Thomas Hollis',
       text: [
         'He eats like a starving dog, then weeps like a child. His name is Thomas Hollis. He was cabin boy on the <i>Calliope</i>, fourteen years old when she struck. He buried the others one by one, until there was no one left to bury him.',
-        quote('"The ships," he says. "I\'ve seen \'em, from the high rock, when the trades turn. I lit fires. They never came. Too small, my fires." He looks at you. "Two of us could make a bigger one."'),
+        quote('"The ships," he says. "I\'ve seen \'em, from the high rock, when the trade winds turn. I lit fires. They never came. Too small, my fires." He looks at you. "Two of us could make a bigger one."'),
         gainLine(`He gives you ${gain({ hide: 3, rope: 4 })}, and shows you the way to the summit.`),
       ],
       choices: [leave('walk back together', 'Hollis comes back to the beach with you. He does not say much, but he works, and he keeps the fire.', 'lore')],

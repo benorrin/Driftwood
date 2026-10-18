@@ -57,13 +57,14 @@
     step();
   }
 
-  /** Begins a new game. */
+  /** Begins a new game; the first lines of the log arrive once the beach is in view. */
   function startGame() {
     replaceState(freshState());
+    enterGame();
+    log('Day 1', 'day');
     log('You wake on wet sand. The tide has reached your boots.');
     log('The <i>Meridian</i> is gone.', 'lore');
     log('It will be cold when the sun goes down. You will want a fire.');
-    enterGame();
   }
 
   /** Continues the saved game, if there is one. */
@@ -72,8 +73,8 @@
     const saved = load();
     if (!saved) return;
     replaceState(saved);
-    log('You return to the island. It has not forgotten you.');
     enterGame();
+    log('You return to the island. It has not forgotten you.');
   }
 
   /** Shows the game screen for the current state, with fresh buttons and sounds to match. */
@@ -87,7 +88,7 @@
     session.running = true;
     AU.setFire(S.fire);
     AU.setMood('calm');
-    renderLog();
+    renderLog(true);
     render();
     save();
   }
