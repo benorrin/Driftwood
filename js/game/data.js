@@ -53,6 +53,10 @@
     cutlass: ['cutlass', 'from the Calliope'],
     waterskin: ['waterskin', ''],
     journal: ["Hale's journal", ''],
+    crusoe: ['Robinson Crusoe', 'of York, Mariner'],
+    wilson: ['Wilson', 'a good listener'],
+    parcel: ['a sealed parcel', 'for Valparaíso'],
+    dollar: ['a Spanish dollar', 'of no use at all'],
   };
 
   /** Where the camp sits on the chart. */
@@ -126,6 +130,14 @@
     'The LORD on high is mightier than the noise of many waters, yea, than the mighty waves of the sea.',
     'And so it came to pass, that they escaped all safe to land.',
     'He maketh the storm a calm, so that the waves thereof are still.',
+  ];
+
+  /** Lines from Robinson Crusoe (1719), read by firelight once the book has washed up. */
+  G.CRUSOE = [
+    'It is never too late to be wise.',
+    'Thus fear of danger is ten thousand times more terrifying than danger itself.',
+    'I learned to look more upon the bright side of my condition, and less upon the dark side.',
+    'All our discontents about what we want appeared to me to spring from the want of thankfulness for what we have.',
   ];
 
   /** One of these follows "Day N." each dawn. */

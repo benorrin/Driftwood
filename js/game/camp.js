@@ -7,7 +7,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, rand, chance, pick, cap, quote, VERSES,
+    S, rand, chance, pick, cap, quote, gainLine, VERSES, CRUSOE,
     has, pay, add, gain, log, heal, damage, setFire, isNight, save,
     modal, leave, startCooldown, BTNS, cooldowns,
   } = G;
@@ -121,7 +121,8 @@
       show: () => S.items.bible && S.fire > 0 && isNight(),
       run() {
         AU.sfx('page');
-        log(`"${pick(VERSES)}"`, 'lore');
+        if (S.items.crusoe && chance(0.5)) log(`From Crusoe: "${pick(CRUSOE)}"`, 'lore');
+        else log(`"${pick(VERSES)}"`, 'lore');
         heal(1);
       },
     },
@@ -130,7 +131,7 @@
   /**
    * Combs the beach. The first few searches each turn up something new
    * (fibre, stone, the lie of the land, canvas) and the sixth finds the
-   * bottle; after that, finds are random.
+   * bottle; after that, finds are random, with now and then a happening.
    */
   function comb() {
     S.n.comb++;
@@ -151,6 +152,8 @@
       log("A rag of canvas half-buried in the sand. Somebody else's sail, once.");
     } else if (c === 6 && !S.flags.bottle) {
       bottle();
+    } else if (c > 6 && chance(0.15) && G.washedUp()) {
+      // a happening washed up with the tide
     } else {
       combRandom();
     }
