@@ -8,7 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=VT323&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/modal.css">
+<link rel="stylesheet" href="css/themes.css">
 </head>
 <body>
 <div id="defs"></div>
@@ -67,9 +71,35 @@
   </div>
 </div>
 
-<script src="js/audio.js"></script>
-<script src="js/art.js"></script>
+<!-- Plain scripts, in dependency order, so the game runs straight from file:// -->
+<script src="js/core.js"></script>
+
+<script src="js/audio/synth.js"></script>
+<script src="js/audio/ambience.js"></script>
+<script src="js/audio/music.js"></script>
+<script src="js/audio/effects.js"></script>
+
+<script src="js/art/draw.js"></script>
+<script src="js/art/nature.js"></script>
+<script src="js/art/objects.js"></script>
+<script src="js/art/camp.js"></script>
+<script src="js/art/chart.js"></script>
+<script src="js/art/scenes.js"></script>
+<script src="js/art/foes.js"></script>
+
 <script src="js/styles.js"></script>
-<script src="js/game.js"></script>
+
+<script src="js/game/util.js"></script>
+<script src="js/game/data.js"></script>
+<script src="js/game/state.js"></script>
+<script src="js/game/ui.js"></script>
+<script src="js/game/combat.js"></script>
+<script src="js/game/endings.js"></script>
+<script src="js/game/camp.js"></script>
+<script src="js/game/story.js"></script>
+<script src="js/game/locations.js"></script>
+<script src="js/game/clock.js"></script>
+<script src="js/game/render.js"></script>
+<script src="js/game/main.js"></script>
 </body>
 </html>

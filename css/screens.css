@@ -1,0 +1,164 @@
+/* Driftwood — screens and layout.
+ * The title screen, the opening, and the game's three-column layout,
+ * which folds to two columns and then one on smaller screens. */
+
+.screen {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* ---------- title ---------- */
+
+#title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 4vh;
+  animation: fadein 2.5s ease;
+}
+
+.title-art {
+  width: 100%;
+  max-width: 760px;
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.title {
+  font-size: clamp(2.6rem, 9vw, 4.6rem);
+  letter-spacing: 0.12em;
+  margin: 0.5em 0 0;
+  line-height: 1;
+}
+
+.subtitle {
+  font-style: italic;
+  margin: 0.4em 0 1.6em;
+  color: var(--faint);
+}
+
+.title-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.title-buttons .btn {
+  align-items: center;
+}
+
+.hint {
+  font-size: 0.8em;
+  font-style: italic;
+  color: var(--faint);
+}
+
+/* ---------- intro ---------- */
+
+#intro {
+  max-width: 640px;
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#intro-text p {
+  font-size: 1.15em;
+  margin: 0 0 1.1em;
+  animation: fadein 2.2s ease both;
+}
+
+#intro-text p.dateline {
+  font-family: var(--font-sc);
+  letter-spacing: 0.08em;
+}
+
+.intro-buttons {
+  margin-top: 1em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- game layout ---------- */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 20px;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+}
+
+.topbar h1 {
+  font-size: 1.6em;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+#clock {
+  font-style: italic;
+  flex: 1;
+}
+
+.toggles {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 230px;
+  grid-template-areas: "log main side";
+  gap: 28px;
+}
+
+.col-log {
+  grid-area: log;
+}
+
+.col-main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.col-side {
+  grid-area: side;
+}
+
+@media (max-width: 1060px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-areas: "main side" "log side";
+  }
+}
+
+@media (max-width: 700px) {
+  html,
+  body {
+    font-size: calc(var(--size) - 2px);
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "main" "side" "log";
+    gap: 18px;
+  }
+
+  .btn {
+    min-width: 0;
+    flex: 1 1 42%;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}

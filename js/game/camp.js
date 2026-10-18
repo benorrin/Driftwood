@@ -1,0 +1,315 @@
+/* Driftwood — the camp.
+ * The things to do on the beach, the things to make, and the raft. */
+(function () {
+  'use strict';
+
+  const G = window.DW.game;
+  const AU = window.DW.audio;
+  const ART = window.DW.art;
+  const {
+    S, rand, chance, pick, cap, quote, VERSES,
+    has, pay, add, gain, log, heal, damage, setFire, isNight, save,
+    modal, leave, startCooldown, BTNS, cooldowns,
+  } = G;
+
+  /* ---------------- camp actions ---------------- */
+
+  /**
+   * Actions on the beach. Each has a cooldown `cd` in seconds, an optional
+   * `cost`, `show()` (whether it is offered yet), an optional `enabled()`,
+   * and `run()`, which does the deed.
+   */
+  G.ACTIONS = [
+    {
+      id: 'gather', label: 'gather driftwood', cd: 5,
+      show: () => true,
+      run() {
+        const n = rand(1, 3) + (S.items.axe ? 1 : 0);
+        add('wood', n);
+        AU.sfx('gather');
+        if (!S.flags.firstWood) {
+          S.flags.firstWood = 1;
+          log('Bleached wood, light as bone. The sea gives it up grudgingly.');
+        } else {
+          log(pick([`You drag ${n} driftwood above the tide line.`, `${n} driftwood, salt-white and dry.`, `The wrack line yields ${n} driftwood.`]));
+        }
+      },
+    },
+    {
+      id: 'light', label: 'light a fire', cd: 3, cost: { wood: 3 },
+      show: () => S.fire === 0 && S.seen.wood,
+      run() {
+        AU.sfx('fire');
+        if (!S.flags.fireLit) {
+          S.flags.fireLit = 1;
+          log("You prime the pistol's pan with a pinch of powder and strike the flint over dry fronds. A spark. Another. Then smoke, and flame.", 'lore');
+          log('Light, and warmth. The night will be kinder now.');
+        }
+        setFire(2);
+      },
+    },
+    {
+      id: 'stoke', label: 'stoke the fire', cd: 4, cost: { wood: 1 },
+      show: () => S.fire > 0,
+      enabled: () => S.fire < 4,
+      run() {
+        AU.sfx('stoke');
+        setFire(S.fire + 1);
+      },
+    },
+    {
+      id: 'comb', label: 'comb the beach', cd: 8,
+      show: () => S.flags.fireLit,
+      run: comb,
+    },
+    {
+      id: 'climb', label: 'climb a palm', cd: 12,
+      show: () => S.flags.climb,
+      run() {
+        AU.sfx('gather');
+        if (chance(0.08)) {
+          AU.sfx('hurt');
+          log('A frond gives way. You fall hard onto the roots.', 'warn');
+          damage(1, 'fall');
+          return;
+        }
+        log(`From the crown of the palm: ${gain({ food: rand(1, 2), water: 1, fibre: rand(1, 2) })}.`);
+      },
+    },
+    {
+      id: 'water', label: 'fetch water', cd: 15,
+      show: () => S.flags.spring,
+      run() {
+        AU.sfx('water');
+        log(`You carry ${gain({ water: rand(3, 5) + (S.items.waterskin ? 2 : 0) })} back from the spring.`);
+      },
+    },
+    {
+      id: 'fish', label: 'spear fish', cd: 12,
+      show: () => S.items.spear,
+      run() {
+        AU.sfx('splash');
+        if (chance(0.25)) {
+          log(pick(['The fish are wiser than you today.', 'A flash of silver, and nothing on the spear.', 'You stand in the shallows until your legs go numb. Nothing.']));
+        } else {
+          log(`You wade back with ${gain({ food: rand(2, 3) })}.`);
+        }
+      },
+    },
+    {
+      id: 'fell', label: 'fell timber', cd: 10,
+      show: () => S.items.axe,
+      run() {
+        AU.sfx('chop');
+        log(`The stone axe bites slowly. ${cap(gain({ timber: rand(2, 3) }))}.`);
+      },
+    },
+    {
+      id: 'salvage', label: 'salvage the wreck', cd: 25,
+      show: () => S.flags.wreckHold,
+      run() {
+        AU.sfx('chop');
+        S.n.salvage++;
+        const got = { iron: rand(1, 2), cloth: chance(0.5) ? 1 : 0, timber: chance(0.5) ? 1 : 0 };
+        // every sixth trip turns up a little dry powder
+        if (S.n.salvage % 6 === 0) got.shot = 1;
+        log(`Out on the reef at low water, you prise loose ${gain(got)}.`);
+      },
+    },
+    {
+      id: 'read', label: 'read by firelight', cd: 45,
+      show: () => S.items.bible && S.fire > 0 && isNight(),
+      run() {
+        AU.sfx('page');
+        log(`"${pick(VERSES)}"`, 'lore');
+        heal(1);
+      },
+    },
+  ];
+
+  /**
+   * Combs the beach. The first few searches each turn up something new
+   * (fibre, stone, the lie of the land, canvas) and the sixth finds the
+   * bottle; after that, finds are random.
+   */
+  function comb() {
+    S.n.comb++;
+    const c = S.n.comb;
+    AU.sfx('comb');
+    if (c === 1) {
+      add('fibre', 3);
+      log('Dead palm fronds tangled in the wrack. Their fibres could be twisted into cord.');
+    } else if (c === 2) {
+      add('stone', 2);
+      log('Smooth grey stones, heavy in the hand. Some are flint-hard and hold an edge.');
+    } else if (c === 3) {
+      S.flags.chart = 1;
+      add('fibre', 2);
+      log('From the crest of the dune you can see the shape of the land. You draw a chart on the flyleaf of the Bible with a burnt stick.', 'lore');
+    } else if (c === 4) {
+      add('cloth', 1);
+      log("A rag of canvas half-buried in the sand. Somebody else's sail, once.");
+    } else if (c === 6 && !S.flags.bottle) {
+      bottle();
+    } else {
+      combRandom();
+    }
+  }
+
+  /** A random find from the beach. */
+  function combRandom() {
+    const roll = Math.random();
+    if (roll < 0.36) log(`You gather ${gain({ fibre: rand(2, 3) })} from the dune grass.`);
+    else if (roll < 0.58) log(`${cap(gain({ stone: rand(1, 2) }))}, worn smooth by the surf.`);
+    else if (roll < 0.76) log(`A fallen coconut: ${gain({ food: 1, water: 1 })}.`);
+    else if (roll < 0.88) log(`A crab, too slow: ${gain({ food: 1 })}.`);
+    else if (roll < 0.96) log(`A strip of canvas, washed up from somewhere: ${gain({ cloth: 1 })}.`);
+    else log(`${cap(gain({ wood: rand(2, 4) }))} — a broken spar, by the look of it.`);
+  }
+
+  /** The message in a bottle from Captain Hale, which points the way to the wreck. */
+  function bottle() {
+    S.flags.bottle = 1;
+    AU.sfx('pickup');
+    modal({
+      art: ART.scene('bottle'),
+      title: 'A Message',
+      text: [
+        'Green glass glints in the wrack. A bottle, its neck sealed with wax gone grey with age. Inside, a curl of paper.',
+        quote('To any Christian soul who finds this. The brig <i>Calliope</i>, of Liverpool, struck upon a reef off this island the 9th of March, 1826. Eleven of us came ashore. We are camped by the eastern rocks. God send a ship. — J. Hale, Master.'),
+        'Twenty years ago. You look east, toward the rocks.',
+      ],
+      choices: [leave('mark it on your chart', 'Somewhere to the east lies the wreck of the Calliope.', 'lore')],
+    });
+  }
+
+  /** Performs camp action `a`: pays its cost, starts its cooldown and runs it. */
+  G.doAction = function (a) {
+    if (a.cost && !has(a.cost)) return;
+    if (a.cost) pay(a.cost);
+    cooldowns[a.id] = performance.now() + a.cd * 1000;
+    startCooldown(BTNS.get(a.id), a.cd);
+    setTimeout(G.render, a.cd * 1000 + 30);
+    a.run();
+    G.render();
+  };
+
+  /* ---------------- making things ---------------- */
+
+  /**
+   * Things to make. Each gives resources (`gives`), a possession (`item`)
+   * or else a structure, of which at most `max` may be built.
+   */
+  G.RECIPES = [
+    {
+      id: 'rope', label: 'twist cordage', cost: { fibre: 3 }, gives: { rope: 1 },
+      show: () => S.seen.fibre,
+      msg: 'You roll palm fibre against your thigh until it becomes cord.',
+    },
+    {
+      id: 'leanto', label: 'lean-to', cost: { wood: 8, fibre: 6 }, max: 1,
+      show: () => S.flags.fireLit && S.seen.fibre,
+      msg: 'A roof of fronds over a ridge-pole. It is not much, but the dew no longer finds you.',
+    },
+    {
+      id: 'knife', label: 'stone knife', cost: { stone: 2, rope: 1 }, item: 'knife',
+      show: () => S.seen.stone && S.seen.rope,
+      msg: 'You knap a flake of stone to an edge and bind a handle. A tool. A weapon.',
+    },
+    {
+      id: 'spear', label: 'fishing spear', cost: { wood: 4, rope: 1 }, item: 'spear',
+      show: () => S.items.knife,
+      msg: 'A long straight pole, its point split four ways and spread with a wedge. For fish. Or worse.',
+    },
+    {
+      id: 'axe', label: 'stone axe', cost: { stone: 3, wood: 3, rope: 2 }, item: 'axe',
+      show: () => S.items.knife,
+      msg: 'Heavy, ugly, and it will fell a tree — eventually.',
+    },
+    {
+      id: 'catcher', label: 'rain catcher', cost: { cloth: 2, wood: 4, rope: 1 }, max: 3,
+      show: () => S.seen.cloth && S.seen.rope,
+      msg: 'Canvas stretched between two posts, sagging to a shell. When it rains, you will drink.',
+    },
+    {
+      id: 'trap', label: 'fish weir', cost: { wood: 6, rope: 2 }, max: 3,
+      show: () => S.items.knife,
+      msg: 'A crescent of stakes in the shallows. The tide brings the fish in and forgets to take them out.',
+    },
+    {
+      id: 'rack', label: 'smoking rack', cost: { timber: 4, rope: 2 }, max: 1,
+      show: () => S.seen.timber && S.built.trap,
+      msg: 'Fish split and hung over green smoke will keep. The weirs now feed you twice over.',
+    },
+    {
+      id: 'torch', label: 'torch', cost: { wood: 1, fibre: 2 }, gives: { torch: 1 },
+      show: () => S.flags.caveKnown,
+      msg: 'Fibre bound tight about a stick. It will burn an hour, perhaps.',
+    },
+    {
+      id: 'waterskin', label: 'waterskin', cost: { hide: 2, rope: 1 }, item: 'waterskin',
+      show: () => S.seen.hide,
+      msg: 'Hide sewn into a bag and sealed with fat. You can go further now.',
+    },
+    {
+      id: 'pyre', label: 'signal pyre', cost: { wood: 30, timber: 10, fibre: 10 }, max: 1,
+      show: () => S.flags.summit,
+      msg: 'You haul it all up the headland, armful by armful, and build a pyre taller than a man. Now you watch the north. And wait.',
+    },
+  ];
+
+  /** The raft, built in parts; a part with `needs` must wait for that part first. */
+  G.RAFT = [
+    {
+      id: 'hull', label: 'lash the hull', cost: { timber: 16, rope: 8 },
+      note: 'twelve logs, bound and pinned',
+      msg: 'Twelve logs, lashed and pinned with treenails. It floats. It actually floats.',
+    },
+    {
+      id: 'mast', label: 'step the mast', cost: { timber: 6, iron: 4, rope: 3 }, needs: 'hull',
+      note: 'a mast and yard, iron-banded',
+      msg: 'The mast stands. You lean on it and it does not give.',
+    },
+    {
+      id: 'sail', label: 'sew the sail', cost: { cloth: 8, rope: 4 }, needs: 'mast',
+      note: 'a square of patched canvas',
+      msg: "You sew the Calliope's canvas into a sail with a bone needle. Her ghost will carry you.",
+    },
+    {
+      id: 'casks', label: 'cooper water casks', cost: { timber: 4, iron: 6 }, needs: 'hull',
+      note: 'staves and hoops from the wreck',
+      msg: 'Two casks, tight enough. Water for a fortnight, if you are careful.',
+    },
+  ];
+
+  /**
+   * The common shape of all making: if `cost` can be paid, pays it, runs
+   * `effect`, logs `msg` and saves. Does nothing if it can't be afforded.
+   */
+  function craft(cost, msg, effect) {
+    if (!has(cost)) return;
+    pay(cost);
+    AU.sfx('craft');
+    effect();
+    log(msg);
+    save();
+  }
+
+  /** Makes recipe `rc`. */
+  G.make = function (rc) {
+    craft(rc.cost, rc.msg, () => {
+      if (rc.gives) gain(rc.gives);
+      else if (rc.item) S.items[rc.item] = 1;
+      else S.built[rc.id] = G.builtCount(rc.id) + 1;
+      if (rc.id === 'leanto') heal(2);
+      if (rc.id === 'pyre') S.n.pyreDays = 0;
+    });
+  };
+
+  /** Builds raft part `p`. */
+  G.buildRaft = function (p) {
+    craft(p.cost, p.msg, () => {
+      S.raft[p.id] = 1;
+    });
+  };
+})();

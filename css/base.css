@@ -1,0 +1,144 @@
+/* Driftwood — base styles.
+ * Colours, type, and the shared controls. Every colour derives from two
+ * variables, --ink and --paper, which the visual styles swap. */
+
+:root {
+  --ink: #1c1915;
+  --paper: #f2ede1;
+  --faint: color-mix(in srgb, var(--ink) 55%, var(--paper));
+  --rule: color-mix(in srgb, var(--ink) 25%, var(--paper));
+  --shade: color-mix(in srgb, var(--ink) 16%, transparent);
+  --font: 'IM Fell English', Georgia, 'Times New Roman', serif;
+  --font-sc: 'IM Fell English SC', 'IM Fell English', Georgia, serif;
+  --size: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--size);
+  line-height: 1.45;
+}
+
+body {
+  min-height: 100vh;
+}
+
+/* the engraving style's paper darkens toward the edges, like an old page */
+html[data-style="engraving"] body {
+  background-image: radial-gradient(ellipse at center, rgba(242, 237, 225, 0) 55%, rgba(120, 104, 76, 0.18) 100%);
+  background-attachment: fixed;
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* headings set in small capitals */
+.title,
+.topbar h1,
+.section h3,
+.col-side h3,
+#modal-title {
+  font-family: var(--font-sc);
+  font-weight: normal;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---------- buttons ---------- */
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 11em;
+  margin: 0 8px 8px 0;
+  padding: 0.3em 0.8em 0.35em;
+  border: 1px solid var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn:hover:not(:disabled),
+.btn:focus-visible:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+  outline: none;
+}
+
+.btn:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.btn.cooling:disabled {
+  opacity: 0.75;
+}
+
+.btn .cost {
+  font-size: 0.72em;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* the cooldown: a shade that sweeps out of the button */
+.btn .cd {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--shade);
+  pointer-events: none;
+}
+
+.btn.cooling .cd {
+  animation-name: cooldown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes cooldown {
+  from { width: 100%; }
+  to { width: 0; }
+}
+
+.link {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  font-style: italic;
+  color: var(--faint);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+}
+
+.link:hover {
+  color: var(--ink);
+}
