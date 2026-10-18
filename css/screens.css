@@ -48,6 +48,11 @@
   max-width: 640px;
 }
 
+.title-links {
+  display: flex;
+  gap: 1em;
+}
+
 .title-buttons .btn {
   align-items: center;
   white-space: nowrap;

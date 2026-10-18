@@ -196,6 +196,7 @@
   /** Updates the music and sound toggles' labels. */
   function syncToggles() {
     $('#tgl-music').textContent = `music: ${AU.music() ? 'on' : 'off'}`;
+    $('#tgl-music-title').textContent = `music: ${AU.music() ? 'on' : 'off'}`;
     $('#tgl-sfx').textContent = `sound: ${AU.sound() ? 'on' : 'off'}`;
   }
 
@@ -214,7 +215,8 @@
     $('#btn-style-title').onclick = openStyles;
     $('#btn-help').onclick = openHelp;
     $('#btn-restart').onclick = restart;
-    $('#tgl-music').onclick = () => {
+    $('#tgl-music').onclick = $('#tgl-music-title').onclick = () => {
+      AU.init();
       AU.toggleMusic();
       syncToggles();
     };
@@ -236,7 +238,12 @@
       }
     });
 
+    // Start the music on the title screen. Browsers that allow sound before the
+    // player has interacted will play it at once; the rest start it at the
+    // first click, tap or key press.
+    AU.init();
     document.addEventListener('pointerdown', () => AU.init(), { once: true });
+    document.addEventListener('keydown', () => AU.init(), { once: true });
     window.addEventListener('beforeunload', save);
     syncToggles();
     setInterval(tick, 1000);
