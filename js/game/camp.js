@@ -130,8 +130,9 @@
 
   /**
    * Combs the beach. The first few searches each turn up something new
-   * (fibre, stone, the lie of the land, canvas) and the sixth finds the
-   * bottle; after that, finds are random, with now and then a happening.
+   * (fibre, stone, the lie of the land, canvas). From the sixth on, once
+   * the grove is on the map, the next finds the bottle; otherwise finds are
+   * random, with now and then a happening.
    */
   function comb() {
     S.n.comb++;
@@ -148,7 +149,7 @@
     } else if (c === 4) {
       add('cloth', 1);
       log("A rag of canvas half-buried in the sand. Somebody else's sail, once.");
-    } else if (c === 6 && !S.flags.bottle) {
+    } else if (c >= 6 && !S.flags.bottle && S.mapped.grove) {
       bottle();
     } else if (c > 6 && chance(0.15) && G.washedUp()) {
       // a happening washed up with the tide

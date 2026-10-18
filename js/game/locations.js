@@ -347,13 +347,13 @@
 
   /**
    * Whether place `id` can be found yet, by exploring or by sighting it: the
-   * grove from the start, the wreck once the bottle has told of it, and the
-   * rest once the wreck is on the map.
+   * grove from the start, the wreck once the grove is found and the bottle
+   * has told of it, and the rest once the wreck is on the map.
    */
   function canFind(id) {
     if (S.mapped[id] || !LOCS[id].sighted) return false;
     if (id === 'grove') return true;
-    if (id === 'wreck') return !!S.flags.bottle;
+    if (id === 'wreck') return !!(S.mapped.grove && S.flags.bottle);
     return !!S.mapped.wreck;
   }
 
