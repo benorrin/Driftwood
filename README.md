@@ -10,7 +10,11 @@
 </p>
 
 <p align="center">
-  <a href="#playing">Play</a> ·
+  <strong><a href="https://benorrin.github.io/Driftwood/">Play it in your browser</a></strong>
+</p>
+
+<p align="center">
+  <a href="#playing">Run locally</a> ·
   <a href="#the-story">Story</a> ·
   <a href="#features">Features</a> ·
   <a href="#visual-styles">Visual styles</a> ·
@@ -33,7 +37,7 @@ Gather driftwood. Keep the fire alive. Explore the island and learn what happene
 
 ## Playing
 
-Open **`index.html`** in a browser. That's all you need: there's no build step and no server, and it runs straight from `file://`.
+Play online at **[benorrin.github.io/Driftwood](https://benorrin.github.io/Driftwood/)**, or run it locally: open **`index.html`** in a browser. That's all you need: there's no build step and no server, and it runs straight from `file://`.
 
 ```bash
 git clone git@github.com:benorrin/Driftwood.git
@@ -41,21 +45,21 @@ cd Driftwood
 xdg-open index.html        # macOS: open index.html
 ```
 
-- 🔊 Sound starts on your first click, because browsers block autoplay. Music and effects have separate toggles.
-- 💾 Progress saves automatically to your browser's `localStorage`.
-- 🌐 To host it, publish the folder as-is on any static host (GitHub Pages, Netlify, …).
-- 📱 The layout adapts to phones.
+- Sound starts on your first click, because browsers block autoplay. Music and effects have separate toggles.
+- Progress saves automatically to your browser's `localStorage`.
+- To host it yourself, publish the folder as-is on any static host (GitHub Pages, Netlify, …).
+- The layout adapts to phones.
 
 ## Features
 
 |   |   |
 |---|---|
-| 🔥 **Survival** | A day/night cycle, a fire to feed, and hunger and thirst every dawn. Nights without a fire are cold, and something prowls beyond the light. |
-| 🪓 **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish weirs and a smoking rack. |
-| 🗺️ **Exploration** | A hand-drawn chart with eight places to find: a palm grove, tide pools, a spring, the jungle, a cave, a wreck on the reef, a hut, and the summit. |
-| ⚔️ **Combat** | Real-time fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball. |
-| 📜 **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
-| ⛵ **Endings** | Build a raft and brave the open sea, or light a signal pyre and pray a ship sees it. |
+| **Survival** | A day/night cycle, a fire to feed, and hunger and thirst every dawn. Nights without a fire are cold, and something prowls beyond the light. |
+| **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish weirs and a smoking rack. |
+| **Exploration** | A hand-drawn chart with eight places to find: a palm grove, tide pools, a spring, the jungle, a cave, a wreck on the reef, a hut, and the summit. |
+| **Combat** | Real-time fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball. |
+| **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
+| **Endings** | Build a raft and brave the open sea, or light a signal pyre and pray a ship sees it. |
 
 <p align="center">
   <img src="docs/chart.svg" alt="An old-style chart of the island with a compass rose and labelled locations" width="720">
