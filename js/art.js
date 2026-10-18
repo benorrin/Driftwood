@@ -6,8 +6,9 @@
   'use strict';
 
   const ART = (window.DWArt = {});
-  const INK = '#1c1915';
-  const PAPER = '#f2ede1';
+  let INK = '#1c1915';
+  let PAPER = '#f2ede1';
+  let defsHost = null;
   let uidN = 0;
   const uid = (p) => `${p}${++uidN}`;
   const f = (v) => Math.round(v * 10) / 10;
@@ -23,7 +24,7 @@
     };
   }
 
-  const DEFS = `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  const defs = () => `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
 <pattern id="h1" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><line x1="0" y1="0" x2="0" y2="5" stroke="${INK}" stroke-width="0.6"/></pattern>
 <pattern id="h2" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><line x1="0" y1="0" x2="0" y2="3.2" stroke="${INK}" stroke-width="0.9"/></pattern>
 <pattern id="h3" width="2.3" height="2.3" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><line x1="0" y1="0" x2="0" y2="2.3" stroke="${INK}" stroke-width="1.15"/></pattern>
@@ -37,7 +38,17 @@
 <radialGradient id="glow"><stop offset="0" stop-color="#000"/><stop offset="0.55" stop-color="#000"/><stop offset="1" stop-color="#fff"/></radialGradient>
 </defs></svg>`;
 
-  ART.install = function (host) { host.innerHTML = DEFS; };
+  ART.install = function (host) {
+    defsHost = host;
+    host.innerHTML = defs();
+  };
+
+  // recolour all future drawings; patterns are rebuilt since they bake in the ink
+  ART.setPalette = function (ink, paper) {
+    INK = ink;
+    PAPER = paper;
+    if (defsHost) defsHost.innerHTML = defs();
+  };
 
   function svg(w, h, body, top, label) {
     return `<svg class="art" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${label || ''}">` +

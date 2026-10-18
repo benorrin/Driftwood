@@ -1,9 +1,12 @@
 :root {
   --ink: #1c1915;
   --paper: #f2ede1;
-  --faint: #7d7566;
-  --rule: #cbc2ae;
-  --shade: rgba(28, 25, 21, 0.16);
+  --faint: color-mix(in srgb, var(--ink) 55%, var(--paper));
+  --rule: color-mix(in srgb, var(--ink) 25%, var(--paper));
+  --shade: color-mix(in srgb, var(--ink) 16%, transparent);
+  --font: 'IM Fell English', Georgia, 'Times New Roman', serif;
+  --font-sc: 'IM Fell English SC', 'IM Fell English', Georgia, serif;
+  --size: 18px;
 }
 
 * { box-sizing: border-box; }
@@ -13,13 +16,13 @@ html, body {
   min-height: 100%;
   background: var(--paper);
   color: var(--ink);
-  font-family: 'IM Fell English', Georgia, 'Times New Roman', serif;
-  font-size: 18px;
+  font-family: var(--font);
+  font-size: var(--size);
   line-height: 1.45;
 }
 
-body {
-  min-height: 100vh;
+body { min-height: 100vh; }
+html[data-style="engraving"] body {
   background-image: radial-gradient(ellipse at center, rgba(242, 237, 225, 0) 55%, rgba(120, 104, 76, 0.18) 100%);
   background-attachment: fixed;
 }
@@ -89,7 +92,7 @@ button { font: inherit; color: inherit; }
 }
 .title-art { width: 100%; max-width: 760px; border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 4px; }
 .title {
-  font-family: 'IM Fell English SC', 'IM Fell English', Georgia, serif;
+  font-family: var(--font-sc);
   font-weight: normal;
   font-size: clamp(2.6rem, 9vw, 4.6rem);
   letter-spacing: 0.12em;
@@ -109,7 +112,7 @@ button { font: inherit; color: inherit; }
   justify-content: center;
 }
 #intro-text p { font-size: 1.15em; margin: 0 0 1.1em; animation: fadein 2.2s ease both; }
-#intro-text p.dateline { font-family: 'IM Fell English SC', Georgia, serif; letter-spacing: 0.08em; }
+#intro-text p.dateline { font-family: var(--font-sc); letter-spacing: 0.08em; }
 .intro-buttons { margin-top: 1em; display: flex; align-items: center; gap: 12px; }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
@@ -124,7 +127,7 @@ button { font: inherit; color: inherit; }
   margin-bottom: 16px;
 }
 .topbar h1 {
-  font-family: 'IM Fell English SC', Georgia, serif;
+  font-family: var(--font-sc);
   font-weight: normal;
   font-size: 1.6em;
   letter-spacing: 0.1em;
@@ -147,7 +150,7 @@ button { font: inherit; color: inherit; }
   .layout { grid-template-columns: minmax(0, 1fr) 220px; grid-template-areas: "main side" "log side"; }
 }
 @media (max-width: 700px) {
-  html, body { font-size: 16px; }
+  html, body { font-size: calc(var(--size) - 2px); }
   .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "main" "side" "log"; gap: 18px; }
   .btn { min-width: 0; flex: 1 1 42%; }
   .btn-row { display: flex; flex-wrap: wrap; }
@@ -184,7 +187,7 @@ svg.art { display: block; width: 100%; height: auto; }
   border-bottom: none;
   padding: 4px 14px;
   cursor: pointer;
-  font-family: 'IM Fell English SC', Georgia, serif;
+  font-family: var(--font-sc);
   letter-spacing: 0.05em;
   margin-bottom: -1px;
 }
@@ -192,7 +195,7 @@ svg.art { display: block; width: 100%; height: auto; }
 #tabs button.new::after { content: ' \2726'; font-size: 0.7em; }
 
 .section h3 {
-  font-family: 'IM Fell English SC', Georgia, serif;
+  font-family: var(--font-sc);
   font-weight: normal;
   font-size: 1em;
   letter-spacing: 0.08em;
@@ -204,7 +207,7 @@ svg.art { display: block; width: 100%; height: auto; }
 
 /* ---------- side ---------- */
 .col-side h3 {
-  font-family: 'IM Fell English SC', Georgia, serif;
+  font-family: var(--font-sc);
   font-weight: normal;
   font-size: 1em;
   letter-spacing: 0.08em;
@@ -237,7 +240,7 @@ svg.art { display: block; width: 100%; height: auto; }
   justify-content: center;
   padding: 4vh 12px;
   overflow-y: auto;
-  background: rgba(242, 237, 225, 0.88);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
   animation: fadein 0.4s ease;
 }
 .modal-card {
@@ -246,7 +249,7 @@ svg.art { display: block; width: 100%; height: auto; }
   background: var(--paper);
   border: 3px double var(--ink);
   padding: 18px 22px 12px;
-  box-shadow: 0 10px 40px rgba(28, 25, 21, 0.25);
+  box-shadow: 0 10px 40px color-mix(in srgb, var(--ink) 25%, transparent);
 }
 #modal-art:empty { display: none; }
 #modal-art { border: 1px solid var(--ink); margin-bottom: 12px; }
@@ -255,7 +258,7 @@ svg.art { display: block; width: 100%; height: auto; }
 @keyframes hit { 50% { filter: invert(1); } }
 @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 #modal-title {
-  font-family: 'IM Fell English SC', Georgia, serif;
+  font-family: var(--font-sc);
   font-weight: normal;
   letter-spacing: 0.06em;
   margin: 0 0 6px;
@@ -274,5 +277,53 @@ svg.art { display: block; width: 100%; height: auto; }
 .combat .bar span { font-style: italic; font-size: 0.9em; }
 .combat .ctext { min-height: 1.5em; font-style: italic; margin: 6px 0 4px; }
 .combat .moves { display: flex; flex-wrap: wrap; }
-#modal-body p.dateline { text-align: center; font-family: 'IM Fell English SC', Georgia, serif; letter-spacing: 0.2em; margin-top: 1.2em; }
+#modal-body p.dateline { text-align: center; font-family: var(--font-sc); letter-spacing: 0.2em; margin-top: 1.2em; }
 
+/* ---------- visual styles ---------- */
+svg.art text { font-family: var(--font); }
+
+/* CRT monitors: scanlines, a soft phosphor glow, a gentle curvature shadow */
+html[data-fx="crt"] body { text-shadow: 0 0 5px color-mix(in srgb, var(--ink) 55%, transparent); }
+html[data-fx="crt"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+}
+html[data-fx="crt"] svg.art { filter: drop-shadow(0 0 1.5px color-mix(in srgb, var(--ink) 60%, transparent)); }
+html[data-fx="crt"] .btn .cost, html[data-fx="crt"] .link { font-style: normal; }
+
+/* Classic Macintosh: rounded buttons with a hard shadow, square windows */
+html[data-fx="mac"] .btn { border-radius: 6px; box-shadow: 2px 2px 0 var(--ink); }
+html[data-fx="mac"] .btn:active:not(:disabled) { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+html[data-fx="mac"] .modal-card { border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+html[data-fx="mac"] #modal-title {
+  text-align: center;
+  background: repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 3px);
+}
+html[data-fx="mac"] #modal-title span { background: var(--paper); padding: 0 10px; }
+
+/* LCD: a faint pixel grid */
+html[data-fx="lcd"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to right, color-mix(in srgb, var(--paper) 70%, transparent) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(to bottom, color-mix(in srgb, var(--paper) 70%, transparent) 0 1px, transparent 1px 3px);
+  opacity: 0.35;
+}
+
+.styles { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.styles .btn { margin: 0; min-width: 0; }
+.styles .btn.on { outline: 2px solid var(--ink); outline-offset: 2px; }
+.swatch { display: flex; gap: 4px; margin-top: 4px; }
+.swatch i { width: 18px; height: 12px; border: 1px solid currentColor; }
+html[data-mono] h1, html[data-mono] h2, html[data-mono] h3, html[data-mono] #tabs button { text-transform: uppercase; }
+html[data-mono] #modal-body p.quote, html[data-mono] #log p.lore { font-style: normal; }

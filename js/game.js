@@ -944,7 +944,7 @@
   function modal(o) {
     $('#modal').classList.remove('hidden');
     $('#modal-art').innerHTML = o.art || '';
-    $('#modal-title').textContent = o.title || '';
+    $('#modal-title').innerHTML = o.title ? `<span>${o.title}</span>` : '';
     $('#modal-body').innerHTML = (o.text || []).map((p) => (p.startsWith('<p') ? p : `<p>${p}</p>`)).join('');
     const c = $('#modal-choices');
     c.innerHTML = '';
@@ -1250,6 +1250,38 @@
     save();
   }
 
+  /* ---------------- visual styles ---------------- */
+
+  const STY = window.DWStyles;
+
+  function openStyles() {
+    modal({
+      art: ART.camp({ night: false, fire: 3, leanto: 1, catcher: 1, trap: 1 }),
+      title: 'Visual Style',
+      text: ['Choose how the island is drawn. The change takes effect at once.'],
+      choices: [{ label: 'done', fn: closeModal }],
+    });
+    const grid = el('div', 'styles');
+    STY.list.forEach((st) => {
+      const b = el('button', `btn${st.id === STY.current ? ' on' : ''}`,
+        `<span>${st.name}</span><span class="cost">${st.desc}</span>` +
+        `<span class="swatch"><i style="background:${st.paper}"></i><i style="background:${st.ink}"></i></span>`);
+      b.setAttribute('aria-pressed', st.id === STY.current);
+      b.onclick = () => {
+        sfx('click');
+        STY.apply(st.id);
+        $('#title-art').innerHTML = ART.scene('title');
+        sceneKey = '';
+        render();
+        openStyles();
+        const on = $('.styles .btn.on');
+        if (on) on.focus({ preventScroll: true });
+      };
+      grid.appendChild(b);
+    });
+    $('#modal-choices').prepend(grid);
+  }
+
   function syncToggles() {
     $('#tgl-music').textContent = `music: ${AU.music() ? 'on' : 'off'}`;
     $('#tgl-sfx').textContent = `sound: ${AU.sound() ? 'on' : 'off'}`;
@@ -1280,6 +1312,8 @@
       log('You return to the island. It has not forgotten you.');
       enterGame();
     };
+    $('#btn-style').onclick = openStyles;
+    $('#btn-style-title').onclick = openStyles;
     $('#tgl-music').onclick = () => { AU.toggleMusic(); syncToggles(); };
     $('#tgl-sfx').onclick = () => { AU.toggleSfx(); syncToggles(); };
     $('#btn-restart').onclick = () => modal({
