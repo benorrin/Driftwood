@@ -66,8 +66,8 @@
   border-left: 2px solid var(--rule);
 }
 
+/* upright, as in the stores: the italic w makes "water" read as "mater" */
 #modal-body p.gain {
-  font-style: italic;
   color: var(--faint);
 }
 
