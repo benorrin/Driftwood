@@ -11,7 +11,7 @@
   const ART = window.DW.art;
   const {
     S, rand, chance, pick, quote, gainLine, RES,
-    add, gain, log, damage, setFire, maxHealth, isNight, modal, leave, closeModal, fight,
+    add, gain, log, damage, setFire, maxHealth, isNight, modal, queueModal, notice, leave, closeModal, fight,
   } = G;
 
   /**
@@ -48,9 +48,15 @@
 
   /* ---------------- the storm ---------------- */
 
-  /** The least number of days between storms, and the first day one can come. */
-  const STORM_GAP = 6;
-  const FIRST_STORM = 4;
+  /**
+   * Storms: the first day one can come, the least number of days between
+   * them, the chance of one on any afternoon that may have one, and the day
+   * by which the first is sure to have come.
+   */
+  const FIRST_STORM = 3;
+  const STORM_GAP = 4;
+  const STORM_CHANCE = 0.3;
+  const SURE_STORM = 5;
 
   /** Stores the sea and the wind can take; water, iron and powder are kept safe. */
   const STORM_STORES = ['food', 'wood', 'fibre', 'rope', 'stone', 'timber', 'cloth', 'hide', 'gum', 'torch'];
@@ -109,7 +115,7 @@
   function storm() {
     S.n.lastStorm = S.day;
     AU.sfx('hurt');
-    modal({
+    queueModal({
       art: ART.scene('tempest'),
       title: 'A Storm',
       text: [
@@ -129,6 +135,12 @@
       ],
     });
   }
+
+  /** Each afternoon, a storm may come in: never too early or too soon after the last, and the first by day SURE_STORM. */
+  G.stormCheck = function () {
+    if (S.day < FIRST_STORM || (S.n.lastStorm && S.day - S.n.lastStorm < STORM_GAP)) return;
+    if (chance(STORM_CHANCE) || (!S.n.lastStorm && S.day >= SURE_STORM)) storm();
+  };
 
   /* ---------------- the light in the sea ---------------- */
 
@@ -153,18 +165,20 @@
 
   /** The carved figure brings ill luck to whoever keeps it. */
   function curse() {
+    /** A misfortune, told on a card of its own. */
+    const ill = (text, cost) => notice('Ill Luck', [text, gainLine(cost)], 'Ill luck dogs you while you keep the carved figure.', ART.scene('beach'));
     const ills = [() => log('You turned the little figure to face the wall last night. This morning it is facing you.', 'lore')];
     if (S.fire > 0) ills.push(() => {
       setFire(S.fire - 1, true);
-      log('A gust from nowhere, on a still day, flattens the fire.', 'warn');
+      ill('A gust from nowhere, on a still day, flattens the fire.', 'The fire burns down.');
     });
     if (S.res.food > 0) ills.push(() => {
       add('food', -1);
-      log('The fish you put by yesterday is crawling with maggots.', 'warn');
+      ill('The fish you put by yesterday is crawling with maggots.', 'You lose 1 provisions.');
     });
     if (S.health > 3) ills.push(() => {
       damage(1, 'fever');
-      log('You dream of drowning, and wake on the tide line with no memory of walking there, your hands torn and bleeding.', 'warn');
+      ill('You dream of drowning, and wake on the tide line with no memory of walking there, your hands torn and bleeding.', 'You lose 1 health.');
     });
     pick(ills)();
   }
@@ -179,11 +193,6 @@
 
   /** Things that happen around the camp, now and then, as the days go by. */
   const AT_CAMP = [
-    {
-      id: 'storm', weight: 0.6,
-      when: () => S.day >= FIRST_STORM && S.day - (S.n.lastStorm || 0) >= STORM_GAP && !isNight(),
-      run: storm,
-    },
     {
       id: 'glow', limit: 1,
       when: () => isNight() && S.day >= 3,
@@ -376,7 +385,8 @@
         },
         onFlee: () => {
           add('food', -2);
-          log('When you creep back, the gulls have had two of your provisions.', 'warn');
+          notice('The Gulls', ['You run for cover with your arms over your head. When you creep back, the gulls have had their fill.', gainLine('You lose 2 provisions.')],
+            'The gulls had two of your provisions.', ART.foe('gulls'));
         },
       }),
     },
@@ -392,7 +402,8 @@
         },
         onFlee: () => {
           add('food', -3);
-          log('By the time the boar goes back to the hills, it has eaten three of your provisions.', 'warn');
+          notice('The Boar', ['You scramble up a palm and cling there in the dark while the boar roots through your stores. At last it goes back to the hills.', gainLine('You lose 3 provisions.')],
+            'A boar ate three of your provisions.', ART.scene('night'));
         },
       }),
     },
@@ -408,7 +419,8 @@
         },
         onFlee: () => {
           add('food', -1);
-          log('The crab makes off with a provision.', 'warn');
+          notice('The Crab', ['You back off into the dark, and the crab drags its prize away into the dunes.', gainLine('You lose 1 provisions.')],
+            'A crab made off with a provision.', ART.scene('night'));
         },
       }),
     },
@@ -417,7 +429,8 @@
       when: () => !G.armed() && S.res.food > 3,
       run() {
         add('food', -1);
-        log('A gull swoops on your stores and makes off with a strip of dried fish. You throw a stone after it, and miss.', 'warn');
+        notice('A Thief', ['A gull swoops on your stores and makes off with a strip of dried fish. You throw a stone after it, and miss.', gainLine('You lose 1 provisions.')],
+          'A gull stole a provision.', ART.scene('beach'));
       },
     },
     {

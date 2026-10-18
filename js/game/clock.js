@@ -11,17 +11,20 @@
   const ART = window.DW.art;
   const {
     S, chance, pick, DAWNS, NIGHTFALLS, DAY_LEN, NIGHT_AT, FIRE_DECAY, TRADE_WINDS_DAY,
-    add, log, heal, damage, setFire, save, session, modal, modalOpen, closeModal, rescueEnding,
+    gainLine, add, log, heal, damage, setFire, save, session, queueModal, notice, modalOpen, closeModal, rescueEnding,
   } = G;
 
   /** How often, in ticks, something may happen around the camp, and the chance it does. */
   const EVENT_EVERY = 30;
   const EVENT_CHANCE = 0.3;
 
+  /** The hour of the afternoon at which a storm may come in. */
+  const STORM_AT = 45;
+
   /** What runs short each dawn, and how its lack is felt. */
   const NEEDS = [
-    ['water', 'Your tongue is thick with thirst.'],
-    ['food', 'Hunger gnaws at you.'],
+    ['water', 'Your tongue is thick with thirst. There is no fresh water left.'],
+    ['food', 'Hunger gnaws at you. There is nothing left to eat.'],
   ];
 
   /**
@@ -33,12 +36,14 @@
     AU.sfx('bell');
     let hurt = 0;
     const lack = [];
+    let short = '';
     NEEDS.forEach(([k, msg]) => {
       if (S.res[k] > 0) {
         S.res[k]--;
       } else {
         hurt += 2;
         lack.push(msg);
+        short = k;
       }
     });
     log(`Day ${S.day}`, 'day');
@@ -49,10 +54,14 @@
     } else {
       log(pick(DAWNS));
     }
-    lack.forEach((m) => log(m, 'warn'));
     if (hurt) damage(hurt, 'thirst');
     else heal(S.built.leanto ? 2 : 1);
     if (S.ended) return;
+    if (hurt) {
+      const title = lack.length > 1 ? 'Hunger and Thirst' : short === 'water' ? 'Thirst' : 'Hunger';
+      notice(title, lack.concat(gainLine(`You lose ${hurt} health. Find food and water before another dawn.`)),
+        lack.length > 1 ? 'You woke hungry and parched.' : lack[0], ART.scene('beach'));
+    }
 
     if (S.day >= TRADE_WINDS_DAY && !S.flags.trades) {
       S.flags.trades = 1;
@@ -71,15 +80,18 @@
    */
   function nightfall() {
     log(pick(NIGHTFALLS));
+    const text = [];
+    const lines = [];
     if (S.fire === 0) {
       if (!S.built.leanto) {
-        log('The cold finds you in the dark.', 'warn');
         damage(1, 'cold');
+        if (S.ended) return;
+        text.push('There is no fire, and no shelter. The cold finds you in the dark, and you lie shaking until dawn.', gainLine('You lose 1 health. Keep a fire burning at night, or build a lean-to.'));
+        lines.push('The cold found you in the dark.');
       } else {
         log('You huddle under the lean-to. The night is long without a fire.');
       }
     }
-    if (S.ended) return;
 
     if (S.flags.footprints && !S.flags.hollisDone) {
       if (S.fire >= 3) {
@@ -87,15 +99,18 @@
       } else if (S.res.food > 0) {
         const n = Math.max(1, Math.ceil(S.res.food * 0.25));
         S.res.food -= n;
-        log(`Something has been at your stores in the night. ${n} provisions gone.`, 'warn');
+        text.push('You wake to a rustle in the dark, and by the time you are on your feet it has gone. Something has been at your stores.',
+          gainLine(`${n} provisions gone. A big fire, burning all night, might keep it off.`));
+        lines.push(`Something took ${n} provisions in the night.`);
       }
     }
+    if (text.length) notice('In the Night', text, lines.join(' '), ART.scene('night'));
   }
 
   /** A ship on the horizon: light the pyre, or let her pass. */
   function sailSighted() {
     AU.sfx('sail');
-    modal({
+    queueModal({
       art: ART.scene('summit', { ship: 1, pyre: 1 }),
       title: 'A Sail!',
       text: [
@@ -160,6 +175,7 @@
       });
     }
     if (S.day > 1) every('event', EVENT_EVERY, () => chance(EVENT_CHANCE) && G.happening());
+    if (S.t === STORM_AT) G.stormCheck();
     if (S.t === NIGHT_AT) nightfall();
     if (S.t >= DAY_LEN) {
       S.t = 0;

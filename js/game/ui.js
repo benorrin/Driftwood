@@ -51,12 +51,33 @@
   /** Whether a notice (the modal card) is open. The clock stands still while one is. */
   G.modalOpen = () => !$('#modal').classList.contains('hidden');
 
-  /** Closes the modal, calms the music, saves and redraws. */
+  /** Cards waiting for the one on screen to be closed. */
+  const waiting = [];
+
+  /** Opens card `o` (as for `modal`), or, if a card is already open, shows it once that one closes. */
+  G.queueModal = function (o) {
+    if (G.modalOpen()) waiting.push(o);
+    else G.modal(o);
+  };
+
+  /** Forgets any waiting cards, as when a game ends or another begins. */
+  G.clearQueue = () => {
+    waiting.length = 0;
+  };
+
+  /**
+   * A card telling of a setback: `title`, paragraphs of `text`, and optional
+   * `art`. Reading it logs `line` as a warning, so the log keeps a record.
+   */
+  G.notice = (title, text, line, art) => G.queueModal({ art, title, text, choices: [G.leave('go on', line, 'warn')] });
+
+  /** Closes the modal, calms the music, saves and redraws, then shows the next waiting card, if any. */
   G.closeModal = function () {
     $('#modal').classList.add('hidden');
     AU.setMood('calm');
     save();
     G.render();
+    if (waiting.length) G.modal(waiting.shift());
   };
 
   /** A modal choice that closes the card, first logging `line` (with class `cls`) if given. */

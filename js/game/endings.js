@@ -23,6 +23,7 @@
   /** Marks the game over, deletes the save, and sets the music to `mood`. */
   function endGame(mood) {
     S.ended = true;
+    G.clearQueue();
     clearSave();
     AU.setMood(mood);
     AU.setFire(0);

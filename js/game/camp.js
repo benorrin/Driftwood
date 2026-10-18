@@ -69,8 +69,11 @@
         AU.sfx('gather');
         if (chance(0.08)) {
           AU.sfx('hurt');
-          log('A frond gives way. You fall hard onto the roots.', 'warn');
           damage(1, 'fall');
+          if (!S.ended) {
+            G.notice('A Fall', ['Halfway up, a frond gives way in your hand, and you fall the height of a man onto the roots.', gainLine('You lose 1 health.')],
+              'You fell from a palm.', ART.scene('grove'));
+          }
           return;
         }
         log(`From the crown of the palm: ${gain({ food: rand(1, 2), water: 1, fibre: rand(1, 2) })}.`);

@@ -79,6 +79,7 @@
 
   /** Shows the game screen for the current state, with fresh buttons and sounds to match. */
   function enterGame() {
+    G.clearQueue();
     view.tab = 'beach';
     view.seenTabs = { beach: true, chart: !!S.flags.chart, raft: !!S.flags.raftPlans };
     view.sceneKey = '';
