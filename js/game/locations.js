@@ -418,17 +418,17 @@
    * The chance that exploring finds a new place: FIRST_FIND for the first,
    * less by FIND_DROP for each place already on the map, but never below MIN_FIND.
    */
-  const FIRST_FIND = 0.4;
+  const FIRST_FIND = 0.45;
   const FIND_DROP = 0.03;
-  const MIN_FIND = 0.15;
+  const MIN_FIND = 0.2;
 
   /**
    * The chance that a fruitless trip brings back a clue to a place that can
    * be found, and how much likelier the clue makes the next trip, which
    * finds that place first.
    */
-  const CLUE_CHANCE = 0.5;
-  const CLUE_BONUS = 0.2;
+  const CLUE_CHANCE = 0.6;
+  const CLUE_BONUS = 0.25;
 
   /** Why no trip can be made just now, or null: at night, there must be a torch to light the way. */
   G.darkness = () => (isNight() && !S.res.torch ? 'too dark to go without a torch' : null);
@@ -505,6 +505,22 @@
   /** Whether place `id` can be found yet, by exploring or by sighting it. */
   const canFind = (id) => !S.mapped[id] && !!LOCS[id].findable && !!LOCS[id].findable();
 
+  /** The places that exploring could find just now. */
+  const findable = () => Object.keys(LOCS).filter(canFind);
+
+  /** Whether there is anything left to find just now. */
+  G.somethingToFind = () => findable().length > 0;
+
+  /** When there is nothing left to find yet, a nudge toward what will open up the island. */
+  function nextLead() {
+    if (!S.flags.bottle) return 'You have walked every path within reach of camp, and found all there is to find. Perhaps the tide line has more to give: keep combing the beach.';
+    if (!S.flags.wreckCabin) return "The wreck of Hale's ship lies out on the reef. Her cabin may tell you more of this island.";
+    if (S.mapped.spring && !S.flags.spring) return 'Whatever waits at the spring stands between you and the hills beyond it.';
+    if (!S.flags.raftPlans && !S.flags.summit) return "The <i>Calliope</i>'s hold is still unsearched.";
+    if (S.mapped.cave && !S.items.journal) return 'The dead in the cave beneath the north headland may have something to tell you.';
+    return 'You have walked every path you can find. For now, the island has shown you all it will.';
+  }
+
   /** The chance that a trip exploring finds a new place. */
   const findChance = () => Math.max(MIN_FIND, FIRST_FIND - FIND_DROP * Object.values(S.mapped).filter(Boolean).length);
 
@@ -561,9 +577,19 @@
       log(`You lack the supplies to go exploring: ${costText(cost)}.`);
       return;
     }
+    if (!findable().length) {
+      // say so before any supplies are spent, and point the way on
+      modal({
+        art: G.mapArt(),
+        title: 'Exploring',
+        text: [nextLead(), gainLine('There is nothing new to find until then, though you could still go out and forage.')],
+        choices: [{ label: 'go out anyway', cost, fn: forage }, leave('stay in camp')],
+      });
+      return;
+    }
     const how = isNight() ? 'You set out by torchlight' : 'You set out with your map';
     journey('Exploring', G.mapArt(), `${how}, into the parts of the island it does not show…`, cost, SCOUT_TIME, () => {
-      const found = Object.keys(LOCS).filter(canFind);
+      const found = findable();
       if (!found.includes(S.clue)) S.clue = null;
       if (found.length && chance(findChance() + (S.clue ? CLUE_BONUS : 0))) {
         discover(S.clue || pick(found));
@@ -576,6 +602,12 @@
       }
     });
   };
+
+  /** A trip out with nothing new to find: only what turns up along the way. */
+  function forage() {
+    // the choice has already paid for the trip, so the journey pays nothing more
+    journey('Exploring', G.mapArt(), 'You set out to forage along the paths you know…', {}, SCOUT_TIME, G.wander);
+  }
 
   G.SCOUT_COST = SCOUT_COST;
 })();

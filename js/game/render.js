@@ -50,7 +50,8 @@
     const sec = section('chart', 'The Island', 'Explore to find new places, or choose a destination on your map. Every trip costs supplies, and at night a torch as well.');
     const dark = darkness();
     const scoutCost = tripCost(SCOUT_COST);
-    const explore = button('scout', 'explore the island', dark || costText(scoutCost), !dark && has(scoutCost), scout, dark || 'Search for places not yet on your map');
+    const sub = dark || costText(scoutCost) + (G.somethingToFind() ? '' : ' · nothing new to find yet');
+    const explore = button('scout', 'explore the island', sub, !dark && has(scoutCost), scout, dark || 'Search for places not yet on your map');
     fill(sec.querySelector('.btn-row'), [explore].concat(knownLocs().map((l) => {
       const L = LOCS[l.id];
       const why = blockedReason(L);
