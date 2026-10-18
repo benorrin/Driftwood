@@ -211,6 +211,11 @@
       run: () => log('You doze by the fire and dream of Bristol: rain on slate roofs, the bakers in Broad Street, your mother at the door. You wake with wet cheeks.', 'lore'),
     },
     {
+      id: 'groan', limit: 2,
+      when: () => isNight() && S.flags.wreckCabin && !S.visits.blowhole,
+      run: () => log('From somewhere along the shore comes a long, low groan, like something breathing. Then silence. You do not sleep for a long time.', 'lore'),
+    },
+    {
       id: 'seafire', limit: 2,
       when: isNight,
       run: () => log('Every breaking wave glows green tonight, as if lit from beneath. The old hands called it the sea-fire.'),

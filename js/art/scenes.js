@@ -272,6 +272,103 @@
       return framed(b, 'The view from the summit');
     },
 
+    /** A still lagoon behind the reef, with an old outrigger canoe drawn up on the sand. */
+    lagoon() {
+      const r = rng(131);
+      let b = seascape(r, 90, 130) + birds(r, 260, 50, 3, 60);
+      b += P('M0 128 Q150 122 300 130 T600 126', null, 1, 'stroke-dasharray="2 4"');
+      b += ground('M0 140 C200 132 400 146 600 138', 'url(#dots)', 1);
+      b += `<ellipse cx="300" cy="176" rx="250" ry="26" fill="url(#hh)" stroke="${pal.ink}" stroke-width="1.2"/>` +
+        `<ellipse cx="250" cy="172" rx="90" ry="6" fill="none" stroke="${pal.paper}" stroke-width="1.6"/>`;
+      b += palm(r, 50, 206, 150, 12) + palm(r, 556, 210, 140, -16);
+      // the canoe: hull, outrigger float and booms, and a carved face on the prow
+      b += P('M196 214 Q300 228 404 214 L412 202 Q300 218 190 204Z', 'url(#h3)', 1.3);
+      b += P('M220 196 L224 186 M300 202 L302 186 M380 196 L376 186', null, 2) + P('M206 184 Q300 180 394 184', null, 3);
+      b += circle(414, 200, 6, pal.paper, 1.2) + circle(412, 199, 1.2, pal.ink) + circle(417, 199, 1.2, pal.ink) + P('M411 203 q3 2 6 0', null, 1);
+      b += tufts(r, 0, 600, 232, 10);
+      return framed(b, 'An old outrigger canoe beside a lagoon');
+    },
+
+    /** The ruins of a sealers' camp: a fallen hut, a rusted try-pot and a cross. */
+    sealers() {
+      const r = rng(141);
+      let b = seascape(r, 110, 160);
+      b += ground('M0 160 C150 150 350 168 600 156', pal.paper, 1.1);
+      b += rock(r, 560, 214, 130, 54);
+      b += P('M110 214 L168 124 L236 216 M140 176 L262 204', null, 3);
+      b += P('M150 140 L250 170 L236 196 L130 168Z', 'url(#h2)', 1.2);
+      b += P('M320 192 Q320 226 352 226 Q384 226 384 192Z', 'url(#h3)', 1.4) +
+        `<ellipse cx="352" cy="192" rx="32" ry="6" fill="${pal.paper}" stroke="${pal.ink}" stroke-width="1.2"/>`;
+      b += P('M450 216 V156 M434 172 H466', null, 3.4);
+      b += tufts(r, 0, 600, 226, 12);
+      return framed(b, "The ruins of a sealers' camp");
+    },
+
+    /** Sea cliffs white with birds, a figurehead wedged high in the rock. */
+    cliffs() {
+      const r = rng(151);
+      let b = seascape(r, 120, SH);
+      b += P('M320 240 L334 126 Q356 60 420 40 L600 28 L600 240Z', 'url(#h2)', 1.6);
+      b += P('M354 120 h70 M362 160 h120 M346 200 h150 M420 80 h90', null, 2, `stroke="${pal.paper}"`);
+      // the figurehead: a carved woman, head bowed, arms crossed, her base lodged in a crack
+      b += P('M474 128 L470 90 Q472 78 486 76 Q500 78 502 90 L498 128Z', pal.paper, 1.3) +
+        circle(486, 66, 9, pal.paper, 1.3) + P('M477 62 q9 -12 18 0 q2 14 -4 20', 'url(#h3)', 0.8) +
+        P('M474 98 L498 92 M498 100 L474 94', null, 1.6) + P('M466 128 h40', null, 2.4);
+      b += birds(r, 260, 60, 9, 220) + birds(r, 470, 120, 6, 120);
+      b += rock(r, 300, 236, 220, 36);
+      return framed(b, 'Sea cliffs crowded with birds');
+    },
+
+    /** A stand of tall pale trees, their trunks scored and weeping gum. */
+    gumwood() {
+      const r = rng(161);
+      let b = backdrop('url(#h1)');
+      b += ground('M0 210 C200 200 400 216 600 206', pal.paper, 1);
+      [70, 170, 300, 430, 530].forEach((x, i) => {
+        const w = i === 2 ? 22 : 14;
+        b += P(`M${x - w} 214 Q${x - w * 0.6} 100 ${x - w * 0.3} 0 L${x + w * 0.3} 0 Q${x + w * 0.6} 100 ${x + w} 214Z`, pal.paper, 1.4);
+      });
+      // herringbone tapping cuts on the great trunk, each with a bead of gum beneath
+      let cuts = '';
+      for (let y = 70; y < 190; y += 18) cuts += `M288 ${y}L300 ${y + 9}L312 ${y}`;
+      b += P(cuts, null, 1.4) + P('M300 194 v6', null, 3) + circle(300, 202, 3, pal.ink);
+      b += circle(176, 120, 2.4, pal.ink) + circle(432, 150, 2.4, pal.ink);
+      b += tufts(r, 0, 600, 228, 14);
+      return framed(b, 'Tall trees weeping gum');
+    },
+
+    /** A blowhole in a shelf of black rock, throwing up a plume of spray. */
+    blowhole() {
+      const r = rng(171);
+      let b = seascape(r, 90, SH);
+      b += P('M0 168 Q150 150 300 166 Q450 150 600 172 L600 240 L0 240Z', 'url(#h2)', 1.6);
+      b += `<ellipse cx="300" cy="168" rx="26" ry="6" fill="${pal.ink}"/>`;
+      b += P('M288 166 Q268 96 236 54 Q290 70 298 26 Q308 70 362 50 Q330 96 312 166Z', pal.paper, 1.2);
+      b += P('M296 160 L284 70 M304 160 L318 70 M300 160 V40', null, 0.6, 'stroke-dasharray="6 5"');
+      for (let i = 0; i < 18; i++) b += circle(f(220 + r() * 160), f(20 + r() * 50), f(1 + r() * 2), pal.paper, 0.8);
+      return framed(b, 'A blowhole throwing up spray');
+    },
+
+    /** An old stepped platform of fitted stones, upright slabs along its top, half swallowed by jungle. */
+    platform() {
+      const r = rng(181);
+      let b = backdrop('url(#h1)');
+      b += ground('M0 214 C200 206 400 220 600 210', pal.paper, 1);
+      for (let k = 0; k < 3; k++) {
+        const w = 460 - k * 110;
+        const x = 300 - w / 2;
+        const y = 214 - (k + 1) * 26;
+        let joints = '';
+        for (let jx = x + 20 + r() * 20; jx < x + w - 10; jx += 26 + r() * 20) joints += `M${f(jx)} ${y}v26`;
+        b += P(`M${x} ${y}h${w}v26h${-w}Z`, pal.paper, 1.4) + P(joints, null, 0.8);
+      }
+      [214, 262, 314, 366].forEach((x) => {
+        b += P(`M${x} 136 l4 -54 l20 0 l4 54Z`, 'url(#h3)', 1.2);
+      });
+      for (let i = 0; i < 6; i++) b += leaf(i < 3 ? 10 + i * 30 : 500 + (i - 3) * 34, 220, 70 + r() * 20, i < 3 ? -50 : -130, 0.25);
+      return framed(b, 'An old stone platform in the jungle');
+    },
+
     /** The finished raft under sail on the open sea. */
     raft() {
       const r = rng(111);

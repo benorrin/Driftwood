@@ -56,7 +56,7 @@ xdg-open index.html        # macOS: open index.html
 |---|---|
 | **Survival** | A day/night cycle, a fire to feed, and hunger and thirst every dawn. Nights without a fire are cold, and something prowls beyond the light. |
 | **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish traps and a smoking rack. |
-| **Exploration** | A makeshift map drawn on a page torn from your Bible, with eight places to find and draw on it: a palm grove, tide pools, a spring, the jungle, a cave, a wreck on the reef, a hut, and the summit. Some you must go exploring to find, some you spot from other places, and the story leads you to the rest. |
+| **Exploration** | A makeshift map drawn on a page torn from your Bible, with fourteen places to find and draw on it: a palm grove, a lagoon, a wreck on the reef, tide pools, a spring, a sealers' camp, bird cliffs, a gum wood, a blowhole, the jungle, an old stone platform, a cave, a hut, and the summit. Each turns up only once the story gives you reason to look; you may find it exploring, follow a clue to it, or spot it from somewhere else. |
 | **Combat** | Turn-based fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball, and watch for the moment to brace against a heavy blow. |
 | **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
 | **Happenings** | Sails that pass you by, things the tide brings in, and stranger finds inland. Some are nods to other castaways. |

@@ -36,12 +36,13 @@
     cloth: 'sailcloth',
     iron: 'iron nails',
     hide: 'boar hide',
+    gum: 'tree gum',
     torch: 'torch',
     shot: 'powder & shot',
   };
 
   /** The order resources are listed in the stores. */
-  G.RES_ORDER = ['water', 'food', 'wood', 'fibre', 'rope', 'stone', 'timber', 'cloth', 'iron', 'hide', 'torch', 'shot'];
+  G.RES_ORDER = ['water', 'food', 'wood', 'fibre', 'rope', 'stone', 'timber', 'cloth', 'iron', 'hide', 'gum', 'torch', 'shot'];
 
   /** Possessions: [name, note shown beside it]. */
   G.ITEMS = {
