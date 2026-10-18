@@ -44,21 +44,19 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  max-width: 640px;
 }
 
 .title-buttons .btn {
   align-items: center;
+  white-space: nowrap;
 }
 
 .hint {
   font-size: 0.8em;
   font-style: italic;
   color: var(--faint);
-}
-
-.title-links {
-  display: flex;
-  gap: 1em;
 }
 
 /* ---------- intro ---------- */
