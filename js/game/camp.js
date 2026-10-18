@@ -31,7 +31,7 @@
           S.flags.firstWood = 1;
           log('Bleached wood, light as bone. The sea gives it up grudgingly.');
         } else {
-          log(pick([`You drag ${n} driftwood above the tide line.`, `${n} driftwood, salt-white and dry.`, `The wrack line yields ${n} driftwood.`]));
+          log(pick([`You drag ${n} driftwood above the tide line.`, `${n} driftwood, salt-white and dry.`, `The tide line yields ${n} driftwood.`]));
         }
       },
     },
@@ -113,7 +113,7 @@
         const got = { iron: rand(1, 2), cloth: chance(0.5) ? 1 : 0, timber: chance(0.5) ? 1 : 0 };
         // every sixth trip turns up a little dry powder
         if (S.n.salvage % 6 === 0) got.shot = 1;
-        log(`Out on the reef at low water, you prise loose ${gain(got)}.`);
+        log(`Out on the reef at low water, you pry loose ${gain(got)}.`);
       },
     },
     {
@@ -138,14 +138,14 @@
     AU.sfx('comb');
     if (c === 1) {
       add('fibre', 3);
-      log('Dead palm fronds tangled in the wrack. Their fibres could be twisted into cord.');
+      log('Dead palm fronds tangled in the seaweed at the tide line. Their fibres could be twisted into rope.');
     } else if (c === 2) {
       add('stone', 2);
       log('Smooth grey stones, heavy in the hand. Some are flint-hard and hold an edge.');
     } else if (c === 3) {
       S.flags.chart = 1;
       add('fibre', 2);
-      log('From the crest of the dune you can see the shape of the land. You draw a chart on the flyleaf of the Bible with a burnt stick.', 'lore');
+      log('From the crest of the dune you can see the shape of the land. You draw a chart on the blank page inside the Bible\'s cover with a burnt stick.', 'lore');
     } else if (c === 4) {
       add('cloth', 1);
       log("A rag of canvas half-buried in the sand. Somebody else's sail, once.");
@@ -175,7 +175,7 @@
       art: ART.scene('bottle'),
       title: 'A Message',
       text: [
-        'Green glass glints in the wrack. A bottle, its neck sealed with wax gone grey with age. Inside, a curl of paper.',
+        'Something glints at the water\'s edge: a bottle of green glass, washed ashore on the morning tide. Its neck is sealed with wax gone grey with age. Inside, a curl of paper.',
         quote('To any Christian soul who finds this. The brig <i>Calliope</i>, of Liverpool, struck upon a reef off this island the 9th of March, 1826. Eleven of us came ashore. We are camped by the eastern rocks. God send a ship. — J. Hale, Master.'),
         'Twenty years ago. You look east, toward the rocks.',
       ],
@@ -202,9 +202,9 @@
    */
   G.RECIPES = [
     {
-      id: 'rope', label: 'twist cordage', cost: { fibre: 3 }, gives: { rope: 1 },
+      id: 'rope', label: 'twist rope', cost: { fibre: 3 }, gives: { rope: 1 },
       show: () => S.seen.fibre,
-      msg: 'You roll palm fibre against your thigh until it becomes cord.',
+      msg: 'You roll palm fibre against your thigh until it becomes rope.',
     },
     {
       id: 'leanto', label: 'lean-to', cost: { wood: 8, fibre: 6 }, max: 1,
@@ -214,7 +214,7 @@
     {
       id: 'knife', label: 'stone knife', cost: { stone: 2, rope: 1 }, item: 'knife',
       show: () => S.seen.stone && S.seen.rope,
-      msg: 'You knap a flake of stone to an edge and bind a handle. A tool. A weapon.',
+      msg: 'You chip a flake of stone to a sharp edge and bind on a handle. A tool. A weapon.',
     },
     {
       id: 'spear', label: 'fishing spear', cost: { wood: 4, rope: 1 }, item: 'spear',
@@ -232,14 +232,14 @@
       msg: 'Canvas stretched between two posts, sagging to a shell. When it rains, you will drink.',
     },
     {
-      id: 'trap', label: 'fish weir', cost: { wood: 6, rope: 2 }, max: 3,
+      id: 'trap', label: 'fish trap', cost: { wood: 6, rope: 2 }, max: 3,
       show: () => S.items.knife,
       msg: 'A crescent of stakes in the shallows. The tide brings the fish in and forgets to take them out.',
     },
     {
       id: 'rack', label: 'smoking rack', cost: { timber: 4, rope: 2 }, max: 1,
       show: () => S.seen.timber && S.built.trap,
-      msg: 'Fish split and hung over green smoke will keep. The weirs now feed you twice over.',
+      msg: 'Fish split and hung over a smoky fire will keep for weeks. The fish traps now feed you twice over.',
     },
     {
       id: 'torch', label: 'torch', cost: { wood: 1, fibre: 2 }, gives: { torch: 1 },
@@ -263,10 +263,10 @@
     {
       id: 'hull', label: 'lash the hull', cost: { timber: 16, rope: 8 },
       note: 'twelve logs, bound and pinned',
-      msg: 'Twelve logs, lashed and pinned with treenails. It floats. It actually floats.',
+      msg: 'Twelve logs, lashed with rope and pinned with wooden pegs. It floats. It actually floats.',
     },
     {
-      id: 'mast', label: 'step the mast', cost: { timber: 6, iron: 4, rope: 3 }, needs: 'hull',
+      id: 'mast', label: 'raise the mast', cost: { timber: 6, iron: 4, rope: 3 }, needs: 'hull',
       note: 'a mast and yard, iron-banded',
       msg: 'The mast stands. You lean on it and it does not give.',
     },
@@ -276,7 +276,7 @@
       msg: "You sew the Calliope's canvas into a sail with a bone needle. Her ghost will carry you.",
     },
     {
-      id: 'casks', label: 'cooper water casks', cost: { timber: 4, iron: 6 }, needs: 'hull',
+      id: 'casks', label: 'build water casks', cost: { timber: 4, iron: 6 }, needs: 'hull',
       note: 'staves and hoops from the wreck',
       msg: 'Two casks, tight enough. Water for a fortnight, if you are careful.',
     },

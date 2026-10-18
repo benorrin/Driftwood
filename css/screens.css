@@ -84,6 +84,17 @@
   gap: 12px;
 }
 
+/* ---------- credit ---------- */
+
+.credit {
+  padding: 8px 16px 20px;
+  text-align: center;
+  font-size: 0.8em;
+  font-style: italic;
+  color: var(--faint);
+  animation: fadein 2.5s ease;
+}
+
 /* ---------- game layout ---------- */
 
 .topbar {

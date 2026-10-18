@@ -48,6 +48,9 @@
     if (first) first.focus({ preventScroll: true });
   };
 
+  /** Whether a notice (the modal card) is open. The clock stands still while one is. */
+  G.modalOpen = () => !$('#modal').classList.contains('hidden');
+
   /** Closes the modal, calms the music, saves and redraws. */
   G.closeModal = function () {
     $('#modal').classList.add('hidden');

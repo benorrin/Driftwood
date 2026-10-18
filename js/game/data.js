@@ -30,7 +30,7 @@
     food: 'provisions',
     wood: 'driftwood',
     fibre: 'palm fibre',
-    rope: 'cordage',
+    rope: 'rope',
     stone: 'stone',
     timber: 'timber',
     cloth: 'sailcloth',
@@ -46,7 +46,7 @@
   /** Possessions: [name, note shown beside it]. */
   G.ITEMS = {
     pistol: ['flintlock pistol', 'one ball, one choice'],
-    bible: ["the ship's Bible", 'its flyleaf a chart'],
+    bible: ["the ship's Bible", 'a chart inside its cover'],
     knife: ['stone knife', ''],
     spear: ['fishing spear', ''],
     axe: ['stone axe', ''],

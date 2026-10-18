@@ -55,7 +55,7 @@ xdg-open index.html        # macOS: open index.html
 |   |   |
 |---|---|
 | **Survival** | A day/night cycle, a fire to feed, and hunger and thirst every dawn. Nights without a fire are cold, and something prowls beyond the light. |
-| **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish weirs and a smoking rack. |
+| **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish traps and a smoking rack. |
 | **Exploration** | A hand-drawn chart with eight places to find: a palm grove, tide pools, a spring, the jungle, a cave, a wreck on the reef, a hut, and the summit. |
 | **Combat** | Real-time fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball. |
 | **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
@@ -108,7 +108,7 @@ The only external dependencies are three fonts from Google Fonts: [IM Fell Engli
 <br>
 
 - Keep the fire burning at night. Some things on this island are afraid of it.
-- Twist palm fibre into cordage. Almost everything needs it.
+- Twist palm fibre into rope. Almost everything needs it.
 - Read every bottle and journal you find. They tell you where to go next.
 - There is more than one way off the island, and more than one way to treat the man in the jungle.
 

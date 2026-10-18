@@ -131,7 +131,7 @@
       known: () => S.flags.bottle || S.flags.wreckSeen,
       blocked: () => {
         if (S.flags.wreckCabin && S.flags.wreckHold) return 'picked clean (salvage from camp)';
-        return (S.res.rope || 0) < 3 ? 'needs 3 cordage to cross the reef' : null;
+        return (S.res.rope || 0) < 3 ? 'needs 3 rope to cross the reef' : null;
       },
       first() {
         wreck(true);
@@ -157,7 +157,7 @@
               onWin: () => {
                 S.flags.trail = 1;
                 S.flags.footprints = 1;
-                done('jungle', 'You butcher the boar where it fell. Further on you find a trail: narrow, worn smooth, and blazed with old knife-cuts. It winds north, toward a thread of smoke above the trees.', { food: 5, hide: 2, timber: 2 }, 'Someone else lives on this island.');
+                done('jungle', 'You butcher the boar where it fell. Further on you find a trail: narrow, worn smooth, and marked by old knife-cuts in the trees. It winds north, toward a thread of smoke above the trees.', { food: 5, hide: 2, timber: 2 }, 'Someone else lives on this island.');
               },
             }),
           }],
@@ -226,7 +226,7 @@
           art: ART.scene('summit'),
           title: 'The Summit',
           text: [
-            'The climb takes the whole of the morning: thorn, scree, a chimney of crumbling rock where only the waterskin keeps you going. Then the top. The whole island beneath you, small as a hand, and all around it the sea. The great empty sea.',
+            'The climb takes the whole of the morning: thorns, loose stones, a narrow crack of crumbling rock where only the waterskin keeps you going. Then the top. The whole island beneath you, small as a hand, and all around it the sea. The great empty sea.',
             'To the north the water is darker where a current runs. A sea lane. If ships pass this island at all, they pass here — and from here, a great fire would be seen for thirty miles.',
           ],
           choices: [leave('descend', 'A signal pyre on the summit might be seen by a passing ship.', 'lore')],
