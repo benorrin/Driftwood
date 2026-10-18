@@ -152,6 +152,11 @@
       if (f.chart) s.items.map = 1;
     }
     s.events = s.events || {};
+    // the ball from the cask was once called Wilson
+    if (s.items.wilson) s.items.bristow = 1;
+    if (s.events.wilson) s.events.bristow = s.events.wilson;
+    delete s.items.wilson;
+    delete s.events.wilson;
     s.ticks.event = s.ticks.event || 0;
     return s;
   }

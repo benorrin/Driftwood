@@ -48,7 +48,7 @@
     /**
      * The beach, with a palm, a rock and a piece of flotsam. `opts.ship`
      * puts a sail on the horizon and the castaway on the sand watching it;
-     * `opts.ball` adds a leather ball with a face in a bloody handprint.
+     * `opts.ball` adds a leather ball with a face drawn on in charcoal.
      */
     beach(opts) {
       opts = opts || {};
@@ -62,7 +62,6 @@
       if (opts.ball) {
         b += circle(380, 196, 22, pal.paper, 1.4) +
           P('M380 174 q-10 22 0 44 M380 174 q10 22 0 44', null, 0.6) +
-          P('M366 190 q14 -14 28 0 q4 14 -6 22 q-8 6 -16 0 q-10 -8 -6 -22Z', 'url(#h1)', 0.8) +
           circle(374, 192, 2.4, pal.ink) + circle(386, 192, 2.4, pal.ink) +
           P('M373 203 q7 6 14 0', null, 1.4);
       }

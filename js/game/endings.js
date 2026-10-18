@@ -33,10 +33,10 @@
     const lines = [];
     if (S.flags.ally) lines.push('Tom Hollis stands at the rail long after the island has sunk from sight. You do not disturb him.');
     if (S.flags.killedHollis) lines.push('You never speak of the man in the jungle. But you count the notches, some nights, when you cannot sleep.');
-    if (S.items.wilson) {
+    if (S.items.bristow) {
       lines.push(S.flags.sailing
-        ? 'Somewhere in the storm, Wilson went over the side. You still say sorry to him, some nights.'
-        : 'Wilson comes aboard with you. The whalermen think you mad, and they are not altogether wrong.');
+        ? 'Somewhere in the storm, Bristow went over the side. You still say sorry to him, some nights.'
+        : 'Bristow comes aboard with you. The whalermen think you mad, and they are not altogether wrong.');
     }
     if (S.flags.buried) lines.push('Captain Hale\'s journal you send to his widow in Liverpool, if she still lives. You never learn whether it reaches her.');
     lines.push('In Valparaíso, months later, you give your testimony before the British consul. The <i>Meridian</i> was captured off Callao, and Mr Crane was hanged. You are asked if you have anything to add. You think of the surf, the fire, the long nights. "No," you say. "Nothing."');

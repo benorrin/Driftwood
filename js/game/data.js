@@ -56,7 +56,7 @@
     waterskin: ['waterskin', ''],
     journal: ["Hale's journal", ''],
     crusoe: ['Robinson Crusoe', 'of York, Mariner'],
-    wilson: ['Wilson', 'a good listener'],
+    bristow: ['Bristow', 'a good listener'],
     parcel: ['a sealed parcel', 'for Valparaíso'],
     dollar: ['a Spanish dollar', 'of no use at all'],
   };

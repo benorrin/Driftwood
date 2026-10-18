@@ -71,21 +71,20 @@
       },
     },
     {
-      id: 'wilson', limit: 1,
+      id: 'bristow', limit: 1,
       when: () => S.day >= 2,
       run() {
         beachCard('Flotsam', [
-          'A small cask has come ashore, its staves stamped <i>WILSON &amp; SONS, CHANDLERS, BRISTOL</i>. Inside is nothing but damp straw — and a leather ball, stitched like a cricket ball but big as a man\'s head.',
-          'You cut your palm on the hoops getting it out.',
-        ], [
+          'A small cask has come ashore, its staves stamped <i>BRISTOW &amp; SONS, CHANDLERS, BRISTOL</i>. Inside is nothing but damp straw — and a leather ball, stitched like a cricket ball but big as a man\'s head.',
+                  ], [
           {
             label: 'give it a face',
             fn: () => {
-              S.items.wilson = 1;
-              beachCard('Wilson', [
-                'Without quite meaning to, you press your bloody hand to the leather. Then, with one finger, you give the print two eyes, a nose, and a mouth.',
+              S.items.bristow = 1;
+              beachCard('Bristow', [
+                'Without quite meaning to, you take a stick of charcoal from the fire and give the ball two eyes, a nose, and a crooked smile.',
                 'You name him after the cask. It is good to have someone to talk to.',
-              ], [leave('take him back to camp', 'Wilson sits by the fire now. He is a good listener.', 'lore')], { ball: 1 });
+              ], [leave('take him back to camp', 'Bristow sits by the fire now. He is a good listener.', 'lore')], { ball: 1 });
             },
           },
           {
@@ -226,13 +225,13 @@
       run: () => log('A star falls into the sea to the west. You make a wish, and feel foolish, and make it again.'),
     },
     {
-      id: 'wilsonTalk', weight: 0.5,
-      when: () => S.items.wilson,
+      id: 'bristowTalk', weight: 0.5,
+      when: () => S.items.bristow,
       run: () => log(pick([
-        'You tell Wilson about your day. He takes it well.',
-        'You and Wilson disagree about the weather. You win.',
-        "Wilson's face has faded in the sun. You touch it up.",
-        'You ask Wilson what he thinks of your chances. He keeps his own counsel.',
+        'You tell Bristow about your day. He takes it well.',
+        'You and Bristow disagree about the weather. You win.',
+        "Bristow's face has faded in the sun. You touch it up.",
+        'You ask Bristow what he thinks of your chances. He keeps his own counsel.',
       ])),
     },
     {
@@ -250,7 +249,7 @@
   G.happening = () => happen(AT_CAMP);
 
   /** Things the tide brings in, found while combing the beach. Returns whether one turned up. */
-  G.washedUp = () => happen(AT_CAMP.filter((e) => ['wilson', 'parcel', 'crusoe', 'boot', 'turtle'].includes(e.id)));
+  G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'parcel', 'crusoe', 'boot', 'turtle'].includes(e.id)));
 
   /* ---------------- while exploring ---------------- */
 
