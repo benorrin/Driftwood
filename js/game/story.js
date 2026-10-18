@@ -103,7 +103,8 @@
       title: "Hale's Journal",
       text: [
         'You lift the book gently. The bones do not object. The ink is brown and the hand unsteady.',
-        quote('April 2nd. Buried Mr Tewkes. That makes six.'),
+        quote('April 2nd. Buried Mr Tewkes beside Mr Price, above the tide line. That makes two.'),
+        quote('April 11th. Seven of us lie sick in the cave now, and none has the strength to dig. God forgive us, we lay the dead in a row and cover their faces.'),
         quote('April 19th. The boy Hollis says the whaling ships pass the north headland when the trade winds turn — he has seen their topsails from the high rock. I have not the strength to climb. If any man reads this: light a fire upon the summit. A great fire.'),
         quote('The boy has not come back. I pray he lives. I pray he does not.'),
         gainLine(`Beside the body, a powder horn: ${gain({ shot: 3 })}.`),
@@ -155,7 +156,8 @@
       art: ART.foe('hollis'),
       title: 'Thomas Hollis',
       text: [
-        'He eats like a starving dog, then weeps like a child. His name is Thomas Hollis. He was cabin boy on the <i>Calliope</i>, fourteen years old when she struck. He buried the others one by one, until there was no one left to bury him.',
+        'He eats like a starving dog, then weeps like a child. His name is Thomas Hollis. He was cabin boy on the <i>Calliope</i>, fourteen years old when she struck. He dug the first two graves himself, with his hands. When the fever came and the captain moved the sick into the cave, Tom would not go in with them, and he never went back. Twenty years, and he does not know how it ended.',
+        ...(S.flags.buried ? ['You tell him that you have buried them, all of them, above the tide line. He is quiet for a long while. "Thank you," he says at last.'] : []),
         quote('"The ships," he says. "I\'ve seen \'em, from the high rock, when the trade winds turn. I lit fires. They never came. Too small, my fires." He looks at you. "Two of us could make a bigger one."'),
         gainLine(`He gives you ${gain({ hide: 3, rope: 4 })}, and shows you the way to the summit.`),
       ],

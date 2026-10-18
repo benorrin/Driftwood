@@ -212,7 +212,7 @@
           title: 'The Cave',
           text: [
             'The cave mouth breathes cold air. Your torch throws shadows up the walls, and above you something shifts and squeaks — then the bats come, a thousand of them, pouring past your head into the daylight.',
-            'Deeper in, where the floor is dry, eight shapes lie in a row beneath rotted blankets. A ninth sits apart against the wall, a book in its lap.',
+            'Deeper in, where the floor is dry, seven shapes lie in a row beneath rotted blankets. An eighth sits apart against the wall, a book in its lap.',
           ],
           choices: [{ label: 'take the book', fn: journal }],
         });
