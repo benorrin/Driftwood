@@ -10,7 +10,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, chance, pick, DAWNS, NIGHTFALLS, DAY_LEN, NIGHT_AT, FIRE_DECAY,
+    S, chance, pick, DAWNS, NIGHTFALLS, DAY_LEN, NIGHT_AT, FIRE_DECAY, TRADE_WINDS_DAY,
     add, log, heal, damage, setFire, save, session, modal, modalOpen, closeModal, rescueEnding,
   } = G;
 
@@ -26,7 +26,8 @@
 
   /**
    * Daybreak: eat and drink (or suffer for the lack), heal a little, and,
-   * with the pyre built, watch for a sail; the longer the wait, the likelier.
+   * with the pyre built and the trade winds turned, watch for a sail; the
+   * longer the wait, the likelier.
    */
   function dawn() {
     AU.sfx('bell');
@@ -53,9 +54,13 @@
     else heal(S.built.leanto ? 2 : 1);
     if (S.ended) return;
 
-    if (S.built.pyre && !S.flags.sailing) {
+    if (S.day >= TRADE_WINDS_DAY && !S.flags.trades) {
+      S.flags.trades = 1;
+      log('The wind has gone round into the south-east in the night, steady and warm. The trade winds have turned.', 'lore');
+    }
+    if (S.built.pyre && S.flags.trades && !S.flags.sailing) {
       S.n.pyreDays++;
-      if (chance(0.15 + S.n.pyreDays * 0.15)) sailSighted();
+      if (chance(0.1 + S.n.pyreDays * 0.06)) sailSighted();
     }
   }
 

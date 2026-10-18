@@ -271,31 +271,31 @@
       msg: 'Hide sewn into a bag and sealed with fat. You can go further now.',
     },
     {
-      id: 'pyre', label: 'signal pyre', cost: { wood: 30, timber: 10, fibre: 10 }, max: 1,
+      id: 'pyre', label: 'signal pyre', cost: { wood: 40, timber: 15, fibre: 15, gum: 6 }, max: 1,
       show: () => S.flags.summit,
-      msg: 'You haul it all up the headland, armful by armful, and build a pyre taller than a man. Now you watch the north. And wait.',
+      msg: 'You haul it all up the headland, armful by armful, and build a pyre taller than a man, its heart packed with gum for a black smoke. Now you watch the north, and wait for the trade winds to turn.',
     },
   ];
 
   /** The raft, built in parts; a part with `needs` must wait for that part first. */
   G.RAFT = [
     {
-      id: 'hull', label: 'lash the hull', cost: { timber: 16, rope: 8 },
-      note: 'twelve logs, bound and pinned',
-      msg: 'Twelve logs, lashed with rope and pinned with wooden pegs. It floats. It actually floats.',
+      id: 'hull', label: 'lash the hull', cost: { timber: 20, rope: 10, gum: 6 },
+      note: 'twelve logs, bound, pinned and caulked',
+      msg: 'Twelve logs, lashed with rope, pinned with wooden pegs, and every seam paid with gum. It floats. It actually floats.',
     },
     {
-      id: 'mast', label: 'raise the mast', cost: { timber: 6, iron: 4, rope: 3 }, needs: 'hull',
+      id: 'mast', label: 'raise the mast', cost: { timber: 8, iron: 5, rope: 4 }, needs: 'hull',
       note: 'a mast and yard, iron-banded',
       msg: 'The mast stands. You lean on it and it does not give.',
     },
     {
-      id: 'sail', label: 'sew the sail', cost: { cloth: 8, rope: 4 }, needs: 'mast',
+      id: 'sail', label: 'sew the sail', cost: { cloth: 10, rope: 5 }, needs: 'mast',
       note: 'a square of patched canvas',
       msg: "You sew the Calliope's canvas into a sail with a bone needle. Her ghost will carry you.",
     },
     {
-      id: 'casks', label: 'build water casks', cost: { timber: 4, iron: 6 }, needs: 'hull',
+      id: 'casks', label: 'build water casks', cost: { timber: 5, iron: 8 }, needs: 'hull',
       note: 'staves and hoops from the wreck',
       msg: 'Two casks, tight enough. Water for a fortnight, if you are careful.',
     },

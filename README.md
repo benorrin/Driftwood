@@ -60,7 +60,7 @@ xdg-open index.html        # macOS: open index.html
 | **Combat** | Turn-based fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball, and watch for the moment to brace against a heavy blow. |
 | **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
 | **Happenings** | Sails that pass you by, things the tide brings in, and stranger finds inland. Some are nods to other castaways. |
-| **Endings** | Build a raft and brave the open sea, or light a signal pyre and pray a ship sees it. |
+| **Endings** | Build a raft and brave the open sea, or build a signal pyre and wait for the trade winds to bring a ship past. |
 
 <p align="center">
   <img src="docs/chart.svg" alt="An old-style chart of the island with a compass rose and labelled locations" width="720">

@@ -65,7 +65,13 @@
   G.CAMP_POS = [310, 258];
 
   /** Supplies needed to put to sea on the finished raft. */
-  G.LAUNCH_COST = { water: 12, food: 12 };
+  G.LAUNCH_COST = { water: 16, food: 16 };
+
+  /**
+   * The day the trade winds turn. Only then, as Hale wrote, do ships pass
+   * close enough to the north headland to see a fire on the summit.
+   */
+  G.TRADE_WINDS_DAY = 12;
 
   /**
    * The island's creatures: hp, damage per hit, chance to hit, the verbs
