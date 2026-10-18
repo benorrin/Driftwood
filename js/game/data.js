@@ -118,6 +118,22 @@
       heavy: 'heaves itself half onto the logs and bites',
       intro: 'It rises. Its jaws close on the logs at your feet.',
     },
+    reefshark: {
+      name: 'the reef shark', art: 'shark', hp: 10, dmg: 2, hit: 0.55,
+      verbs: ['snaps at your legs', 'tears your calf'],
+      tell: 'The fin turns, and comes straight at you through the shallows.',
+      heavy: 'hits you like a log in a flood',
+      intro: 'A fin cuts the shallows between you and the shore.',
+    },
+    gulls: {
+      name: 'the gulls', art: 'gulls', hp: 8, dmg: 1, hit: 0.7,
+      verbs: ['peck at your face', 'beat about your head', 'rake your hands'],
+      tell: 'The whole flock rises at once, screaming, and wheels to come at you together.',
+      heavy: 'come down on you all at once',
+      intro: 'A screaming cloud of gulls descends on your stores, and will not be driven off.',
+      miss: 'The gulls wheel away, screaming.',
+      dead: 'The last of the gulls flaps away over the sea, and the beach is yours again.',
+    },
   };
 
   /* ---------------- prose ---------------- */
@@ -170,7 +186,8 @@
   G.DEATHS = {
     thirst: 'Thirst and hunger did what the mutineers would not. Your bones whiten above the tide line beside a fire long gone out.',
     cold: 'The night was long, and cold, and in the end it was enough.',
-    fall: 'A fall from a palm. Such a small thing, after all the sea had done.',
+    fall: 'A fall. Such a small thing, after all the sea had done.',
+    fever: 'The fever burned for three days, and on the fourth you did not wake.',
     storm: 'The storm took the raft, and you with it. The sea keeps what it is given.',
   };
 })();

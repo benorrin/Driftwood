@@ -89,6 +89,16 @@
       show: () => S.items.spear,
       run() {
         AU.sfx('splash');
+        if (chance(0.07)) {
+          G.fight('reefshark', {
+            onWin: () => {
+              log(`You drag the shark up the beach: ${gain({ food: 6 })}, and a good deal of nerve.`);
+              G.closeModal();
+            },
+            onFlee: () => log('You splash ashore and do not go back in today.'),
+          });
+          return;
+        }
         if (chance(0.25)) {
           log(pick(['The fish are wiser than you today.', 'A flash of silver, and nothing on the spear.', 'You stand in the shallows until your legs go numb. Nothing.']));
         } else {

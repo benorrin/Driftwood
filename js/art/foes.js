@@ -6,8 +6,8 @@
   const DW = window.DW;
   const draw = DW.draw;
   const {
-    pal, f, rng, SW, framed, P, circle, backdrop, ground, bez,
-    seascape, rock, tufts, leaf, raft,
+    pal, f, rng, SW, framed, P, circle, at, backdrop, ground, bez,
+    seascape, rock, tufts, leaf, raft, birds,
   } = draw;
 
   const FOES = {
@@ -106,6 +106,27 @@
       b += P('M282 70 l-12 40 M318 70 l10 44', null, 2.5);
       b += circle(294, 72, 2, pal.paper) + circle(306, 72, 2, pal.paper);
       return framed(b, 'A wild man with a spear');
+    },
+
+    /** A flock of gulls mobbing the camp, the nearest big as life, wings up. */
+    gulls() {
+      const r = rng(251);
+      let b = seascape(r, 120);
+      b += ground('M0 186 C200 178 400 192 600 182', 'url(#dots)', 1);
+      /** One gull at (x, y), `s` times life size, facing `dir`. */
+      const gull = (x, y, s, dir) => at(x, y, s * dir, s,
+        // spread wings, crooked at the wrist, their tips inked black
+        P('M-4 -2 Q-14 -18 -26 -16 Q-40 -14 -52 -4 Q-38 -8 -26 -6 Q-14 -4 -4 6Z', pal.paper, 1.3) +
+        P('M4 -2 Q14 -18 26 -16 Q40 -14 52 -4 Q38 -8 26 -6 Q14 -4 4 6Z', pal.paper, 1.3) +
+        P('M-52 -4 Q-46 -10 -40 -12 L-38 -8Z M52 -4 Q46 -10 40 -12 L38 -8Z', pal.ink, 0.8) +
+        // body, head and hooked beak
+        P('M-10 4 Q0 -4 10 0 Q16 -4 20 0 Q20 4 16 6 Q4 12 -10 8 L-16 10 L-14 4Z', pal.paper, 1.2) +
+        P('M20 0 l7 2 l-6 3', pal.ink, 0.8) + circle(16, 1, 1.2, pal.ink));
+      [[300, 120, 2.6, 1], [150, 70, 1.4, -1], [460, 60, 1.6, 1], [520, 140, 1.1, -1], [90, 140, 1, 1]].forEach(([x, y, s, d]) => {
+        b += gull(x, y, s, d);
+      });
+      b += birds(r, 300, 30, 10, 400);
+      return framed(b, 'Gulls mobbing the camp');
     },
 
     /** A shark's fin and tail circling the raft. */

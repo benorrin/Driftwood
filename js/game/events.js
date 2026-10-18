@@ -179,8 +179,54 @@
         ])),
     },
     {
+      id: 'gullRaid', weight: 0.8,
+      when: () => G.armed() && S.res.food > 2 && !isNight(),
+      run: () => fight('gulls', {
+        onWin: () => {
+          log('You stand over your stores, bleeding from a dozen pecks, and the gulls keep their distance.');
+          closeModal();
+        },
+        onFlee: () => {
+          add('food', -2);
+          log('When you creep back, the gulls have had two of your provisions.', 'warn');
+        },
+      }),
+    },
+    {
+      id: 'boarRaid', limit: 3, weight: 0.6,
+      when: () => G.armed() && isNight() && S.visits.jungle,
+      run: () => fight('boar', {
+        ambush: true,
+        intro: 'A crash in the dark. A boar has come down out of the hills, and is rooting through your stores.',
+        onWin: () => {
+          log(`You drag the boar to the fire and butcher it by its light: ${gain({ food: 4, hide: 1 })}.`);
+          closeModal();
+        },
+        onFlee: () => {
+          add('food', -3);
+          log('By the time the boar goes back to the hills, it has eaten three of your provisions.', 'warn');
+        },
+      }),
+    },
+    {
+      id: 'crabRaid', limit: 3, weight: 0.6,
+      when: () => G.armed() && isNight(),
+      run: () => fight('crab', {
+        ambush: true,
+        intro: 'Something clicks and scrapes in the dark beside your stores: a land crab, big as a dinner plate, after your food.',
+        onWin: () => {
+          log(`Crab, roasted on the coals: ${gain({ food: 2 })}.`);
+          closeModal();
+        },
+        onFlee: () => {
+          add('food', -1);
+          log('The crab makes off with a provision.', 'warn');
+        },
+      }),
+    },
+    {
       id: 'gull', limit: 4,
-      when: () => S.res.food > 3,
+      when: () => !G.armed() && S.res.food > 3,
       run() {
         add('food', -1);
         log('A gull swoops on your stores and makes off with a strip of dried fish. You throw a stone after it, and miss.', 'warn');
@@ -267,7 +313,7 @@
   /** What may turn up on a trip that finds no new place. */
   const EXPLORING = [
     {
-      id: 'nothing', weight: 2,
+      id: 'nothing',
       run: () => wanderCard(pick([
         'You walk until your feet bleed: scrub, rock, and more scrub. Nothing worth putting on the map.',
         'You lose your way among the dunes and come back at dusk, no wiser.',
@@ -275,7 +321,7 @@
       ])),
     },
     {
-      id: 'forage', weight: 2,
+      id: 'forage', weight: 1.5,
       run: () => wanderCard(pick([
         'Nothing new, but a stand of wild bananas, small and sour.',
         'Nothing new, but sweet roots in a sandy hollow.',
@@ -317,6 +363,125 @@
       id: 'crab', weight: 0.5,
       when: G.armed,
       run: () => fight('crab', { onWin: () => wanderCard('Its meat is sweet as lobster.', { food: 3 }) }),
+    },
+    {
+      id: 'seep',
+      run: () => wanderCard('Nothing new, but a seep of fresh water in a fold of the rock. You drink, and fill what you carry.', { water: rand(2, 3) }),
+    },
+    {
+      id: 'flint',
+      run: () => wanderCard('Nothing new, but a seam of good flint in a dry stream bed.', { stone: rand(2, 4) }),
+    },
+    {
+      id: 'deadfall',
+      run: () => wanderCard('A tree felled by some old storm, dry and light. You break off what you can carry.', S.items.axe ? { wood: 3, timber: 2 } : { wood: rand(3, 4) }),
+    },
+    {
+      id: 'nest',
+      run: () => wanderCard('A ground nest of some great seabird, unguarded, the eggs still warm.', { food: 2 }),
+    },
+    {
+      id: 'overhang', weight: 0.7,
+      when: () => S.health < G.maxHealth(),
+      run() {
+        G.heal(2);
+        wanderCard('You shelter from the noon heat under an overhang of rock, and sleep an hour in the cool. You wake the better for it.');
+      },
+    },
+    {
+      id: 'rope', limit: 1,
+      when: () => S.mapped.wreck,
+      run: () => wanderCard("In a gully above the eastern shore, tangled in the roots of a tree: a coil of tarred rope from the <i>Calliope</i>, carried there by some great storm.", { rope: 3 }),
+    },
+    {
+      id: 'carcass', limit: 2,
+      when: () => S.visits.jungle,
+      run: () => wanderCard('At the foot of a crag lies a boar that has fallen in the night. It is fresh. You take what you can carry.', { food: 2, hide: 1 }),
+    },
+    {
+      id: 'initials', limit: 1,
+      when: () => S.flags.wreckCabin && !S.flags.metHollis,
+      run: () => wanderCard('Carved into a palm, the bark grown thick around it: <i>T.H. 1826</i>. Lower down, newer: <i>T.H.</i>, and a row of notches that goes round the trunk and does not stop.'),
+    },
+    {
+      id: 'cairnGrave', limit: 1,
+      run: () => wanderCard('A low mound of piled stones: no name, no cross. Older than the sealers, older than Hale. Whoever lies here, someone loved them enough to carry all these stones.'),
+    },
+    {
+      id: 'beacon', limit: 1,
+      when: () => S.mapped.wreck,
+      run: () => wanderCard('On a rise above the sea, a ring of stones and a heap of old ash, grown over. Somebody kept a signal fire here, once, and in the end gave up.'),
+    },
+    {
+      id: 'lost', weight: 0.7,
+      when: () => S.health > 2,
+      run() {
+        add('water', -1);
+        add('food', -1);
+        damage(1, 'cold');
+        if (!S.flags.ally) G.setFire(S.fire - 2, true);
+        wanderCard(`The scrub all looks the same, and then the sun goes behind cloud. By the time you have your bearings it is too late to go back. You spend the night in the open, cold and bitten and hungry, and come home at dawn${S.flags.ally ? ' to find Hollis has kept the fire' : ' to a fire burned low'}.`);
+      },
+    },
+    {
+      id: 'soaked', weight: 0.6,
+      when: () => S.res.food > 2,
+      run() {
+        add('food', -2);
+        wanderCard('A squall catches you on open ground. By the time it passes, the provisions in your pack are a sodden, ruined mess. You throw two away.');
+      },
+    },
+    {
+      id: 'spilled', weight: 0.5,
+      when: () => S.res.water > 2,
+      run() {
+        add('water', -2);
+        wanderCard('You slip on a wet rock and fall hard, and your water goes into the sand before you can save it.');
+      },
+    },
+    {
+      id: 'thorns', weight: 0.6,
+      when: () => S.health > 3,
+      run() {
+        AU.sfx('hurt');
+        damage(1, 'fall');
+        wanderCard('You force a way through a brake of thorn and come out bleeding from a dozen cuts, with nothing to show for it.');
+      },
+    },
+    {
+      id: 'wasps', weight: 0.5,
+      when: () => S.health > 3,
+      run() {
+        AU.sfx('hurt');
+        damage(1, 'fall');
+        wanderCard("You put your hand on a wasps' nest under a ledge. You run, and they follow, and you do not stop until you reach the sea.");
+      },
+    },
+    {
+      id: 'fever', limit: 2, weight: 0.4,
+      when: () => S.health > 4,
+      run() {
+        damage(2, 'fever');
+        wanderCard('Something in the low, wet ground disagrees with you. By evening you are shaking with fever, and you crawl home the last mile.');
+      },
+    },
+    {
+      id: 'boar', weight: 0.5,
+      when: () => G.armed() && S.visits.jungle,
+      run: () => fight('boar', {
+        ambush: true,
+        intro: 'You blunder into a thicket and something in it explodes toward you, all tusks and bristles.',
+        onWin: () => wanderCard('You butcher it where it fell.', { food: 4, hide: 1 }),
+      }),
+    },
+    {
+      id: 'viper', weight: 0.4,
+      when: () => G.armed() && S.flags.spring,
+      run: () => fight('viper', {
+        ambush: true,
+        intro: 'You step over a log, and the log hisses.',
+        onWin: () => wanderCard('You go the rest of the way with your eyes on the ground.'),
+      }),
     },
   ];
 
