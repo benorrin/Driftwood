@@ -133,6 +133,29 @@
     );
   }
 
+  /* ---------------- how to play ---------------- */
+
+  /** The rules, briefly, as headed paragraphs. */
+  const HOW_TO_PLAY = [
+    ['Survive', 'Gather driftwood and light a fire before night falls, then keep it fed. Each dawn you eat a share of your provisions and drink some fresh water; go without, and your health suffers.'],
+    ['Make', 'Comb the beach for what the tide brings in. Twist fibre into rope, and make shelter, tools and traps from the <i>Make</i> list. A button greys out while you rest from the last job.'],
+    ['Explore', 'Before long you will draw a map. Explore the island to find places to put on it: some are easy to find, some must wait until the story leads you there, and some you may spot from somewhere else. Every trip costs supplies.'],
+    ['Fight', 'Fights are turn based. Strike, eat to heal, or flee. When a foe gathers itself for a heavy blow, brace yourself to turn it aside.'],
+    ['Escape', 'There is more than one way off the island, and some of the choices you make along the way will follow you home.'],
+    ['Time', 'Time passes while you play, and stands still while a notice is open. Your progress is saved in this browser.'],
+  ];
+
+  /** Opens the rules of the game. */
+  function openHelp() {
+    AU.sfx('page');
+    modal({
+      art: ART.scene('beach'),
+      title: 'How to Play',
+      text: HOW_TO_PLAY.map(([head, body]) => `<p><b class="sc">${head}.</b> ${body}</p>`),
+      choices: [leave('back')],
+    });
+  }
+
   /* ---------------- visual styles ---------------- */
 
   /** Applies style `id` and redraws every picture in the new palette. */
@@ -189,6 +212,7 @@
     $('#btn-continue').onclick = continueGame;
     $('#btn-style').onclick = openStyles;
     $('#btn-style-title').onclick = openStyles;
+    $('#btn-help').onclick = openHelp;
     $('#btn-restart').onclick = restart;
     $('#tgl-music').onclick = () => {
       AU.toggleMusic();

@@ -71,6 +71,12 @@
   color: var(--faint);
 }
 
+/* a run-in heading at the start of a paragraph */
+#modal-body .sc {
+  font-family: var(--font-sc);
+  font-weight: normal;
+}
+
 #modal-body p.dateline {
   text-align: center;
   font-family: var(--font-sc);
