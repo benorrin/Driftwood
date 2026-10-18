@@ -11,7 +11,7 @@
   const ART = window.DW.art;
   const {
     S, chance, pick, DAWNS, NIGHTFALLS, DAY_LEN, NIGHT_AT, FIRE_DECAY, TRADE_WINDS_DAY,
-    gainLine, add, log, heal, damage, setFire, save, session, queueModal, notice, modalOpen, closeModal, rescueEnding,
+    gainLine, add, log, heal, damage, setFire, save, session, queueModal, notice, leave, modalOpen, closeModal, rescueEnding,
   } = G;
 
   /** How often, in ticks, something may happen around the camp, and the chance it does. */
@@ -65,11 +65,23 @@
 
     if (S.day >= TRADE_WINDS_DAY && !S.flags.trades) {
       S.flags.trades = 1;
-      log('The wind has gone round into the south-east in the night, steady and warm. The trade winds have turned.', 'lore');
+      const line = 'The wind has gone round into the south-east in the night, steady and warm. The trade winds have turned.';
+      if (S.built.pyre || S.flags.summit) {
+        queueModal({
+          art: ART.scene('summit', { pyre: S.built.pyre }),
+          title: 'The Trade Winds',
+          text: [line, S.built.pyre
+            ? 'Hale wrote that the whalers pass the north headland when the trade winds turn. From now on, any morning may bring a sail. When one comes, you will have your chance to light the pyre.'
+            : 'Hale wrote that the whalers pass the north headland when the trade winds turn. A great fire on the summit might be seen by one of them now.'],
+          choices: [leave('go on', line, 'lore')],
+        });
+      } else {
+        log(line, 'lore');
+      }
     }
     if (S.built.pyre && S.flags.trades && !S.flags.sailing) {
       S.n.pyreDays++;
-      if (chance(0.1 + S.n.pyreDays * 0.06)) sailSighted();
+      if (chance(0.1 + S.n.pyreDays * 0.06)) G.sailSighted();
     }
   }
 
@@ -108,7 +120,7 @@
   }
 
   /** A ship on the horizon: light the pyre, or let her pass. */
-  function sailSighted() {
+  G.sailSighted = function sailSighted() {
     AU.sfx('sail');
     queueModal({
       art: ART.scene('summit', { ship: 1, pyre: 1 }),
@@ -131,7 +143,7 @@
         },
       ],
     });
-  }
+  };
 
   /** Counts `S.ticks[key]` up and runs `fn` (resetting the count) every `n` ticks. */
   function every(key, n, fn) {

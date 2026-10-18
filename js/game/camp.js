@@ -334,7 +334,20 @@
       else if (rc.item) S.items[rc.item] = 1;
       else S.built[rc.id] = G.builtCount(rc.id) + 1;
       if (rc.id === 'leanto') heal(2);
-      if (rc.id === 'pyre') S.n.pyreDays = 0;
+      if (rc.id === 'pyre') {
+        S.n.pyreDays = 0;
+        G.queueModal({
+          art: ART.scene('summit', { pyre: 1 }),
+          title: 'The Signal Pyre',
+          text: [
+            'It stands on the summit, taller than a man, its heart packed with gum for a black smoke that will show by day. It is not to be lit yet: a fire lit for nobody burns out for nobody.',
+            S.flags.trades
+              ? 'The trade winds have turned. Any morning now, a sail may come past the north headland, and then you will light it. You might keep watch from the summit, too.'
+              : 'Hale wrote that the whalers pass the north headland only when the trade winds turn. Until then, no ship will come close enough to see it. When the winds turn, watch for a sail.',
+          ],
+          choices: [G.leave('go on')],
+        });
+      }
     });
   };
 

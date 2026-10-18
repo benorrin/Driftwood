@@ -280,14 +280,20 @@
         });
       },
       repeat() {
-        const msg = S.built.pyre
-          ? 'The pyre stands ready. The horizon stays empty. You gather eggs from the cliff nests.'
-          : pick(['Whales blow, far to the north.', 'You watch the empty sea, and gather eggs from the cliff nests.']);
+        let msg = pick(['Whales blow, far to the north.', 'You watch the empty sea, and gather eggs from the cliff nests.']);
+        if (S.built.pyre) {
+          msg = S.flags.trades
+            ? 'The pyre stands ready, and the trade winds blow steady from the south-east. Somewhere beyond the horizon, the whalers are coming north.'
+            : 'The pyre stands ready, but the wind is still in the west. Hale wrote that the ships come only when the trade winds turn. Not yet.';
+        }
+        const choices = [];
+        if (S.built.pyre && S.flags.trades) choices.push({ label: 'keep watch for a sail', cost: { food: 1, water: 1 }, fn: keepWatch });
+        choices.push(leave('descend'));
         modal({
           art: ART.scene('summit', { pyre: S.built.pyre }),
           title: 'The Summit',
-          text: [msg, gainLine(gain({ food: rand(2, 3) }))],
-          choices: [leave('descend')],
+          text: [msg, gainLine(`You gather ${gain({ food: rand(2, 3) })} from the cliff nests.`)],
+          choices,
         });
       },
     },
@@ -407,6 +413,27 @@
       },
     },
   });
+
+  /** The chance that a day's watch from the summit sees a sail, and how much each day of waiting adds. */
+  const WATCH_CHANCE = 0.25;
+  const WATCH_GROWTH = 0.05;
+
+  /** A day's watch beside the pyre: a sail, or an empty sea and a longer wait. */
+  function keepWatch() {
+    if (chance(WATCH_CHANCE + S.n.pyreDays * WATCH_GROWTH)) {
+      // close the summit card first, or the sail would wait behind it
+      G.closeModal();
+      G.sailSighted();
+      return;
+    }
+    S.n.pyreDays++;
+    modal({
+      art: ART.scene('summit', { pyre: 1 }),
+      title: 'The Summit',
+      text: ['You watch the north from dawn until the light goes, until your eyes ache from the glare. Twice you think you see a sail, and twice it is a whitecap. Nothing.', gainLine('Each day you wait, a ship grows likelier.')],
+      choices: [leave('descend', 'You kept watch from the summit all day. No sail.')],
+    });
+  }
 
   /* ---------------- journeys ---------------- */
 

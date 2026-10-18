@@ -4,8 +4,9 @@
  * The game is split across several scripts that share `DW.game`. Each file
  * takes what it needs from the files loaded before it at the top, like
  * imports. The few references that must reach "up" to a later file
- * (render, renderLog, die, toTitle, LOCS, mapArt, happening, washedUp and
- * wander) are looked up on `G` at the moment they are used instead. */
+ * (render, renderLog, die, toTitle, LOCS, mapArt, happening, washedUp,
+ * wander, sailSighted and stormCheck) are looked up on `G` at the moment
+ * they are used instead. */
 (function () {
   'use strict';
 

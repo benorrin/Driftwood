@@ -188,7 +188,7 @@
     if (S.built.catcher) built.push(row('rain catchers', S.built.catcher));
     if (S.built.trap) built.push(row('fish traps', S.built.trap));
     if (S.built.rack) built.push(row('smoking rack'));
-    if (S.built.pyre) built.push(row('signal pyre', null, 'on the summit'));
+    if (S.built.pyre) built.push(row('signal pyre', null, S.flags.trades ? 'watching for a sail' : 'waiting for the trade winds'));
     if (S.flags.ally) built.push(row('Tom Hollis', null, 'companion'));
 
     $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + (built.length ? list('Camp', built) : '');
