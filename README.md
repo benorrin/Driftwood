@@ -90,13 +90,16 @@ To add your own style, add an entry to the list in [`js/styles.js`](js/styles.js
 
 The game has **no asset files at all.** Everything you see and hear is generated in the browser.
 
-| File | What it does |
+| Files | What they do |
 |---|---|
-| [`js/art.js`](js/art.js) | Draws every illustration as SVG in code, in the manner of a 19th-century wood engraving: hatching, stipple and ink line, roughened with an SVG displacement filter so nothing is quite ruler-straight. |
-| [`js/audio.js`](js/audio.js) | Synthesises all the sound with the Web Audio API: breaking surf, a crackling fire, an original fiddle lament in D dorian, a heartbeat drum for fights, ship's bells at dawn, and every sound effect. |
-| [`js/game.js`](js/game.js) | The game itself: state, crafting, the clock, exploration, combat, story events and endings. |
+| [`js/art/`](js/art) | Draws every illustration as SVG in code, in the manner of a 19th-century wood engraving: hatching, stipple and ink line, roughened with an SVG displacement filter so nothing is quite ruler-straight. `draw.js` holds the palette and SVG helpers; `nature.js` and `objects.js` draw the parts; `camp.js`, `chart.js`, `scenes.js` and `foes.js` compose the pictures. |
+| [`js/audio/`](js/audio) | Synthesises all the sound with the Web Audio API: breaking surf, a crackling fire (`ambience.js`), an original fiddle lament in D dorian and a heartbeat drum for fights (`music.js`), ship's bells at dawn and every sound effect (`effects.js`), all built on the engine in `synth.js`. |
+| [`js/game/`](js/game) | The game itself: state and saving (`state.js`), camp actions and crafting (`camp.js`), the clock (`clock.js`), exploration (`locations.js`, `story.js`), combat (`combat.js`), endings (`endings.js`), and drawing the screen (`ui.js`, `render.js`). `main.js` starts it all. |
 | [`js/styles.js`](js/styles.js) | The visual style palettes. |
-| [`css/style.css`](css/style.css) | Layout and screen effects. |
+| [`js/core.js`](js/core.js) | The shared `DW` namespace and safe `localStorage` helpers. |
+| [`css/`](css) | Layout (`base.css`, `screens.css`, `game.css`, `modal.css`) and the screen effects of the visual styles (`themes.css`). |
+
+The scripts are plain `<script>` tags rather than ES modules, so the game still runs from `file://`. They share one global namespace, `DW`, and [`index.html`](index.html) loads them in dependency order.
 
 The only external dependencies are three fonts from Google Fonts: [IM Fell English](https://fonts.google.com/specimen/IM+Fell+English), plus [VT323](https://fonts.google.com/specimen/VT323) and [Space Mono](https://fonts.google.com/specimen/Space+Mono) for the retro styles. When you're offline the page falls back to Georgia or Courier.
 

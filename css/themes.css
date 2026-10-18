@@ -1,0 +1,89 @@
+/* Driftwood — visual style effects.
+ * The screen effects named by each style's `fx` (see js/styles.js), and
+ * the plainer type of the monospaced styles. */
+
+svg.art text {
+  font-family: var(--font);
+}
+
+/* CRT and LCD styles lay a fixed, click-through overlay over the screen */
+html[data-fx="crt"] body::after,
+html[data-fx="lcd"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* ---------- CRT monitors: scanlines, a soft phosphor glow, a gentle curvature shadow ---------- */
+
+html[data-fx="crt"] body {
+  text-shadow: 0 0 5px color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+html[data-fx="crt"] body::after {
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+html[data-fx="crt"] svg.art {
+  filter: drop-shadow(0 0 1.5px color-mix(in srgb, var(--ink) 60%, transparent));
+}
+
+html[data-fx="crt"] .btn .cost,
+html[data-fx="crt"] .link {
+  font-style: normal;
+}
+
+/* ---------- classic Macintosh: rounded buttons with a hard shadow, square windows ---------- */
+
+html[data-fx="mac"] .btn {
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+html[data-fx="mac"] .btn:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+html[data-fx="mac"] .modal-card {
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* a striped title bar, the title knocked out of it */
+html[data-fx="mac"] #modal-title {
+  text-align: center;
+  background: repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 3px);
+}
+
+html[data-fx="mac"] #modal-title span {
+  background: var(--paper);
+  padding: 0 10px;
+}
+
+/* ---------- LCD: a faint pixel grid ---------- */
+
+html[data-fx="lcd"] body::after {
+  background:
+    repeating-linear-gradient(to right, color-mix(in srgb, var(--paper) 70%, transparent) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(to bottom, color-mix(in srgb, var(--paper) 70%, transparent) 0 1px, transparent 1px 3px);
+  opacity: 0.35;
+}
+
+/* ---------- monospaced styles: capital headings, no italics ---------- */
+
+html[data-mono] h1,
+html[data-mono] h2,
+html[data-mono] h3,
+html[data-mono] #tabs button {
+  text-transform: uppercase;
+}
+
+html[data-mono] #modal-body p.quote,
+html[data-mono] #log p.lore {
+  font-style: normal;
+}

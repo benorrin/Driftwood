@@ -1,0 +1,153 @@
+/* Driftwood — the story card.
+ * The modal used for story, journeys, combat and the style picker. */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4vh 12px;
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  animation: fadein 0.4s ease;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 660px;
+  background: var(--paper);
+  border: 3px double var(--ink);
+  padding: 18px 22px 12px;
+  box-shadow: 0 10px 40px color-mix(in srgb, var(--ink) 25%, transparent);
+}
+
+#modal-art:empty {
+  display: none;
+}
+
+#modal-art {
+  border: 1px solid var(--ink);
+  margin-bottom: 12px;
+}
+
+/* a blow landed flashes the picture; a blow taken shakes the card */
+#modal-art.hit {
+  animation: hit 0.25s ease;
+}
+
+.modal-card.hurt {
+  animation: shake 0.3s ease;
+}
+
+@keyframes hit {
+  50% { filter: invert(1); }
+}
+
+@keyframes shake {
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+#modal-title {
+  letter-spacing: 0.06em;
+  margin: 0 0 6px;
+  font-size: 1.4em;
+}
+
+#modal-body p {
+  margin: 0 0 0.8em;
+}
+
+#modal-body p.quote {
+  font-style: italic;
+  padding-left: 1em;
+  border-left: 2px solid var(--rule);
+}
+
+#modal-body p.gain {
+  font-style: italic;
+  color: var(--faint);
+}
+
+#modal-body p.dateline {
+  text-align: center;
+  font-family: var(--font-sc);
+  letter-spacing: 0.2em;
+  margin-top: 1.2em;
+}
+
+#modal-choices {
+  margin-top: 12px;
+}
+
+/* ---------- journeys ---------- */
+
+.travel {
+  height: 6px;
+  border: 1px solid var(--ink);
+  margin: 8px 0 14px;
+}
+
+.travel div {
+  height: 100%;
+  width: 0;
+  background: var(--ink);
+  animation: travel linear forwards;
+}
+
+@keyframes travel {
+  to { width: 100%; }
+}
+
+/* ---------- combat ---------- */
+
+.combat .bars {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.combat .ctext {
+  min-height: 1.5em;
+  font-style: italic;
+  margin: 6px 0 4px;
+}
+
+.combat .moves {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* ---------- style picker ---------- */
+
+.styles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.styles .btn {
+  margin: 0;
+  min-width: 0;
+}
+
+.styles .btn.on {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.swatch {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.swatch i {
+  width: 18px;
+  height: 12px;
+  border: 1px solid currentColor;
+}
