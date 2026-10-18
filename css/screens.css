@@ -95,6 +95,16 @@
   animation: fadein 2.5s ease;
 }
 
+.credit a {
+  color: inherit;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+}
+
+.credit a:hover {
+  color: var(--ink);
+}
+
 /* ---------- game layout ---------- */
 
 .topbar {
