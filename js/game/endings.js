@@ -92,7 +92,7 @@
       choices: [{
         label: 'go down to the beach',
         fn: () => finish(ART.scene('rescue'), 'Rescue', [
-          'She is the whaler <i>Perseverance</i>, of New Bedford, three years out. Her master, a lean Nantucket Quaker named Eli Swain, hears your story without a word, and then says only: "Thee had better come aboard."',
+          'She is the whaler <i>Perseverance</i>, of New Bedford, three years out. Her captain, a lean Nantucket Quaker named Eli Swain, hears your story without a word, and then says only: "Thee had better come aboard."',
         ]),
       }],
     });

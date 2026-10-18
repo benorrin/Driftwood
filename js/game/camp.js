@@ -205,7 +205,7 @@
       title: 'A Message',
       text: [
         'Something glints at the water\'s edge: a bottle of green glass, washed ashore on the morning tide. Its neck is sealed with wax gone grey with age. Inside, a curl of paper.',
-        quote('To any Christian soul who finds this. The brig <i>Calliope</i>, of Liverpool, struck upon a reef off this island the 9th of March, 1826. Eleven of us came ashore. We are camped by the eastern rocks. God send a ship. — J. Hale, Master.'),
+        quote('To any Christian soul who finds this. The brig <i>Calliope</i>, of Liverpool, struck upon a reef off this island the 9th of March, 1826. Eleven of us came ashore. We are camped by the eastern rocks. God send a ship. — J. Hale, Captain.'),
         'Twenty years ago. You look east, toward the rocks.',
       ],
       choices: [leave('look east', 'Somewhere off the eastern rocks lies the wreck of the Calliope. If you go exploring, you may find her.', 'lore')],
