@@ -56,8 +56,12 @@
       `<g filter="url(#rough)">${body}</g>${top || ''}</svg>`;
   }
 
-  const P = (d, fill, sw, extra) =>
-    `<path d="${d}" fill="${fill || 'none'}" stroke="${sw === 0 ? 'none' : INK}" stroke-width="${sw == null ? 1 : sw}" stroke-linecap="round" stroke-linejoin="round" ${extra || ''}/>`;
+  // a path; `extra` may override the stroke colour (e.g. a paper highlight)
+  const P = (d, fill, sw, extra) => {
+    extra = extra || '';
+    const stroke = /(^|\s)stroke="/.test(extra) ? '' : `stroke="${sw === 0 ? 'none' : INK}" `;
+    return `<path d="${d}" fill="${fill || 'none'}" ${stroke}stroke-width="${sw == null ? 1 : sw}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
+  };
 
   function bez(p0, p1, p2, t) {
     const u = 1 - t;
