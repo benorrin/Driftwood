@@ -1,7 +1,8 @@
 /* Driftwood — the clock.
  * Each second is a tick. Fires burn down, catchers fill, traps catch fish,
- * and Hollis (once befriended) gathers wood; night falls and day breaks,
- * and every dawn the castaway must eat and drink. */
+ * and Hollis (once befriended) gathers wood; now and then something
+ * happens; night falls and day breaks, and every dawn the castaway must
+ * eat and drink. */
 (function () {
   'use strict';
 
@@ -12,6 +13,10 @@
     S, chance, pick, DAWNS, NIGHTFALLS, DAY_LEN, NIGHT_AT, FIRE_DECAY,
     add, log, heal, damage, setFire, save, session, modal, modalOpen, closeModal, rescueEnding,
   } = G;
+
+  /** How often, in ticks, something may happen around the camp, and the chance it does. */
+  const EVENT_EVERY = 30;
+  const EVENT_CHANCE = 0.3;
 
   /** What runs short each dawn, and how its lack is felt. */
   const NEEDS = [
@@ -36,7 +41,13 @@
       }
     });
     log(`Day ${S.day}`, 'day');
-    log(pick(DAWNS));
+    if (S.day % 7 === 5 && !S.events.friday) {
+      // the first Friday by the notches on the palm
+      S.events.friday = 1;
+      log('By your notches it is a Friday. You find yourself watching the sand for footprints, as a boy in a book once did.', 'lore');
+    } else {
+      log(pick(DAWNS));
+    }
     lack.forEach((m) => log(m, 'warn'));
     if (hurt) damage(hurt, 'thirst');
     else heal(S.built.leanto ? 2 : 1);
@@ -143,6 +154,7 @@
         add('fibre', 1);
       });
     }
+    if (S.day > 1) every('event', EVENT_EVERY, () => chance(EVENT_CHANCE) && G.happening());
     if (S.t === NIGHT_AT) nightfall();
     if (S.t >= DAY_LEN) {
       S.t = 0;

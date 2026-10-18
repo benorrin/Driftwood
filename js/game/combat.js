@@ -1,6 +1,7 @@
 /* Driftwood — combat.
- * Fights are real time: the foe attacks on its own clock while the
- * castaway strikes, eats or flees, each move with its own cooldown. */
+ * Fights are turn based: the castaway strikes, braces, eats or flees, and
+ * then the foe answers. Now and then a foe gathers itself for a heavy blow,
+ * which lands in full unless the castaway braces for it. */
 (function () {
   'use strict';
 
@@ -9,30 +10,39 @@
   const ART = window.DW.art;
   const {
     S, $, el, chance, pick, cap, replayAnimation,
-    RES, FOES, log, heal, damage, maxHealth, modal, closeModal, startCooldown,
+    RES, FOES, heal, damage, maxHealth, modal, closeModal, session, log,
   } = G;
 
-  /** Delay before the foe's first attack, beyond its usual interval, in ms. */
-  const FIRST_ATTACK_GRACE = 800;
+  /** Pause between the castaway's move and the foe's answer, in ms. */
+  const FOE_DELAY = 700;
+
+  /** Chance, each turn after the first, that the foe winds up for a heavy blow. */
+  const WINDUP_CHANCE = 0.22;
+
+  /** Extra damage a heavy blow does. */
+  const HEAVY_BONUS = 2;
 
   /**
-   * The castaway's attacks. Only the best bare-handed option shows: fists
-   * appear only with no blade. The pistol uses powder & shot.
+   * The castaway's weapons, best last. Only the best blade (or fists, with
+   * none) is offered, beside the pistol, which uses powder & shot.
    */
-  const WEAPONS = [
-    { id: 'fists', label: 'strike', dmg: 1, cd: 1, has: () => !S.items.knife && !S.items.spear && !S.items.cutlass, snd: 'hit' },
-    { id: 'knife', label: 'stab', dmg: 2, cd: 1.2, has: () => S.items.knife, snd: 'hit' },
-    { id: 'spear', label: 'thrust the spear', dmg: 3, cd: 1.6, has: () => S.items.spear, snd: 'swing' },
-    { id: 'cutlass', label: 'swing the cutlass', dmg: 4, cd: 1.5, has: () => S.items.cutlass, snd: 'swing' },
-    { id: 'pistol', label: 'fire the pistol', dmg: 8, cd: 4, has: () => S.items.pistol, ammo: 'shot', snd: 'shot' },
+  const BLADES = [
+    { id: 'fists', label: 'strike', dmg: 2, has: () => true, snd: 'hit', verb: 'You strike' },
+    { id: 'knife', label: 'stab', dmg: 3, has: () => S.items.knife, snd: 'hit', verb: 'You stab' },
+    { id: 'spear', label: 'thrust the spear', dmg: 4, has: () => S.items.spear, snd: 'swing', verb: 'You run the spear into' },
+    { id: 'cutlass', label: 'swing the cutlass', dmg: 5, has: () => S.items.cutlass, snd: 'swing', verb: 'You cut' },
   ];
+  const PISTOL = { id: 'pistol', label: 'fire the pistol', dmg: 8, snd: 'shot', ammo: 'shot', verb: 'The ball takes' };
 
-  /** The markup of the fight panel: two health bars, the moves, and a line of narration. */
+  /** Whether the castaway has a blade to fight with. Until then, nothing picks a fight with them. */
+  G.armed = () => BLADES.some((w) => w.id !== 'fists' && w.has());
+
+  /** The markup of the fight panel: two health bars, the narration of the turn, and the moves. */
   const COMBAT_HTML = (foeName) =>
     '<div class="bars">' +
     '<div><span>you</span><div class="meter"><i class="you"></i></div></div>' +
     `<div><span>${foeName}</span><div class="meter"><i class="foe"></i></div></div>` +
-    '</div><div class="moves"></div><div class="ctext"></div>';
+    '</div><div class="ctext"></div><div class="moves"></div>';
 
   /**
    * Fights the foe `key` from FOES. Options:
@@ -47,7 +57,13 @@
     const E = Object.assign({}, FOES[key]);
     const maxHp = E.hp;
     const allyBonus = opts.ally ? 1 : 0;
+    const generation = session.generation;
     let over = false;
+    let foesTurn = false;
+    let turns = 0;
+    let winding = false; // the foe is gathering for a heavy blow
+    let braced = false; // the castaway braced this turn
+    let opening = false; // the foe is off balance: the next blow cannot miss
 
     AU.setMood('tense');
     if (E.sound) AU.sfx(E.sound);
@@ -56,11 +72,12 @@
     const box = el('div', 'combat', COMBAT_HTML(E.name));
     $('#modal-choices').appendChild(box);
     const moves = box.querySelector('.moves');
+    const ctext = box.querySelector('.ctext');
     const card = $('.modal-card');
 
-    /** Sets the narration line. */
-    const say = (t) => {
-      box.querySelector('.ctext').textContent = t;
+    /** Adds a line to the narration of this turn; `cls` styles it. */
+    const say = (t, cls) => {
+      ctext.appendChild(el('p', cls || '', t));
     };
 
     /** Redraws both health bars and re-checks which moves are available. */
@@ -72,101 +89,112 @@
       });
     }
 
-    /** Ends the fight, stopping the foe's attacks. */
-    function stop() {
-      over = true;
-      clearInterval(loop);
+    /** The foe lands a blow of `n` with the words `verb`. */
+    function struck(n, verb) {
+      AU.sfx('hurt');
+      replayAnimation(card, 'hurt');
+      say(`${cap(E.name)} ${verb}. (−${n})`);
+      damage(n, E.name);
     }
-
-    /** The foe attacks: it may hit (shaking the card) or miss. */
-    function enemyAttack() {
-      if (over || S.ended) return;
-      if (chance(E.hit)) {
-        AU.sfx('hurt');
-        replayAnimation(card, 'hurt');
-        say(`${cap(E.name)} ${pick(E.verbs)}.`);
-        damage(E.dmg, E.name);
-      } else {
-        say(`${cap(E.name)} misses.`);
-      }
-      if (!S.ended) update();
-    }
-
-    // the foe attacks on its own clock, a little irregularly
-    let next = performance.now() + E.speed * 1000 + FIRST_ATTACK_GRACE;
-    const loop = setInterval(() => {
-      if (over || S.ended || !document.body.contains(box)) {
-        clearInterval(loop);
-        return;
-      }
-      if (performance.now() >= next) {
-        next += E.speed * 1000 * (0.85 + Math.random() * 0.3);
-        enemyAttack();
-      }
-    }, 100);
 
     /**
-     * Adds a move button: `label` with an optional `sub` line, usable when
-     * `can()` is true, running `act` and then cooling down for `cd` seconds.
+     * The foe's answer: a heavy blow if it wound up last turn (turned aside
+     * by bracing), sometimes a wind-up, and otherwise an ordinary attack,
+     * half as likely to land on a braced castaway.
      */
-    function moveButton(label, sub, cd, can, act) {
-      const b = el('button', 'btn', `<span>${label}</span>${sub ? `<span class="cost">${sub}</span>` : ''}<span class="cd"></span>`);
-      let until = 0;
-      b._upd = () => {
-        b.disabled = over || performance.now() < until || !can();
-      };
-      b.onclick = () => {
-        if (b.disabled) return;
-        act();
-        if (over) return;
-        until = performance.now() + cd * 1000;
-        startCooldown(b, cd);
-        b._upd();
-        setTimeout(() => {
-          if (b._upd) b._upd();
-        }, cd * 1000 + 20);
-        update();
-      };
-      moves.appendChild(b);
+    function foeTurn() {
+      if (winding) {
+        winding = false;
+        if (braced) {
+          opening = true;
+          say(`${cap(E.name)} ${E.heavy} — but you are braced for it, and turn the blow aside. It is off balance.`);
+        } else {
+          struck(E.dmg + HEAVY_BONUS, E.heavy);
+        }
+        return;
+      }
+      if (turns > 1 && chance(WINDUP_CHANCE)) {
+        winding = true;
+        say(E.tell, 'tell');
+        return;
+      }
+      if (chance(braced ? E.hit / 2 : E.hit)) struck(E.dmg, pick(E.verbs));
+      else say(braced ? `You take ${E.name}'s attack on your guard.` : `${cap(E.name)} misses.`);
     }
 
-    /** Strikes with weapon `w`: firearms hit more often, and spend a shot. */
+    /**
+     * Plays one turn: the castaway's move `act`, then, after a pause and if
+     * the fight goes on, the foe's answer. Moves are locked meanwhile.
+     */
+    function turn(act) {
+      if (over || foesTurn) return;
+      turns++;
+      braced = false;
+      ctext.innerHTML = '';
+      act();
+      update();
+      if (over || S.ended) return;
+      foesTurn = true;
+      update();
+      setTimeout(() => {
+        // the fight may have ended, or the game been restarted, in the pause
+        if (session.generation !== generation || over || S.ended) return;
+        foesTurn = false;
+        foeTurn();
+        if (!S.ended) update();
+      }, FOE_DELAY);
+    }
+
+    /** Adds a move button: `label` with an optional `sub` line, usable when `can()` is true. */
+    function moveButton(label, sub, can, act) {
+      const b = el('button', 'btn', `<span>${label}</span>${sub ? `<span class="cost">${sub}</span>` : ''}`);
+      b._upd = () => {
+        b.disabled = over || foesTurn || !can();
+        b.classList.toggle('urgent', !!b._urgent && b._urgent() && !b.disabled);
+      };
+      b.onclick = () => {
+        if (!b.disabled) turn(act);
+      };
+      moves.appendChild(b);
+      return b;
+    }
+
+    /** Attacks with weapon `w`: firearms hit more often, and spend a shot; a foe off balance is hit for sure. */
     function attack(w) {
       AU.sfx(w.snd);
       if (w.ammo) {
         S.res[w.ammo]--;
-        moves.querySelectorAll('.cost').forEach((c) => {
-          if (c.textContent.includes(RES.shot)) c.textContent = `${S.res.shot} ${RES.shot}`;
-        });
+        w.btn.querySelector('.cost').textContent = `${S.res.shot} ${RES.shot}`;
       }
-      if (!chance(w.ammo ? 0.9 : 0.8)) {
+      const sure = opening;
+      opening = false;
+      if (!sure && !chance(w.ammo ? 0.9 : 0.8)) {
         say('You miss.');
         return;
       }
       const d = w.dmg + allyBonus;
       E.hp -= d;
       replayAnimation($('#modal-art'), 'hit');
-      say(opts.ally ? `You and Hollis strike together. (${d})` : `You hit ${E.name}. (${d})`);
+      say(opts.ally ? `You and Hollis strike together. (${d})` : `${w.verb} ${E.name}. (${d})`);
       if (E.hp <= 0) win();
     }
 
-    /** Tries to run: it works more often than not, and otherwise gives the foe a free attack. */
+    /** Tries to run: it works more often than not, and otherwise the foe gets its turn. */
     function flee() {
       if (chance(0.6)) {
-        stop();
+        over = true;
         AU.setMood('calm');
         log(`You run from ${E.name}, and do not stop until your lungs give out.`);
         closeModal();
         if (opts.onFlee) opts.onFlee();
       } else {
         say('You stumble as you turn!');
-        enemyAttack();
       }
     }
 
     /** The foe is dead: replaces the moves with a single "continue". */
     function win() {
-      stop();
+      over = true;
       AU.sfx('victory');
       AU.setMood('calm');
       say(`${cap(E.name)} is dead.`);
@@ -181,16 +209,23 @@
       b.focus();
     }
 
-    WEAPONS.filter((w) => w.has()).forEach((w) => {
-      const sub = w.ammo ? `${S.res.shot || 0} ${RES.shot}` : '';
-      moveButton(w.label, sub, w.cd, () => !w.ammo || S.res[w.ammo] > 0, () => attack(w));
+    const blade = BLADES.filter((w) => w.has()).pop();
+    moveButton(blade.label, `${blade.dmg + allyBonus} damage`, () => true, () => attack(blade));
+    if (S.items.pistol) {
+      PISTOL.btn = moveButton(PISTOL.label, `${S.res.shot || 0} ${RES.shot}`, () => S.res.shot > 0, () => attack(PISTOL));
+    }
+    const brace = moveButton('brace yourself', 'turn aside a heavy blow', () => true, () => {
+      braced = true;
+      say('You set your feet and raise your guard.');
     });
-    moveButton('eat', '1 provisions · heal 3', 5, () => S.res.food > 0 && S.health < maxHealth(), () => {
+    brace._urgent = () => winding;
+    moveButton('snatch a bite', '1 provisions · heal 3', () => S.res.food > 0 && S.health < maxHealth(), () => {
       S.res.food--;
       heal(3);
       say('You wolf down a mouthful and feel stronger.');
     });
-    if (opts.canFlee !== false) moveButton('flee', '', 2, () => true, flee);
+    if (opts.canFlee !== false) moveButton('flee', '', () => true, flee);
+    say('What will you do?');
     update();
   };
 })();

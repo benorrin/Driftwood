@@ -7,7 +7,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, rand, chance, pick, cap, quote, VERSES,
+    S, rand, chance, pick, cap, quote, gainLine, VERSES, CRUSOE,
     has, pay, add, gain, log, heal, damage, setFire, isNight, save,
     modal, leave, startCooldown, BTNS, cooldowns,
   } = G;
@@ -121,7 +121,8 @@
       show: () => S.items.bible && S.fire > 0 && isNight(),
       run() {
         AU.sfx('page');
-        log(`"${pick(VERSES)}"`, 'lore');
+        if (S.items.crusoe && chance(0.5)) log(`From Crusoe: "${pick(CRUSOE)}"`, 'lore');
+        else log(`"${pick(VERSES)}"`, 'lore');
         heal(1);
       },
     },
@@ -130,7 +131,7 @@
   /**
    * Combs the beach. The first few searches each turn up something new
    * (fibre, stone, the lie of the land, canvas) and the sixth finds the
-   * bottle; after that, finds are random.
+   * bottle; after that, finds are random, with now and then a happening.
    */
   function comb() {
     S.n.comb++;
@@ -143,17 +144,34 @@
       add('stone', 2);
       log('Smooth grey stones, heavy in the hand. Some are flint-hard and hold an edge.');
     } else if (c === 3) {
-      S.flags.chart = 1;
-      add('fibre', 2);
-      log('From the crest of the dune you can see the shape of the land. You draw a chart on the blank page inside the Bible\'s cover with a burnt stick.', 'lore');
+      makeshiftMap();
     } else if (c === 4) {
       add('cloth', 1);
       log("A rag of canvas half-buried in the sand. Somebody else's sail, once.");
     } else if (c === 6 && !S.flags.bottle) {
       bottle();
+    } else if (c > 6 && chance(0.15) && G.washedUp()) {
+      // a happening washed up with the tide
     } else {
       combRandom();
     }
+  }
+
+  /** From a dune the castaway sees the lie of the land, and draws a map on a page of the Bible. */
+  function makeshiftMap() {
+    S.flags.chart = 1;
+    S.items.map = 1;
+    AU.sfx('page');
+    modal({
+      art: G.mapArt(),
+      title: 'A Makeshift Map',
+      text: [
+        'Whilst combing the beach you climb the crest of a high dune, and for the first time see the shape of the land: a long green hump of an island, hills to the north, and inland, past the dunes, a darker green that might be trees.',
+        "You tear the blank flyleaf from the back of the Bible, beg its pardon, and with a charred stick from the fire draw a makeshift map: the coast, the hills, your camp. The rest is empty paper.",
+        gainLine('To fill it in, you will have to go exploring.'),
+      ],
+      choices: [leave('fold it into the Bible', 'Your map is kept in the Bible. Explore the island to add to it.', 'lore')],
+    });
   }
 
   /** A random find from the beach. */
@@ -179,7 +197,7 @@
         quote('To any Christian soul who finds this. The brig <i>Calliope</i>, of Liverpool, struck upon a reef off this island the 9th of March, 1826. Eleven of us came ashore. We are camped by the eastern rocks. God send a ship. — J. Hale, Master.'),
         'Twenty years ago. You look east, toward the rocks.',
       ],
-      choices: [leave('mark it on your chart', 'Somewhere to the east lies the wreck of the Calliope.', 'lore')],
+      choices: [leave('look east', 'Somewhere off the eastern rocks lies the wreck of the Calliope. If you go exploring, you may find her.', 'lore')],
     });
   }
 
@@ -243,7 +261,7 @@
     },
     {
       id: 'torch', label: 'torch', cost: { wood: 1, fibre: 2 }, gives: { torch: 1 },
-      show: () => S.flags.caveKnown,
+      show: () => S.mapped.cave,
       msg: 'Fibre bound tight about a stick. It will burn an hour, perhaps.',
     },
     {

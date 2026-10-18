@@ -45,14 +45,28 @@
       return framed(b, 'A barque sails away from an island at dawn');
     },
 
-    /** The beach, with a palm, a rock and a piece of flotsam. */
-    beach() {
+    /**
+     * The beach, with a palm, a rock and a piece of flotsam. `opts.ship`
+     * puts a sail on the horizon and the castaway on the sand watching it;
+     * `opts.ball` adds a leather ball with a face in a bloody handprint.
+     */
+    beach(opts) {
+      opts = opts || {};
       const r = rng(21);
       let b = seascape(r, 120, 175);
+      if (opts.ship) b += ship(400, 126, 0.3, 1);
       b += ground('M0 170 C150 160 300 182 600 168', 'url(#dots)', 1.1);
       b += palm(r, 520, 230, 170, -30) + rock(r, 90, 214, 110, 40);
       b += P('M300 205 l18 -5 q4 -1 6 2 l1 5 q-12 6 -24 2Z', 'url(#h3)', 0.8);
-      return framed(b, 'The beach');
+      if (opts.ship) b += stander(250, 200, 1.4, 1, { wave: 1 });
+      if (opts.ball) {
+        b += circle(380, 196, 22, pal.paper, 1.4) +
+          P('M380 174 q-10 22 0 44 M380 174 q10 22 0 44', null, 0.6) +
+          P('M366 190 q14 -14 28 0 q4 14 -6 22 q-8 6 -16 0 q-10 -8 -6 -22Z', 'url(#h1)', 0.8) +
+          circle(374, 192, 2.4, pal.ink) + circle(386, 192, 2.4, pal.ink) +
+          P('M373 203 q7 6 14 0', null, 1.4);
+      }
+      return framed(b, opts.ship ? 'A sail on the horizon, seen from the beach' : 'The beach');
     },
 
     /** A message in a bottle, half-buried in the sand. */

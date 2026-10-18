@@ -40,9 +40,11 @@
       raft: {},
       flags: {},
       visits: {},
+      mapped: {},
+      events: {},
       log: [],
       n: { comb: 0, salvage: 0, pyreDays: 0 },
-      ticks: { catcher: 0, trap: 0, ally: 0 },
+      ticks: { catcher: 0, trap: 0, ally: 0, event: 0 },
       ended: false,
     };
   };
@@ -135,10 +137,29 @@
     storage.setJSON(SAVE_KEY, S);
   };
 
+  /**
+   * Brings a game saved before the map and happenings up to date: the places
+   * it already knew of are drawn on the map, and the new counters start at zero.
+   */
+  function upgrade(s) {
+    if (!s.mapped) {
+      const f = s.flags;
+      const v = s.visits;
+      s.mapped = {
+        grove: f.chart, tidepools: v.grove || f.bottle, spring: v.tidepools, wreck: f.bottle || f.wreckSeen,
+        jungle: v.spring, cave: f.caveKnown, hut: f.trail, summit: f.summitKnown,
+      };
+      if (f.chart) s.items.map = 1;
+    }
+    s.events = s.events || {};
+    s.ticks.event = s.ticks.event || 0;
+    return s;
+  }
+
   /** Returns the saved game if there is one that can be continued, otherwise null. */
   G.load = function () {
     const s = storage.getJSON(SAVE_KEY, null);
-    return s && s.v === 1 && !s.ended ? s : null;
+    return s && s.v === 1 && !s.ended ? upgrade(s) : null;
   };
 
   /** Deletes the saved game. */

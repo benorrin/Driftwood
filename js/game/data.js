@@ -46,13 +46,18 @@
   /** Possessions: [name, note shown beside it]. */
   G.ITEMS = {
     pistol: ['flintlock pistol', 'one ball, one choice'],
-    bible: ["the ship's Bible", 'a chart inside its cover'],
+    bible: ["the ship's Bible", 'the Authorised Version'],
+    map: ['a makeshift map', 'drawn on its flyleaf'],
     knife: ['stone knife', ''],
     spear: ['fishing spear', ''],
     axe: ['stone axe', ''],
     cutlass: ['cutlass', 'from the Calliope'],
     waterskin: ['waterskin', ''],
     journal: ["Hale's journal", ''],
+    crusoe: ['Robinson Crusoe', 'of York, Mariner'],
+    wilson: ['Wilson', 'a good listener'],
+    parcel: ['a sealed parcel', 'for Valparaíso'],
+    dollar: ['a Spanish dollar', 'of no use at all'],
   };
 
   /** Where the camp sits on the chart. */
@@ -62,36 +67,47 @@
   G.LAUNCH_COST = { water: 12, food: 12 };
 
   /**
-   * The island's creatures: hp, damage per hit, seconds between attacks,
-   * chance to hit, the verbs of their attacks, an introduction, and an
-   * optional sound effect when the fight begins.
+   * The island's creatures: hp, damage per hit, chance to hit, the verbs
+   * of their attacks, the `tell` that warns of a heavy blow and the `heavy`
+   * blow itself, an introduction, and an optional sound effect when the
+   * fight begins.
    */
   G.FOES = {
     crab: {
-      name: 'the land crab', art: 'crab', hp: 7, dmg: 1, speed: 2.4, hit: 0.7,
+      name: 'the land crab', art: 'crab', hp: 7, dmg: 1, hit: 0.7,
       verbs: ['clamps a claw on your leg', 'nips your hand to the bone'],
+      tell: 'The crab rears up on its back legs, both claws spread wide.',
+      heavy: 'brings both claws down on you',
       intro: 'It rears up on its legs, claws wide, big as a dinner plate and twice as hard.',
     },
     boar: {
-      name: 'the boar', art: 'boar', hp: 12, dmg: 2, speed: 2.2, hit: 0.65,
+      name: 'the boar', art: 'boar', hp: 12, dmg: 2, hit: 0.65,
       verbs: ['gores your thigh', 'slams into you', 'rakes you with a tusk'],
+      tell: 'The boar backs off a pace, pawing the ground, and drops its tusks.',
+      heavy: 'charges, and throws you off your feet',
       intro: 'A grunt, a crash of undergrowth, and a boar bursts onto the path, tusked and furious.',
       sound: 'growl',
     },
     viper: {
-      name: 'the viper', art: 'viper', hp: 4, dmg: 3, speed: 3, hit: 0.5,
+      name: 'the viper', art: 'viper', hp: 4, dmg: 3, hit: 0.5,
       verbs: ['strikes', 'sinks its fangs into your wrist'],
+      tell: 'The viper draws its head back into a tight, trembling S.',
+      heavy: 'strikes like a whip',
       intro: 'Something on the warm stones uncoils, and lifts its flat head.',
       sound: 'hiss',
     },
     hollis: {
-      name: 'the wild man', art: 'hollis', hp: 15, dmg: 2, speed: 2, hit: 0.7,
+      name: 'the wild man', art: 'hollis', hp: 15, dmg: 2, hit: 0.7,
       verbs: ['jabs with his spear', 'screams and lunges', 'catches you with the spear-butt'],
+      tell: 'He crouches low, spear drawn back, to throw his whole weight behind it.',
+      heavy: 'drives the spear in with all his weight',
       intro: 'He howls, and comes at you with the spear.',
     },
     shark: {
-      name: 'the shark', art: 'shark', hp: 14, dmg: 3, speed: 2.6, hit: 0.6,
+      name: 'the shark', art: 'shark', hp: 14, dmg: 3, hit: 0.6,
       verbs: ['tears at the logs, and at you', 'lunges from the water'],
+      tell: 'The shark swings away in a wide circle, then turns straight for the raft.',
+      heavy: 'heaves itself half onto the logs and bites',
       intro: 'It rises. Its jaws close on the logs at your feet.',
     },
   };
@@ -115,6 +131,14 @@
     'The LORD on high is mightier than the noise of many waters, yea, than the mighty waves of the sea.',
     'And so it came to pass, that they escaped all safe to land.',
     'He maketh the storm a calm, so that the waves thereof are still.',
+  ];
+
+  /** Lines from Robinson Crusoe (1719), read by firelight once the book has washed up. */
+  G.CRUSOE = [
+    'It is never too late to be wise.',
+    'Thus fear of danger is ten thousand times more terrifying than danger itself.',
+    'I learned to look more upon the bright side of my condition, and less upon the dark side.',
+    'All our discontents about what we want appeared to me to spring from the want of thankfulness for what we have.',
   ];
 
   /** One of these follows "Day N." each dawn. */

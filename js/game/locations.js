@@ -1,6 +1,6 @@
 /* Driftwood — the island.
- * The places on the chart and the journeys to them. What happens at the
- * wreck, the cave and the hut is told in story.js. */
+ * The places on the map, exploring to find them, and the journeys to them.
+ * What happens at the wreck, the cave and the hut is told in story.js. */
 (function () {
   'use strict';
 
@@ -8,25 +8,33 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, rand, chance, pick, gainLine,
+    S, $, el, rand, chance, pick, gainLine, CAMP_POS,
     has, pay, costText, gain, log, save, session,
-    modal, leave, fight, done, wreck, journal, hut,
+    modal, leave, fight, armed, done, wreck, journal, hut,
   } = G;
 
   /** A `blocked()` check: the place can't be reached without possession `item`. */
   const requires = (item, why) => () => (!S.items[item] ? why : null);
 
   /**
-   * The places on the island. Each has a name, a position on the chart, a
+   * The places on the island. Each has a name, a position on the map, a
    * cost in supplies to travel there, a journey `time` in seconds, its
-   * scene `art`, `known()` (whether it is on the chart yet), an optional
-   * `blocked()` that returns the reason it can't be reached, and `first()`
-   * and `repeat()` for the first and later visits.
+   * scene `art`, an optional `blocked()` that returns the reason it can't
+   * be reached, and `first()` and `repeat()` for the first and later visits.
+   *
+   * A place is on the map once `S.mapped[id]` is set. Those with a
+   * `sighted` text can be found by exploring (see `canFind`), and are
+   * announced with it; the story puts the rest there. `sees` lists places
+   * that may be spotted from this one on a visit: [id, chance, what is seen].
    */
   const LOCS = (G.LOCS = {
     grove: {
       name: 'The Palm Grove', x: 204, y: 232, cost: { water: 1 }, time: 4, art: 'grove',
-      known: () => S.flags.chart,
+      sighted: 'Inland, past the dunes, you push through sea-grape and scrub until the ground firms underfoot and the light turns green: a grove of coconut palms, a hundred strong.',
+      sees: [
+        ['spring', 0.3, 'From the crown of a palm you catch a glint of falling water, high in the hills to the north.'],
+        ['cave', 0.2, 'From the crown of a palm you notice a dark gap in the cliffs beneath the north headland.'],
+      ],
       first() {
         S.flags.climb = 1;
         modal({
@@ -41,7 +49,7 @@
         });
       },
       repeat() {
-        if (chance(0.22)) {
+        if (armed() && chance(0.22)) {
           fight('crab', {
             intro: 'Among the fallen nuts, a land crab big as a dinner plate turns to face you, claws raised.',
             onWin: () => done('grove', 'Its meat is sweet as lobster.', { food: 3 }),
@@ -56,8 +64,13 @@
 
     tidepools: {
       name: 'The Tide Pools', x: 446, y: 236, cost: { water: 1, food: 1 }, time: 5, art: 'tidepools',
-      known: () => S.visits.grove || S.flags.bottle,
+      sighted: 'You follow the shore east until the sand gives out and black rock begins, stepping down into the sea in shelves. At low water every shelf holds a pool, bright with life.',
+      sees: [['summit', 0.25, "From the rocks the island's highest peak stands plain, and you can make out a way up its eastern shoulder."]],
       first() {
+        if (!armed()) {
+          done('tidepools', 'Black rock shelves step down into the sea, and at low water each holds a pool: anemones, darting fish, starfish red as wounds. From a crevice, a crab the size of a cartwheel watches you gather stones. You have nothing to fight it with, and keep your distance.', { food: 2, stone: 3 });
+          return;
+        }
         modal({
           art: ART.scene('tidepools'),
           title: 'The Tide Pools',
@@ -70,16 +83,13 @@
             fn: () => fight('crab', {
               canFlee: false,
               intro: 'A crab the size of a cartwheel, its shell crusted with barnacles, claws open wide enough to take your hand.',
-              onWin: () => {
-                S.flags.wreckSeen = 1;
-                done('tidepools', 'You sit on the rocks, shaking, and eat crab until you can eat no more. Far out on the reef to the south-east, something that is not rock catches the light: the ribs of a ship.', { food: 4, stone: 4 });
-              },
+              onWin: () => done('tidepools', 'You sit on the rocks, shaking, and eat crab until you can eat no more.', { food: 4, stone: 4 }),
             }),
           }],
         });
       },
       repeat() {
-        if (chance(0.25)) {
+        if (armed() && chance(0.25)) {
           fight('crab', { onWin: () => done('tidepools', 'The pools are yours again.', { food: 3, stone: rand(1, 2) }) });
           return;
         }
@@ -91,7 +101,8 @@
 
     spring: {
       name: 'The Spring', x: 252, y: 176, cost: { food: 1 }, time: 5, art: 'spring',
-      known: () => S.visits.tidepools,
+      sees: [['jungle', 0.4, "From the ridge above the spring you look down on a sea of green: jungle, dense and dark, filling the island's heart."]],
+      sighted: 'Pushing up a gully choked with thorn, you stop dead. Under the din of the insects: running water. Fresh water, somewhere beyond the thicket. You will need a blade to cut your way through.',
       blocked: requires('knife', 'the thicket is too dense without a blade'),
       first() {
         modal({
@@ -128,22 +139,24 @@
 
     wreck: {
       name: 'The Wreck', x: 540, y: 284, cost: { water: 1, food: 1 }, time: 6, art: 'wreck',
-      known: () => S.flags.bottle || S.flags.wreckSeen,
+      sighted: "You pick your way east along the rocks, as Hale's letter said, until the reef comes clear of the water. And there on it, heeled over and black with weed, lie the ribs of a ship. The <i>Calliope</i>.",
+      sees: [['tidepools', 0.5, "From the Calliope's tilted deck you look back at the island, and see black rock shelves along the shore to the west, glittering with pools."]],
       blocked: () => {
         if (S.flags.wreckCabin && S.flags.wreckHold) return 'picked clean (salvage from camp)';
         return (S.res.rope || 0) < 3 ? 'needs 3 rope to cross the reef' : null;
       },
       first() {
-        wreck(true);
+        wreck(true, sightings('wreck'));
       },
       repeat() {
-        wreck(false);
+        wreck(false, sightings('wreck'));
       },
     },
 
     jungle: {
       name: 'The Jungle', x: 356, y: 158, cost: { water: 2, food: 1 }, time: 6, art: 'jungle',
-      known: () => S.visits.spring,
+      sighted: "From a ridge in the hills you look down on a sea of green: jungle, dense and dark, filling the island's heart. There is no way in without an axe to cut one.",
+      sees: [['summit', 0.3, 'Through a gap in the canopy you see the island\'s peak, close and clear, and a track winding up toward it.']],
       blocked: requires('axe', 'you need an axe to cut a path'),
       first() {
         modal({
@@ -155,9 +168,9 @@
             fn: () => fight('boar', {
               canFlee: false,
               onWin: () => {
-                S.flags.trail = 1;
+                S.mapped.hut = 1;
                 S.flags.footprints = 1;
-                done('jungle', 'You butcher the boar where it fell. Further on you find a trail: narrow, worn smooth, and marked by old knife-cuts in the trees. It winds north, toward a thread of smoke above the trees.', { food: 5, hide: 2, timber: 2 }, 'Someone else lives on this island.');
+                done('jungle', 'You butcher the boar where it fell. Further on you find a trail: narrow, worn smooth, and marked by old knife-cuts in the trees. It winds north, toward a thread of smoke above the trees.', { food: 5, hide: 2, timber: 2 }, 'Someone else lives on this island. You draw the trail, and the smoke, on your map.');
               },
             }),
           }],
@@ -191,7 +204,7 @@
 
     cave: {
       name: 'The Cave', x: 216, y: 106, cost: { water: 1, food: 1, torch: 1 }, time: 6, art: 'cave',
-      known: () => S.flags.caveKnown,
+      sighted: 'Under the north headland, half hidden by a fall of rock, a black mouth breathes cold air at you. A cave. You will want a torch to go in.',
       first() {
         AU.sfx('bats');
         modal({
@@ -211,14 +224,14 @@
 
     hut: {
       name: "The Wild Man's Hut", x: 420, y: 124, cost: { water: 1, food: 1 }, time: 6, art: 'hut',
-      known: () => S.flags.trail && !S.flags.hollisDone,
+      gone: () => S.flags.hollisDone,
       first: hut,
       repeat: hut,
     },
 
     summit: {
       name: 'The Summit', x: 300, y: 70, cost: { water: 2, food: 2 }, time: 8, art: 'summit',
-      known: () => S.flags.summitKnown,
+      sighted: 'A track, faint as a crease in cloth, winds up from the scrub toward the highest peak. A long climb, and a dry one: you will want a waterskin.',
       blocked: requires('waterskin', 'too long a climb without a waterskin'),
       first() {
         S.flags.summit = 1;
@@ -248,12 +261,27 @@
 
   /* ---------------- journeys ---------------- */
 
+  /** What exploring costs in supplies, and how long it takes, in seconds. */
+  const SCOUT_COST = { water: 1, food: 1 };
+  const SCOUT_TIME = 6;
+
+  /**
+   * The chance that exploring finds a new place: FIRST_FIND for the first,
+   * less by FIND_DROP for each place already on the map, but never below MIN_FIND.
+   */
+  const FIRST_FIND = 0.4;
+  const FIND_DROP = 0.05;
+  const MIN_FIND = 0.15;
+
   /** The reason location `L` can't be reached right now, or null. */
   G.blockedReason = (L) => (L.blocked && L.blocked()) || null;
 
-  /** The locations on the chart, with what the chart needs to draw their markers. */
+  /** Whether location `id` is on the map: drawn there, and not since gone. */
+  const onMap = (id) => !!S.mapped[id] && !(LOCS[id].gone && LOCS[id].gone());
+
+  /** The locations on the map, with what the map needs to draw their markers. */
   G.knownLocs = function () {
-    return Object.keys(LOCS).filter((id) => LOCS[id].known()).map((id) => ({
+    return Object.keys(LOCS).filter(onMap).map((id) => ({
       id,
       name: LOCS[id].name,
       x: LOCS[id].x,
@@ -263,10 +291,33 @@
     }));
   };
 
+  /** The map as it now stands, for a story card. */
+  G.mapArt = () => ART.chart(G.knownLocs(), CAMP_POS);
+
   /**
-   * Sets out for location `id`: pays the supplies, shows a travel bar for
-   * the journey's length, then plays the first or a repeat visit.
+   * A journey: pays `cost`, shows `text` above a travel bar for `time`
+   * seconds, then calls `arrive`, unless the game has moved on meanwhile.
    */
+  function journey(title, art, text, cost, time, arrive) {
+    pay(cost);
+    AU.sfx('step');
+    const generation = session.generation;
+    modal({ art, title, text: [text], choices: [] });
+    const bar = el('div', 'travel', '<div></div>');
+    bar.firstChild.style.animationDuration = `${time}s`;
+    $('#modal-choices').appendChild(bar);
+    const steps = setInterval(() => AU.sfx('step'), 650);
+    setTimeout(() => {
+      clearInterval(steps);
+      // the game may have been restarted, or ended, while travelling
+      if (session.generation !== generation || S.ended) return;
+      arrive();
+      save();
+      G.render();
+    }, time * 1000);
+  }
+
+  /** Sets out for location `id`, then plays the first or a repeat visit. */
   G.expedition = function (id) {
     const L = LOCS[id];
     if (!L) return;
@@ -279,23 +330,71 @@
       log(`You lack the supplies for that journey: ${costText(L.cost)}.`);
       return;
     }
-    pay(L.cost);
-    AU.sfx('step');
-    const generation = session.generation;
-    modal({ art: ART.scene(L.art), title: L.name, text: [`You set out for ${L.name.toLowerCase()}…`], choices: [] });
-    const bar = el('div', 'travel', '<div></div>');
-    bar.firstChild.style.animationDuration = `${L.time}s`;
-    $('#modal-choices').appendChild(bar);
-    const steps = setInterval(() => AU.sfx('step'), 650);
-    setTimeout(() => {
-      clearInterval(steps);
-      // the game may have been restarted, or ended, while travelling
-      if (session.generation !== generation || S.ended) return;
+    journey(L.name, ART.scene(L.art), `You set out for ${L.name.toLowerCase()}…`, L.cost, L.time, () => {
       S.visits[id] = (S.visits[id] || 0) + 1;
       if (S.visits[id] === 1) L.first();
       else L.repeat();
-      save();
-      G.render();
-    }, L.time * 1000);
+    });
   };
+
+  /**
+   * Whether place `id` can be found yet, by exploring or by sighting it: the
+   * grove from the start, the wreck once the bottle has told of it, and the
+   * rest once the wreck is on the map.
+   */
+  function canFind(id) {
+    if (S.mapped[id] || !LOCS[id].sighted) return false;
+    if (id === 'grove') return true;
+    if (id === 'wreck') return !!S.flags.bottle;
+    return !!S.mapped.wreck;
+  }
+
+  /** The chance that a trip exploring finds a new place. */
+  const findChance = () => Math.max(MIN_FIND, FIRST_FIND - FIND_DROP * Object.values(S.mapped).filter(Boolean).length);
+
+  /**
+   * On a visit to `id`, each place that can be seen from it may be spotted,
+   * and is drawn on the map. Returns paragraphs telling of it, for the card
+   * that ends the visit.
+   */
+  function sightings(id) {
+    const seen = (LOCS[id].sees || []).filter(([other, p]) => canFind(other) && chance(p));
+    seen.forEach(([other]) => {
+      S.mapped[other] = 1;
+    });
+    return seen.flatMap(([other, , text]) => [text, gainLine(`You mark ${LOCS[other].name.toLowerCase()} on your map.`)]);
+  }
+  G.sightings = sightings;
+
+  /** Exploring finds place `id`: it is drawn on the map, and shown there. */
+  function discover(id) {
+    const L = LOCS[id];
+    S.mapped[id] = 1;
+    AU.sfx('page');
+    modal({
+      art: G.mapArt(),
+      title: L.name,
+      text: [L.sighted, gainLine(`You mark ${L.name.toLowerCase()} on your map.`)],
+      choices: [leave('return to camp', `${L.name} is on your map now.`, 'lore')],
+    });
+  }
+
+  /**
+   * Sets out to explore. A trip may find one of the places that can be found
+   * yet, though the more of the island is mapped the harder that gets;
+   * otherwise something else happens along the way.
+   */
+  G.scout = function () {
+    if (!has(SCOUT_COST)) {
+      log(`You lack the supplies to go exploring: ${costText(SCOUT_COST)}.`);
+      return;
+    }
+    journey('Exploring', G.mapArt(), 'You set out with your map, into the parts of the island it does not show…', SCOUT_COST, SCOUT_TIME, () => {
+      const found = Object.keys(LOCS).filter(canFind);
+      if (found.length && chance(findChance())) discover(pick(found));
+      else G.wander();
+    });
+  };
+
+  G.SCOUT_COST = SCOUT_COST;
 })();
