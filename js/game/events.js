@@ -376,7 +376,7 @@
         ])),
     },
     {
-      id: 'gullRaid', weight: 0.8,
+      id: 'gullRaid', limit: 6, weight: 2.5,
       when: () => G.armed() && S.res.food > 2 && !isNight(),
       run: () => fight('gulls', {
         onWin: () => {
@@ -408,7 +408,7 @@
       }),
     },
     {
-      id: 'crabRaid', limit: 3, weight: 0.6,
+      id: 'crabRaid', limit: 4, weight: 1,
       when: () => G.armed() && isNight(),
       run: () => fight('crab', {
         ambush: true,
@@ -425,7 +425,7 @@
       }),
     },
     {
-      id: 'gull', limit: 4,
+      id: 'gull', limit: 4, weight: 2,
       when: () => !G.armed() && S.res.food > 3,
       run() {
         add('food', -1);
