@@ -1,32 +1,112 @@
-# Driftwood
+<p align="center">
+  <img src="docs/title.svg" alt="A barque sails away from an island at dawn, a castaway watching from the shore" width="760">
+</p>
 
-*A castaway's tale of the South Seas, 1846.*
+<h1 align="center">Driftwood</h1>
 
-A slow, text-driven survival game in the spirit of *A Dark Room*. You are the bosun's mate of the barque *Meridian*, marooned by mutineers with a pistol, a single ball and the ship's Bible. Gather driftwood, keep your fire alive, explore the island, learn what happened to the brig *Calliope* twenty years before you, and find a way home.
+<p align="center">
+  <em>A castaway's tale of the South Seas, 1846.</em><br>
+  A slow, text-driven survival game in the spirit of <em>A Dark Room</em>.
+</p>
+
+<p align="center">
+  <a href="#playing">Play</a> ·
+  <a href="#the-story">Story</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#visual-styles">Visual styles</a> ·
+  <a href="#how-its-made">How it's made</a>
+</p>
+
+---
+
+## The story
+
+> *They rowed you ashore at first light, as the old custom demands: a flintlock with a single ball, a flask of water, a tin of ship's biscuit — and the Bible, so that you might make your peace.*
+
+You were bosun's mate aboard the barque *Meridian*, out of Bristol and bound for Valparaíso. When the crew mutinied you would choose neither side, so the mutineers left you alone on an uncharted island.
+
+Gather driftwood. Keep the fire alive. Explore the island and learn what happened to the brig *Calliope*, wrecked on the same reef twenty years before you. Then find a way home.
+
+<p align="center">
+  <img src="docs/screenshot.png" alt="The game: a hand-engraved beach camp above a list of actions, with the log on the left and stores on the right" width="900">
+</p>
 
 ## Playing
 
-Open `index.html` in a browser. There's no build step and no server, and it works straight from `file://`. Progress is saved to `localStorage` automatically.
+Open **`index.html`** in a browser. That's all you need: there's no build step and no server, and it runs straight from `file://`.
 
-To host it, publish the folder as-is on any static host (GitHub Pages, Netlify, etc.).
+```bash
+git clone git@github.com:benorrin/Driftwood.git
+cd Driftwood
+xdg-open index.html        # macOS: open index.html
+```
+
+- 🔊 Sound starts on your first click, because browsers block autoplay. Music and effects have separate toggles.
+- 💾 Progress saves automatically to your browser's `localStorage`.
+- 🌐 To host it, publish the folder as-is on any static host (GitHub Pages, Netlify, …).
+- 📱 The layout adapts to phones.
+
+## Features
+
+|   |   |
+|---|---|
+| 🔥 **Survival** | A day/night cycle, a fire to feed, and hunger and thirst every dawn. Nights without a fire are cold, and something prowls beyond the light. |
+| 🪓 **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish weirs and a smoking rack. |
+| 🗺️ **Exploration** | A hand-drawn chart with eight places to find: a palm grove, tide pools, a spring, the jungle, a cave, a wreck on the reef, a hut, and the summit. |
+| ⚔️ **Combat** | Real-time fights with land crabs, a wild boar, a viper, a shark… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball. |
+| 📜 **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
+| ⛵ **Endings** | Build a raft and brave the open sea, or light a signal pyre and pray a ship sees it. |
+
+<p align="center">
+  <img src="docs/chart.svg" alt="An old-style chart of the island with a compass rose and labelled locations" width="720">
+</p>
 
 ## Visual styles
 
-Choose **style** in the top bar, or **visual style** on the title screen, to change how the island is drawn. The idea comes from the monitor palettes in *Return of the Obra Dinn*. There are eight styles: Engraving (the default), Night Watch, a 1-bit Macintosh, IBM 5151 green phosphor, Zenith amber, Commodore 1084, IBM 8503, and a pocket LCD. The CRT styles add scanlines, a phosphor glow and a terminal font. Your choice is remembered in the browser.
+Choose **style** in the top bar, or **visual style** on the title screen, to change how the island is drawn. The idea comes from the monitor palettes in *Return of the Obra Dinn*. Every illustration is drawn in just two colours, so swapping the palette repaints the whole game.
 
-To add a style, add an entry to the list in `js/styles.js` with an ink colour, a paper colour, a font, and optionally a screen effect (`crt`, `mac` or `lcd`). Every illustration is drawn in exactly those two colours, so nothing else needs to change.
+<p align="center">
+  <img src="docs/styles.png" alt="The game shown in all eight visual styles" width="900">
+</p>
+
+| Style | Look | Extras |
+|---|---|---|
+| **Engraving** | ink on rag paper | the default |
+| **Night Watch** | chalk on slate | |
+| **Macintosh** | 1-bit black and white, 1984 | rounded buttons, striped title bars |
+| **IBM 5151** | green phosphor | CRT scanlines, glow, terminal font |
+| **Zenith ZVM-1240** | amber phosphor | CRT scanlines, glow, terminal font |
+| **Commodore 1084** | cyan on violet | CRT scanlines, glow, terminal font |
+| **IBM 8503** | grey-white monochrome | monospaced |
+| **Pocket LCD** | four shades of pea | pixel grid |
+
+To add your own style, add an entry to the list in [`js/styles.js`](js/styles.js) with an ink colour, a paper colour, a font, and optionally a screen effect (`crt`, `mac` or `lcd`).
 
 ## How it's made
 
-- **No asset files.** The illustrations are SVG drawn by code (`js/art.js`) in the style of a 19th-century wood engraving: hatching, stipple and ink line, roughened with an SVG displacement filter.
-- **Music and sound** are synthesised live with the Web Audio API (`js/audio.js`): breaking surf, a crackling fire, an original fiddle lament in D dorian, a heartbeat drum for fights, ship's bells at dawn, and every sound effect.
-- **The game** (`js/game.js`) covers resources, crafting, a day/night cycle, fire upkeep, hunger and thirst, an explorable chart of the island, real-time combat, a story told through events, and two different endings.
+The game has **no asset files at all.** Everything you see and hear is generated in the browser.
 
-The only external dependencies are three fonts from Google Fonts: *IM Fell English*, plus *VT323* and *Space Mono* for the retro styles. When you're offline the page falls back to Georgia or Courier.
+| File | What it does |
+|---|---|
+| [`js/art.js`](js/art.js) | Draws every illustration as SVG in code, in the manner of a 19th-century wood engraving: hatching, stipple and ink line, roughened with an SVG displacement filter so nothing is quite ruler-straight. |
+| [`js/audio.js`](js/audio.js) | Synthesises all the sound with the Web Audio API: breaking surf, a crackling fire, an original fiddle lament in D dorian, a heartbeat drum for fights, ship's bells at dawn, and every sound effect. |
+| [`js/game.js`](js/game.js) | The game itself: state, crafting, the clock, exploration, combat, story events and endings. |
+| [`js/styles.js`](js/styles.js) | The visual style palettes. |
+| [`css/style.css`](css/style.css) | Layout and screen effects. |
 
-## Spoiler-light hints
+The only external dependencies are three fonts from Google Fonts: [IM Fell English](https://fonts.google.com/specimen/IM+Fell+English), plus [VT323](https://fonts.google.com/specimen/VT323) and [Space Mono](https://fonts.google.com/specimen/Space+Mono) for the retro styles. When you're offline the page falls back to Georgia or Courier.
+
+<details>
+<summary><strong>Spoiler-light hints</strong></summary>
+<br>
 
 - Keep the fire burning at night. Some things on this island are afraid of it.
 - Twist palm fibre into cordage. Almost everything needs it.
 - Read every bottle and journal you find. They tell you where to go next.
 - There is more than one way off the island, and more than one way to treat the man in the jungle.
+
+</details>
+
+## License
+
+[GNU General Public License v3.0](LICENSE)
