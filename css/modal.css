@@ -111,9 +111,24 @@
 }
 
 .combat .ctext {
-  min-height: 1.5em;
+  min-height: 3.2em;
   font-style: italic;
-  margin: 6px 0 4px;
+  margin: 6px 0 10px;
+}
+
+.combat .ctext p {
+  margin: 0 0 0.2em;
+}
+
+/* the foe winds up for a heavy blow: the warning, and the move that answers it */
+.combat .ctext .tell {
+  font-style: normal;
+  font-family: var(--font-sc);
+}
+
+.combat .btn.urgent {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .combat .moves {
