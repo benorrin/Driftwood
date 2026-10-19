@@ -50,7 +50,9 @@
 
 .title-links {
   display: flex;
-  gap: 1em;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 1em;
 }
 
 .title-buttons .btn {
