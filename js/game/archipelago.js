@@ -270,15 +270,15 @@
       name: 'The Bird Rock', x: 548, y: 112, bearing: 'east', days: 2, rocky: 1,
       camp: [300, 244],
       land() {
-        isleCard('cliffs', 'The Bird Rock', [
+        isleCard('birdrock', 'The Bird Rock', [
           'It is not an island so much as a tooth: a black rock standing out of the sea, white with the droppings of ten thousand birds, and loud with them. There is one landing place, a shelf of rock on the lee side, and you get ashore wet to the waist.',
           'Above the shelf, wedged in the rock, something that is not rock: timbers. The ribs of a ship.',
         ], 'There are the bones of a ship on the Bird Rock.');
       },
-      again: () => isleCard('cliffs', 'The Bird Rock', ['The birds rise in a screaming cloud as you come ashore, and settle again when they see it is only you.'], null),
+      again: () => isleCard('birdrock', 'The Bird Rock', ['The birds rise in a screaming cloud as you come ashore, and settle again when they see it is only you.'], null),
       locs: {
         brCleft: {
-          name: 'The Cleft', x: 250, y: 178, cost: { water: 1 }, time: 3, art: 'wreck',
+          name: 'The Cleft', x: 250, y: 178, cost: { water: 1 }, time: 3, art: 'salem',
           findable: () => true,
           sighted: 'Above the landing shelf, jammed into a cleft in the rock, the ribs of a ship.',
           sees: [['brTop', 1, 'Behind the wreck, a way up: steps, cut into the rock by hand.']],
@@ -291,14 +291,14 @@
           repeat: () => G.done('brCleft', 'The old ship groans when the wind gets into her, as if she would still be off, if she could.'),
         },
         brLedges: {
-          name: 'The Ledges', x: 368, y: 148, cost: { water: 1 }, time: 3, art: 'cliffs',
+          name: 'The Ledges', x: 368, y: 148, cost: { water: 1 }, time: 3, art: 'birdrock',
           findable: () => true,
           sighted: 'Up the seaward face of the rock, ledge after ledge of nesting birds.',
           first: () => G.done('brLedges', 'Ledge after ledge of birds, so many that the rock moves. They scream at you, and you take their eggs anyway.', { food: rand(3, 4) }, 'The ledges on the Bird Rock are thick with eggs, if you will brave the birds.'),
           repeat: () => G.done('brLedges', 'The birds have laid again.', { food: rand(2, 4) }),
         },
         brTop: {
-          name: 'The Top of the Rock', x: 300, y: 126, cost: { water: 1, food: 1 }, time: 4, art: 'summit',
+          name: 'The Top of the Rock', x: 300, y: 126, cost: { water: 1, food: 1 }, time: 4, art: 'birdrock',
           findable: () => !!S.visits.brCleft,
           clue: 'Behind the old wreck, steps go up the rock: cut by hand. They are slick with droppings, and you do not trust them yet.',
           sighted: 'Behind the wreck, steps cut by hand go up to the top of the rock.',
@@ -307,9 +307,9 @@
         },
       },
       trail: [
-        [3, 'You scramble about the rock for an hour, and find nothing but birds, and more birds.', null, 'cliffs'],
-        [1, 'In a crack in the rock, a rusted iron spike from the Salem ship.', { iron: 1 }, 'wreck'],
-        [1, 'A seal hauls out on the shelf below you, looks up at you with great wet eyes, and decides you are not worth moving for.', null, 'cliffs'],
+        [3, 'You scramble about the rock for an hour, and find nothing but birds, and more birds.', null, 'birdrock'],
+        [1, 'In a crack in the rock, a rusted iron spike from the Salem ship.', { iron: 1 }, 'salem'],
+        [1, 'A seal hauls out on the shelf below you, looks up at you with great wet eyes, and decides you are not worth moving for.', null, 'birdrock'],
       ],
       places: [
         {

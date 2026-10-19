@@ -7,7 +7,7 @@
   const DW = window.DW;
   const draw = DW.draw;
   const {
-    pal, rng, svg, frame, P, ground, darkness,
+    pal, f, rng, svg, frame, P, ground, darkness,
     sky, sea, sun, moon, stars, birds, palm, rock, tufts, headland,
     fire, sitter, leanto, catcher, weir, rack, raft,
   } = draw;
@@ -76,7 +76,16 @@
     b += st.night ? moon(120, 46, 15) + stars(r, W, hz - 20) : sun(130, 58, 16, true) + birds(r, 260, 50, 9, 160);
     b += sea(r, W, hz, H, st.night);
     const isle = st.isle || 'islet';
-    if (isle === 'high' || isle === 'smoke') {
+    if (isle === 'rock') {
+      // the rock itself, rising sheer beside the landing shelf, white with the birds' droppings
+      b += headland(r, 24, hz, 56, 6, 1);
+      b += P('M380 252 L392 216 L406 200 L412 176 L428 150 L434 126 L450 108 L458 82 L474 64 L484 40 L494 30 L504 40 L514 38 L524 62 L534 82 L546 112 L560 126 L570 156 L588 178 L598 208 L618 226 L632 252Z', pal.ink, 1.4);
+      b += P('M446 120 h46 M422 170 h78 M520 104 h34 M514 150 h66 M490 74 h20 M460 214 h120', null, 1.6, `stroke="${pal.paper}"`);
+      let streaks = '';
+      for (let i = 0; i < 24; i++) streaks += `M${f(410 + r() * 180)} ${f(70 + r() * 160)}v${f(6 + r() * 18)}`;
+      b += P(streaks, null, 1.4, `stroke="${pal.paper}"`);
+      b += birds(r, 460, 60, 18, 280) + birds(r, 150, 90, 8, 200);
+    } else if (isle === 'high' || isle === 'smoke') {
       // the island's own heights, and the cloud that sits on them
       b += headland(r, 300, hz + 80, 320, 170, 6);
       b += P('M380 40 q20 -16 46 -6 q24 -14 50 0 q22 0 26 14 q-60 8 -122 -8Z', pal.paper, 1);
@@ -89,11 +98,12 @@
     const shore = {
       islet: ['M-10 300 C40 262 140 222 300 218 S540 244 610 300Z', 'url(#dots)'],
       high: ['M-10 300 C40 256 160 226 300 222 S540 232 610 262 V300Z', 'url(#dots)'],
-      rock: ['M-10 300 C30 250 120 214 240 206 C330 196 420 214 500 236 S590 270 610 300Z', 'url(#h1)'],
+      rock: ['M-10 300 L-10 262 Q100 248 220 252 L480 250 Q560 254 610 266 L610 300Z', 'url(#h2)'],
       sandbar: ['M-10 300 C60 274 180 252 300 250 S540 262 610 300Z', 'url(#dots)'],
       smoke: ['M-10 300 C40 256 160 226 300 222 S540 232 610 262 V300Z', 'url(#dots)'],
     }[isle];
-    b += P(shore[0], shore[1], 1.2);
+    // a paper ground first, so the sea does not show through the hatching
+    b += P(shore[0], pal.paper, 0) + P(shore[0], shore[1], 1.2);
     b += P('M0 262 q40 -14 70 -26 M540 238 q36 10 60 24', null, 0.7, 'stroke-dasharray="5 6"');
     if (isle === 'islet' || isle === 'high' || isle === 'smoke') {
       b += tufts(r, 380, 560, 262, 4);
@@ -108,7 +118,6 @@
       }
       b += P('M150 268 q50 10 100 0 l4 -6 q-54 8 -108 0Z', 'url(#h3)', 1) + P('M160 252 h80', null, 2);
     }
-    if (isle === 'rock') b += birds(r, 300, 150, 14, 260);
 
     // the wreck, patched as far as it has been
     b += raft(70, 286, { hull: 1, mast: st.boat.mast, sail: st.boat.sail }, 0.85);

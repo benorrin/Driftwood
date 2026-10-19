@@ -362,6 +362,38 @@
       return framed(b, 'Sea cliffs crowded with birds');
     },
 
+    /**
+     * The Bird Rock: a tooth of black rock standing out of the open sea,
+     * streaked white with the droppings of the birds that wheel about it,
+     * with the surf breaking at its foot. `opts.ribs` shows the old Salem
+     * ship's timbers jammed into the cleft on its lee side.
+     */
+    birdrock(opts) {
+      opts = opts || {};
+      const r = rng(173);
+      let b = seascape(r, 150);
+      b += P('M282 206 L292 176 L300 162 L306 140 L318 120 L322 104 L336 90 L344 66 L356 52 L364 34 L372 30 L380 38 L388 36 L396 54 L404 70 L412 96 L424 108 L432 132 L446 150 L452 174 L466 186 L474 206Z', pal.ink, 1.4);
+      // ledges, and the white streaks that run down from them
+      b += P('M326 110 h44 M308 150 h70 M402 120 h30 M396 166 h56 M360 82 h22', null, 1.6, `stroke="${pal.paper}"`);
+      let streaks = '';
+      for (let i = 0; i < 18; i++) streaks += `M${f(310 + r() * 140)} ${f(70 + r() * 110)}v${f(6 + r() * 16)}`;
+      b += P(streaks, null, 1.4, `stroke="${pal.paper}"`);
+      // the cleft on the lee side, and in it, if shown, the bones of the Salem ship
+      b += P('M316 206 L326 176 L332 152 L338 172 L346 206', null, 1.2, `stroke="${pal.paper}"`);
+      if (opts.ribs) {
+        let ribs = '';
+        for (let i = 0; i < 6; i++) ribs += `M${300 + i * 9} 196 q-8 -22 4 -42`;
+        b += P(ribs, null, 2.6, `stroke="${pal.paper}"`) + P('M296 198 L352 186', null, 3, `stroke="${pal.paper}"`);
+      }
+      // the surf at its foot
+      b += P('M262 208 q14 -8 28 0 t28 0 t28 0 t28 0 t28 0 t28 0 t28 0', pal.paper, 1.1);
+      b += birds(r, 380, 70, 16, 240) + birds(r, 230, 110, 8, 160) + birds(r, 520, 90, 6, 120);
+      return framed(b, opts.ribs ? 'The bones of an old ship jammed into a cleft in a black rock' : 'A black rock in the open sea, streaked white, and wheeling with birds');
+    },
+
+    /** The Bird Rock's cleft, with the Salem ship's bones in it. */
+    salem: () => SCENES.birdrock({ ribs: 1 }),
+
     /** A stand of tall pale trees, their trunks scored and weeping gum. */
     gumwood() {
       const r = rng(161);
