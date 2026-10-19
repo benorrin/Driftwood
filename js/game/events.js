@@ -114,6 +114,7 @@
   /** A storm comes in from the west: retreat inland, or stay and hold the camp at some cost. */
   function storm() {
     S.n.lastStorm = S.day;
+    S.n.storms = (S.n.storms || 0) + 1;
     AU.sfx('hurt');
     queueModal({
       art: ART.scene('tempest'),
@@ -398,10 +399,13 @@
         ], [
           {
             label: 'open it',
-            fn: () => beachCard('A Parcel', [
-              'Inside, wrapped in greased paper: a pair of Dutch skates. Skates, in the South Seas. Somebody\'s Christmas present, once.',
-              gainLine(`The steel blades will serve: ${gain({ iron: 2 })}.`),
-            ], [leave('return to camp')]),
+            fn: () => {
+              G.achieve('skates');
+              beachCard('A Parcel', [
+                'Inside, wrapped in greased paper: a pair of Dutch skates. Skates, in the South Seas. Somebody\'s Christmas present, once.',
+                gainLine(`The steel blades will serve: ${gain({ iron: 2 })}.`),
+              ], [leave('return to camp')]);
+            },
           },
           {
             label: 'keep it sealed',

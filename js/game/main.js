@@ -127,6 +127,7 @@
         fn: () => {
           clearSave();
           S.ended = true;
+          G.achieve('abandon');
           closeModal();
           G.toTitle();
         },
@@ -162,6 +163,12 @@
 
   /** What changed in each release, newest first, as headed paragraphs. */
   const NEWS = [
+    {
+      date: '20 October 2026',
+      items: [
+        ['Achievements', 'Deeds, feats, follies and a good many secrets, kept from one tale to the next. See which you have earned from the title screen, or from the top of the game.'],
+      ],
+    },
     {
       date: '19 October 2026',
       items: [
@@ -229,6 +236,7 @@
   function chooseStyle(id) {
     AU.sfx('click');
     STY.apply(id);
+    G.styleSeen(id);
     $('#title-art').innerHTML = ART.scene('title');
     view.sceneKey = '';
     render();
@@ -275,6 +283,7 @@
     ART.install($('#defs'));
     $('#title-art').innerHTML = ART.scene('title');
     refreshContinue();
+    G.styleSeen(STY.current);
 
     $('#btn-new').onclick = newGame;
     $('#btn-continue').onclick = continueGame;
@@ -283,6 +292,8 @@
     $('#btn-help').onclick = openHelp;
     $('#btn-news').onclick = openNews;
     $('#btn-records').onclick = openRecords;
+    $('#btn-achievements').onclick = G.openAchievements;
+    $('#btn-achievements-game').onclick = G.openAchievements;
     $('#btn-restart').onclick = restart;
     $('#tgl-music').onclick = $('#tgl-music-title').onclick = () => {
       AU.init();

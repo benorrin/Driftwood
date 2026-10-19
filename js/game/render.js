@@ -272,7 +272,7 @@
     logTop = S.log[0] || null;
   };
 
-  /** Redraws the game screen, if a game is running. */
+  /** Redraws the game screen, if a game is running, and awards any achievements the state has earned. */
   G.render = function () {
     if (!session.running) return;
     renderTabs();
@@ -280,5 +280,6 @@
     renderPanel();
     renderStatus();
     renderStores();
+    G.checkAchievements();
   };
 })();

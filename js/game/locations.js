@@ -575,6 +575,7 @@
       return;
     }
     const lit = cost.torch && !L.cost.torch ? ' by torchlight' : '';
+    if (isNight()) G.achieve('torch');
     journey(L.name, ART.scene(L.art), `You set out for ${L.name.toLowerCase()}${lit}…`, cost, L.time, () => {
       S.visits[id] = (S.visits[id] || 0) + 1;
       if (S.visits[id] === 1) L.first();
@@ -668,6 +669,7 @@
       return;
     }
     const how = isNight() ? 'You set out by torchlight' : 'You set out with your map';
+    if (isNight()) G.achieve('torch');
     journey('Exploring', G.mapArt(), `${how}, into the parts of the island it does not show…`, cost, SCOUT_TIME, () => {
       const found = findable();
       if (!found.includes(S.clue)) S.clue = null;

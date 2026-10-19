@@ -70,6 +70,7 @@
     let winding = false; // the foe is gathering for a heavy blow
     let braced = false; // the castaway braced this turn
     let opening = false; // the foe is off balance: the next blow cannot miss
+    let hurt = false; // the castaway has lost health in this fight
 
     AU.setMood('tense');
     if (E.sound) AU.sfx(E.sound);
@@ -99,6 +100,7 @@
     function struck(n, verb) {
       AU.sfx('hurt');
       replayAnimation(card, 'hurt');
+      hurt = true;
       say(`${cap(E.name)} ${verb}. (−${n})`);
       damage(n, E.name);
     }
@@ -113,6 +115,7 @@
         winding = false;
         if (braced) {
           opening = true;
+          G.achieve('brace');
           say(`${cap(E.name)} ${E.heavy} — but you are braced for it, and turn the blow aside. It is off balance.`);
         } else {
           struck(E.dmg + HEAVY_BONUS, E.heavy);
@@ -182,7 +185,7 @@
       E.hp -= d;
       replayAnimation($('#modal-art'), 'hit');
       say(opts.ally ? `You and Hollis strike together. (${d})` : `${w.verb} ${E.name}. (${d})`);
-      if (E.hp <= 0) win();
+      if (E.hp <= 0) win(!!w.ammo && !S.res[w.ammo]);
     }
 
     /** Tries to run: it works more often than not, and otherwise the foe gets its turn. */
@@ -191,6 +194,7 @@
         over = true;
         AU.setMood('calm');
         log(`You run from ${E.name}, and do not stop until your lungs give out.`);
+        if (key === 'gulls') G.achieve('routed');
         closeModal();
         if (opts.onFlee) opts.onFlee();
       } else {
@@ -198,9 +202,10 @@
       }
     }
 
-    /** The foe is dead: replaces the moves with a single "continue". */
-    function win() {
+    /** The foe is dead, by the pistol's last shot if `lastShot`: replaces the moves with a single "continue". */
+    function win(lastShot) {
       over = true;
+      G.foeBeaten(key, { hurt, lastShot });
       AU.sfx('victory');
       AU.setMood('calm');
       say(E.dead || `${cap(E.name)} is dead.`);

@@ -83,6 +83,7 @@
         AU.sfx('gather');
         if (chance(0.08)) {
           AU.sfx('hurt');
+          G.achieve('palm');
           damage(1, 'fall');
           if (!S.ended) {
             G.notice('A Fall', ['Halfway up, a frond gives way in your hand, and you fall the height of a man onto the roots.', gainLine('You lose 1 health.')],
@@ -150,6 +151,7 @@
       show: () => S.items.bible && S.fire > 0 && isNight(),
       run() {
         AU.sfx('page');
+        S.n.read = (S.n.read || 0) + 1;
         if (S.items.crusoe && chance(0.5)) log(`From Crusoe: "${pick(CRUSOE)}"`, 'lore');
         else log(`"${pick(VERSES)}"`, 'lore');
         heal(1);

@@ -159,6 +159,7 @@
     const prev = S.fire;
     S.fire = Math.max(0, Math.min(4, level));
     S.fireT = 0;
+    if (S.fire === 0 && S.flags.fireLit) S.flags.fireOut = 1;
     AU.setFire(S.fire);
     if (quiet || prev === S.fire) return;
     if (S.fire === 0) G.log('The fire has gone out.', 'warn');
@@ -228,6 +229,7 @@
     r.recent.unshift(cause ? { end, day: S.day, cause } : { end, day: S.day });
     r.recent.length = Math.min(r.recent.length, RECENT);
     storage.setJSON(RECORDS_KEY, r);
+    G.taleAchievements(end, cause);
   };
 
   /* ---------------- the last castaway ---------------- */
