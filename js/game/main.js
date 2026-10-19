@@ -179,6 +179,7 @@
         ['The last castaway', 'Die on the island, and the next castaway may find your bones, with what you kept and the notches you cut. Take what they had, or bury them. Those lost at sea come back another way.'],
         ['Not every sail', 'Once, a sail from the summit may be the <i>Meridian</i> come back, with Mr Crane aboard. Study a ship before you light the pyre, if you dare to let a whaler slip away while you look.'],
         ['The old canoe', 'With an axe, gum and rope, the outrigger by the lagoon can be made to float again. She is quicker than a raft, and riskier, and she knows the way to an island with a mutiny of its own.'],
+        ['Staying', 'Make your peace with the island, and in time you may choose not to leave it at all.'],
         ['A darker ending', 'There is another way off the island now, though not a happy one.'],
         ['Ailments', 'A turned ankle or a fever now lingers for days. Rest by the fire once a day to mend faster.'],
         ['Tom Hollis', 'Once Hollis has joined you, set him to gather wood, fish the reef, or keep watch over the camp by night.'],

@@ -94,6 +94,7 @@
         log(line, 'lore');
       }
     }
+    G.offerStay();
     if (S.built.pyre && S.flags.trades && !S.flags.sailing) {
       S.n.pyreDays++;
       if (chance(0.1 + S.n.pyreDays * 0.06)) G.sailSighted();

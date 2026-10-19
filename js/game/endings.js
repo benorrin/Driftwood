@@ -1,6 +1,6 @@
 /* Driftwood — endings.
  * Rescue by a passing whaler, the voyages by raft and by canoe, the
- * Meridian's return, and death. */
+ * Meridian's return, staying for good, and death. */
 (function () {
   'use strict';
 
@@ -266,6 +266,57 @@
       }],
     });
   }
+
+  /* ---------------- staying ---------------- */
+
+  /** The first day the island may feel like home, and how long before the thought comes back if put aside. */
+  const STAY_DAY = 30;
+  const STAY_AGAIN = 10;
+
+  /**
+   * Whether the castaway has made their peace with the island: a month
+   * ashore, a roof overhead, the Calliope's dead buried, and the carved
+   * figure not in their keeping.
+   */
+  const atPeace = () => S.day >= STAY_DAY && S.built.leanto && S.flags.buried && !S.items.idol &&
+    !S.flags.sailing && (!S.n.stayOffered || S.day - S.n.stayOffered >= STAY_AGAIN);
+
+  /** The castaway stays, and grows old on the island. */
+  function stay() {
+    G.recordTale('stay');
+    endGame('ending');
+    const text = ['You stop cutting the notches. After a while you stop looking at the sea, except for the pleasure of it.'];
+    if (S.flags.ally) text.push('Hollis teaches you the names he has given to the birds, and you teach him his letters from the Bible. You quarrel about the fire, and about the weather, and about nothing, like brothers.');
+    if (S.items.bristow) text.push('Bristow gets a new face every spring.');
+    const found = S.flags.ally
+      ? ['two grey-bearded men who ask them, very politely, to leave them be', 'He does not note their names. They would not give them.']
+      : ['a grey-bearded man who asks them, very politely, to leave him be', 'He does not note the man\'s name. The man would not give it.'];
+    text.push(
+      `Many years later a survey ship of the Royal Navy puts a boat ashore on an island not on her charts, and finds a garden, a hut of stone, a row of old graves above the tide line, and ${found[0]}.`,
+      `Her captain notes it in his log. ${found[1]}`,
+      gainLine(`${S.day} days upon the island, and then you stopped counting.`),
+      '<p class="dateline">THE END</p>',
+    );
+    modal({ art: ART.scene('night'), title: G.ENDINGS.stay[0], text, choices: [BEGIN_AGAIN] });
+  }
+
+  /** At dawn, once the castaway is at peace with the island, they may choose to stay. */
+  G.offerStay = function () {
+    if (!atPeace()) return;
+    S.n.stayOffered = S.day;
+    G.queueModal({
+      art: ART.scene('beach'),
+      title: 'The Notches',
+      text: [
+        'You go to cut the morning\'s notch in the palm by the fire, and find you have lost count. You cannot remember when you last looked for a sail.',
+        'The fire is burning. The water is sweet. The dead are in their graves, and no one on this island wishes you harm.',
+      ],
+      choices: [
+        { label: 'stay', fn: stay },
+        leave('not yet', 'You cut the notch, and look at the sea for a long while.', 'lore'),
+      ],
+    });
+  };
 
   /* ---------------- the canoe ---------------- */
 

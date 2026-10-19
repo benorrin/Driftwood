@@ -238,6 +238,7 @@
     landfall: ['Landfall', 'sailed the raft to the Society Islands'],
     articles: ['The Articles', 'signed on with the mutineers'],
     pitcairn: ["Pitcairn's Island", "paddled the old canoe to Pitcairn's Island"],
+    stay: ['The Island', 'stayed, and made the island home'],
   };
 
   /** How each way of dying that isn't a creature reads in the ship's log. */
