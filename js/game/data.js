@@ -21,6 +21,13 @@
   /** The tick at which night falls. */
   G.NIGHT_AT = 84;
 
+  /**
+   * The tide: two in a day, each low for half its length, and coming in a
+   * little later each day, as tides do.
+   */
+  G.TIDE_LEN = 60;
+  G.TIDE_LATER = 8;
+
   /** Ticks before an untended fire burns down a level. */
   G.FIRE_DECAY = 40;
 

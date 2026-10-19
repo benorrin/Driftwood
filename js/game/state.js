@@ -8,7 +8,7 @@
 
   const G = window.DW.game;
   const AU = window.DW.audio;
-  const { RES, FIRE_NAMES, NIGHT_AT, LOG_MAX, SAVE_KEY, REMAINS_KEY, RECORDS_KEY } = G;
+  const { RES, FIRE_NAMES, NIGHT_AT, TIDE_LEN, TIDE_LATER, LOG_MAX, SAVE_KEY, REMAINS_KEY, RECORDS_KEY } = G;
   const storage = window.DW.storage;
 
   /** The current game. Empty until a game is started or loaded. */
@@ -126,6 +126,12 @@
       }
     });
   };
+
+  /** Whether the tide is out, baring the reef and the rock pools. */
+  G.lowTide = () => (S.t + S.day * TIDE_LATER) % TIDE_LEN < TIDE_LEN / 2;
+
+  /** Whether the tide matters yet: once there is a place on the map that only the ebb uncovers. */
+  G.tideKnown = () => !!(S.mapped.wreck || S.mapped.tidepools);
 
   /** Whether it is night on the clock. */
   G.isNight = () => S.t >= NIGHT_AT;

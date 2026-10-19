@@ -26,7 +26,8 @@
     const camp = section('camp', 'The Beach');
     fill(camp.querySelector('.btn-row'), ACTIONS.filter((a) => a.show()).map((a) => {
       const enabled = (!a.cost || has(a.cost)) && (!a.enabled || a.enabled());
-      return button(a.id, a.label, a.cost ? costText(a.cost) : '', enabled, () => doAction(a));
+      const note = a.cost ? costText(a.cost) : (a.note && a.note()) || '';
+      return button(a.id, a.label, note, enabled, () => doAction(a));
     }));
     const secs = [camp];
 
@@ -171,7 +172,7 @@
 
   /** Draws the clock, the castaway's health, and the fire. */
   function renderStatus() {
-    $('#clock').textContent = `Day ${S.day}, ${phase()}`;
+    $('#clock').textContent = `Day ${S.day}, ${phase()}${G.tideKnown() ? `, ${G.lowTide() ? 'low' : 'high'} tide` : ''}`;
     const hp = Math.max(0, S.health);
     const mh = maxHealth();
     $('#status').innerHTML =

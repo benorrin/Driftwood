@@ -16,14 +16,15 @@
 
   /**
    * Actions on the beach. Each has a cooldown `cd` in seconds, an optional
-   * `cost`, `show()` (whether it is offered yet), an optional `enabled()`,
-   * and `run()`, which does the deed.
+   * `cost`, `show()` (whether it is offered yet), an optional `enabled()`
+   * with a `note()` saying why not, and `run()`, which does the deed.
    */
   G.ACTIONS = [
     {
       id: 'rest', label: 'rest', cd: 20,
       show: () => G.ailing(),
       enabled: () => S.n.rested !== S.day,
+      note: () => (S.n.rested === S.day ? 'rested today' : ''),
       run() {
         S.n.rested = S.day;
         heal(1);
@@ -77,6 +78,7 @@
       id: 'climb', label: 'climb a palm', cd: 12,
       show: () => S.flags.climb,
       enabled: () => !S.ail.ankle,
+      note: () => (S.ail.ankle ? 'not on that ankle' : ''),
       run() {
         AU.sfx('gather');
         if (chance(0.08)) {
@@ -132,6 +134,8 @@
     {
       id: 'salvage', label: 'salvage the wreck', cd: 25,
       show: () => S.flags.wreckHold,
+      enabled: () => G.lowTide(),
+      note: () => (G.lowTide() ? '' : 'wait for low water'),
       run() {
         AU.sfx('chop');
         S.n.salvage++;
@@ -180,6 +184,8 @@
       // a happening washed up with the tide
     } else {
       combRandom();
+      // the ebb leaves shellfish in the wet sand
+      if (G.tideKnown() && G.lowTide() && chance(0.4)) log(`At low water, in the wet sand: ${gain({ food: 1 })}.`);
     }
   }
 

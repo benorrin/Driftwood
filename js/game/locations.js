@@ -13,6 +13,9 @@
     modal, leave, fight, armed, done, wreck, journal, hut,
   } = G;
 
+  /** Why a place only the ebb uncovers can't be reached at high water. */
+  const HIGH_WATER = 'the tide is in: wait for the ebb';
+
   /** A `blocked()` check: the place can't be reached without possession `item`. */
   const requires = (item, why) => () => (!S.items[item] ? why : null);
 
@@ -71,6 +74,7 @@
     tidepools: {
       name: 'The Tide Pools', x: 446, y: 236, cost: { water: 1, food: 1 }, time: 5, art: 'tidepools',
       findable: () => S.mapped.wreck,
+      blocked: () => (G.lowTide() ? null : HIGH_WATER),
       clue: 'Along the eastern shore the sand gives way to black rock, and the surf there sounds different.',
       sighted: 'You follow the shore east until the sand gives out and black rock begins, stepping down into the sea in shelves. At low water every shelf holds a pool, bright with life.',
       sees: [
@@ -161,6 +165,7 @@
       ],
       blocked: () => {
         if (S.flags.wreckCabin && S.flags.wreckHold) return 'picked clean (salvage from camp)';
+        if (!G.lowTide()) return HIGH_WATER;
         return (S.res.rope || 0) < 3 ? 'needs 3 rope to cross the reef' : null;
       },
       first() {
