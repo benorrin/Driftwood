@@ -39,11 +39,7 @@
     if (S.flags.jem) lines.push('Jem Rudd signs on with the whalermen as a hand, and works his passage, and never once looks back at the islands.');
     if (S.flags.jemDead) lines.push('You do not speak of Jem Rudd. There is a grave by a stream on an island no one will ever find, and that is the end of it.');
     if (S.flags.killedHollis) lines.push('You never speak of the man in the jungle. But you count the notches, some nights, when you cannot sleep.');
-    if (S.items.bristow) {
-      lines.push(S.flags.sailing
-        ? 'Somewhere in the storm, Bristow went over the side. You still say sorry to him, some nights.'
-        : 'Bristow comes aboard with you. The whalermen think you mad, and they are not altogether wrong.');
-    }
+    if (S.items.bristow) lines.push('Bristow comes aboard with you. The whalermen think you mad, and they are not altogether wrong.');
     if (S.flags.buriedStranger) lines.push('Some nights you think of the bones in the scrub, and the boots that fitted you so well. You are glad you buried them.');
     if (S.flags.buried) lines.push('Captain Hale\'s journal you send to his widow in Liverpool, if she still lives. You never learn whether it reaches her.');
     if (S.items.locket) {
@@ -296,25 +292,4 @@
       choices: [{ label: 'put the helm over', fn: () => G.wrecked('canoe') }],
     });
   }
-
-  /*
-   * The voyages now end on the reef of the second chapter, and these
-   * landfalls wait for the ways off the archipelago.
-   */
-
-  /** Landfall on Pitcairn's Island, among the children of another mutiny. */
-  G.pitcairn = function () {
-    finish('pitcairn', ART.scene('landfall', { canoe: 1 }), [
-      'The people who come down the cliff path to meet you speak English, of a sort, and quote scripture, and their names are Christian, Young, Quintal and McCoy. Their grandfathers took the <i>Bounty</i>, they tell you, and burned her in the bay below.',
-      'You laugh until you weep, and cannot explain why. They take you in all the same. In the spring a whaler calls for water, and carries you on to Valparaíso.',
-    ]);
-  };
-
-  /** Landfall in the Society Islands, and the end of the voyage. */
-  G.landfall = function () {
-    finish('landfall', ART.scene('landfall'), [
-      'On the eleventh day, gulls. Then a smudge on the horizon that does not move as clouds move.',
-      'The people of the island wade out to meet you, laughing, and haul the raft up through the surf. You are in the Society Islands, they tell you, in a mixture of French, English and signs. A mission schooner calls at Papeete within the month.',
-    ]);
-  };
 })();

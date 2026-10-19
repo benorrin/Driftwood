@@ -146,6 +146,7 @@
     ['Explore', 'Before long you will draw a map. Explore the island to find places to put on it: the story tells you what to look for, a fruitless trip may still bring back a clue, and some places you may spot from somewhere else. Every trip costs supplies, and after dark you will need a torch to see your way. Some places can only be reached when the tide is out.'],
     ['Fight', 'Fights are turn based, and can be long. Strike, eat to heal, or flee. When a foe gathers itself for a heavy blow, brace yourself to turn it aside. Once you carry a blade, the island\'s creatures will start to come for you.'],
     ['Escape', 'There is more than one way off the island, and some of the choices you make along the way will follow you home.'],
+    ['Sail', 'In time you may have a boat that will carry you between islands. She runs before the wind: see which way it blows before you choose a passage, and carry water for every day at sea. A camp left to itself suffers; a camp somebody keeps does not.'],
     ['Time', 'Time passes while you play, and stands still while a notice is open. Your progress is saved in this browser.'],
   ];
 
@@ -164,6 +165,19 @@
 
   /** What changed in each release, newest first, as headed paragraphs. */
   const NEWS = [
+    {
+      date: '21 October 2026',
+      items: [
+        ['Chapter Two', 'The raft was never going to get you home. Where she does get you is the beginning of a second chapter: an archipelago of islands nobody could see from the summit, a chart of them, and a patched boat that only runs before the wind.'],
+        ['The wind', 'The trades, a westerly, or a flat calm, shifting every dawn. Fit your boat with leeboards, casks and an outrigger to go further, and in more weathers.'],
+        ['Five islands', 'An islet, a high island with a stream and an old camp on it, a rock of ten thousand birds, a sandbar, and, far to the south, an island where fires burn at night.'],
+        ['Who keeps the fire', 'Leave the camp, and Hollis can come with you or keep it. A camp nobody keeps is a camp the gulls have.'],
+        ['A deserter', 'Somebody is hiding out among the islands. If you can coax him out, he has a story to tell, one evening at a time.'],
+        ['The canoe people', 'They still come back, once a moon, to the old stone platform. How they receive you depends on what you have done.'],
+        ['The Meridian', 'She still comes back. But she no longer stops.'],
+        ['Bound for Valparaíso', 'The second chapter ends aboard a whaler. A castaway who sails in her is kept for the third chapter, which is still to be written.'],
+      ],
+    },
     {
       date: '20 October 2026',
       items: [

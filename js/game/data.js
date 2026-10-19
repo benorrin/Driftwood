@@ -288,8 +288,6 @@
   /** The ways a tale can end well, or at least end: [title, a line for the ship's log]. */
   G.ENDINGS = {
     rescue: ['Rescue', 'taken off by the whaler <i>Perseverance</i>'],
-    landfall: ['Landfall', 'sailed the raft to the Society Islands'],
-    pitcairn: ["Pitcairn's Island", "paddled the old canoe to Pitcairn's Island"],
     stay: ['The Island', 'stayed, and made the island home'],
     valparaiso: ['Bound for Valparaíso', 'sailed for Valparaíso in the <i>Perseverance</i>'],
   };
@@ -297,6 +295,8 @@
   /** Endings no longer in the tale, as old tales in the ship's log still name them. */
   G.RETIRED_ENDINGS = {
     articles: 'signed on with the mutineers',
+    landfall: 'sailed the raft to the Society Islands',
+    pitcairn: "paddled the old canoe to Pitcairn's Island",
   };
 
   /** How each way of dying that isn't a creature reads in the ship's log. */

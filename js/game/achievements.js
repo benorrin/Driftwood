@@ -25,7 +25,7 @@
   };
 
   /** The endings that take the castaway home. */
-  const HOMEWARD = ['rescue', 'landfall', 'pitcairn', 'valparaiso'];
+  const HOMEWARD = ['rescue', 'valparaiso'];
 
   /** Days within which a castaway must get home for "Fair Winds". */
   const FAIR_WINDS_DAYS = 15;
@@ -74,8 +74,6 @@
     { id: 'witness', kind: 'deed', name: 'A Witness', desc: 'Persuade Jem to come to Valparaíso and speak.', test: () => S.flags.jemSails },
     { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
-    { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },
-    { id: 'pitcairn', kind: 'deed', name: 'Another Mutiny', desc: 'Paddle the old canoe to Pitcairn\'s Island.' },
 
     { id: 'cartographer', kind: 'feat', name: 'Cartographer', desc: 'Put every place on the island on your map.', test: () => Object.keys(G.LOCS).every((id) => S.mapped[id]) },
     { id: 'forty', kind: 'feat', name: 'Forty Days and Forty Nights', desc: 'Live to see the fortieth day.', test: () => S.day >= 40 },
@@ -113,7 +111,7 @@
     { id: 'idolHome', kind: 'secret', name: 'It Wants to Go Home', desc: 'Return the carved figure to its people.', test: () => S.flags.idolReturned },
     { id: 'idolKept', kind: 'secret', name: 'Facing the Room', desc: 'Take the carved figure home with you.' },
     { id: 'remains', kind: 'secret', name: 'The Boots Fit', desc: 'Find what is left of the last castaway.', test: () => S.events.bones || S.events.lastRaft },
-    { id: 'overboard', kind: 'secret', name: 'Bristow!', desc: 'Lose your companion at sea.' },
+    { id: 'overboard', kind: 'secret', name: 'Bristow!', desc: 'Lose your companion at sea.', test: () => S.flags.bristowLost },
     { id: 'meridian', kind: 'secret', name: 'Good Riddance', desc: 'Know the <i>Meridian</i>, and let her sail on.' },
     { id: 'glass', kind: 'secret', name: 'Through a Glass', desc: 'Light the pyre for the <i>Meridian</i>, and be watched.', test: () => S.flags.meridianClose },
     { id: 'jemDead', kind: 'secret', name: 'Taken With Him', desc: 'Kill the deserter.', test: () => S.flags.jemDead },
@@ -203,7 +201,6 @@
       if (S.items.parcel) G.achieve('parcel');
       if (S.items.locket && S.flags.buried) G.achieve('widow');
       if (S.items.idol) G.achieve('idolKept');
-      if (S.items.bristow && S.flags.sailing) G.achieve('overboard');
     }
     if (end === 'stay' && S.flags.ally) G.achieve('greybeards');
     const found = G.records().found;
