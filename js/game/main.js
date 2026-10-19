@@ -211,7 +211,7 @@
   function taleLine(t) {
     const how = t.end === 'death'
       ? G.DEATH_NOTES[t.cause] || `killed by ${t.cause}`
-      : G.ENDINGS[t.end][1];
+      : (G.ENDINGS[t.end] ? G.ENDINGS[t.end][1] : G.RETIRED_ENDINGS[t.end]);
     const chapter = t.chapter ? `, ${G.CHAPTERS[t.chapter].toLowerCase()}` : '';
     return `<p><b class="sc">Day ${t.day}${chapter}.</b> ${G.cap(how)}.</p>`;
   }

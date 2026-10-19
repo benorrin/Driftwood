@@ -108,28 +108,6 @@
       return framed(b, 'A wild man with a spear');
     },
 
-    /** Mr Crane, first mate of the Meridian: a tarred hat, a short jacket, and a cutlass raised. */
-    crane() {
-      const r = rng(251);
-      let b = seascape(r, 120);
-      b += `<ellipse cx="300" cy="140" rx="150" ry="120" fill="${pal.paper}" opacity="0.85"/>`;
-      b += ground('M0 216 C200 208 400 222 600 212', 'url(#dots)', 1);
-      b += rock(r, 60, 222, 90, 30);
-      // cutlass, raised in the right hand
-      b += P('M358 62 Q372 30 396 12', null, 4) + P('M348 68 l18 -10', null, 3);
-      // legs, a short jacket with its buttons, and arms
-      b += P('M290 150 L282 214 M310 150 L318 214', null, 13);
-      b += P('M272 94 L328 94 L324 156 L276 156Z', pal.ink, 1);
-      b += circle(300, 112, 2, pal.paper) + circle(300, 126, 2, pal.paper) + circle(300, 140, 2, pal.paper);
-      b += P('M277 100 L262 136 L268 158 M323 100 L348 82 L356 64', null, 8);
-      // head, neckerchief, tarred hat, and narrow eyes
-      b += circle(300, 74, 15, pal.ink);
-      b += P('M290 90 l10 9 l10 -9', null, 2, `stroke="${pal.paper}"`);
-      b += P('M278 62 h44', null, 3) + P('M286 62 q14 -20 28 0Z', pal.ink, 1);
-      b += P('M292 72 h5 M303 72 h5', null, 1.6, `stroke="${pal.paper}"`);
-      return framed(b, 'A sailor with a cutlass raised');
-    },
-
     /** Jem Rudd at bay: a starved young seaman in rags, bareheaded, a broken knife held low. */
     jem() {
       const r = rng(263);

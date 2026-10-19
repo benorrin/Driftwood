@@ -208,13 +208,6 @@
       heavy: 'flies at you with the knife',
       intro: 'He comes up off the ground with a broken knife in his fist, and his eyes are white all round.',
     },
-    crane: {
-      name: 'Mr Crane', art: 'crane', hp: 16, dmg: 2, hit: 0.65,
-      verbs: ['cuts at you with his cutlass', 'drives the hilt into your ribs', 'lays your arm open'],
-      tell: 'Crane steps back, takes the cutlass in both hands, and raises it over his head.',
-      heavy: 'brings the cutlass down with both hands',
-      intro: '"I gave you an island," says Crane, drawing his cutlass. "You might have had the sense to keep it."',
-    },
     shark: {
       name: 'the shark', art: 'shark', hp: 20, dmg: 2, hit: 0.6,
       verbs: ['tears at the logs, and at you', 'lunges from the water'],
@@ -290,9 +283,13 @@
   G.ENDINGS = {
     rescue: ['Rescue', 'taken off by the whaler <i>Perseverance</i>'],
     landfall: ['Landfall', 'sailed the raft to the Society Islands'],
-    articles: ['The Articles', 'signed on with the mutineers'],
     pitcairn: ["Pitcairn's Island", "paddled the old canoe to Pitcairn's Island"],
     stay: ['The Island', 'stayed, and made the island home'],
+  };
+
+  /** Endings no longer in the tale, as old tales in the ship's log still name them. */
+  G.RETIRED_ENDINGS = {
+    articles: 'signed on with the mutineers',
   };
 
   /** How each way of dying that isn't a creature reads in the ship's log. */
