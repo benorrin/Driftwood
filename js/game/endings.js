@@ -1,6 +1,6 @@
 /* Driftwood — endings.
- * Rescue by a passing whaler, the voyage by raft, the Meridian's return,
- * and death. */
+ * Rescue by a passing whaler, the voyages by raft and by canoe, the
+ * Meridian's return, and death. */
 (function () {
   'use strict';
 
@@ -8,7 +8,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, gainLine, DEATHS, LAUNCH_COST, RES,
+    S, chance, gainLine, DEATHS, LAUNCH_COST, RES,
     has, pay, add, gain, log, damage, clearSave, modal, closeModal, leave, fight,
   } = G;
 
@@ -265,6 +265,91 @@
         fn: () => fight('shark', { canFlee: false, ally: S.flags.ally, onWin: landfall }),
       }],
     });
+  }
+
+  /* ---------------- the canoe ---------------- */
+
+  /**
+   * The chance the canoe capsizes running before the squall: less with
+   * Hollis aboard to handle her, and less again if the carved figure was
+   * taken home to the marae.
+   */
+  function capsizeChance() {
+    return 0.45 - (S.flags.ally ? 0.2 : 0) - (S.flags.idolReturned ? 0.2 : 0);
+  }
+
+  /** Puts to sea in the mended canoe; its supplies are paid by the lagoon card's choice. */
+  G.launchCanoe = function () {
+    S.flags.sailing = 1;
+    AU.sfx('splash');
+    const companion = S.flags.ally ? ' Hollis kneels in the bow with a paddle, and sets the stroke without a word, as if he has done this all his life.' : '';
+    modal({
+      art: ART.scene('lagoon'),
+      title: 'The Outrigger',
+      text: [
+        `You paddle out across the lagoon at first light and through the gap in the reef, and the swell lifts the canoe and she rides it like a gull.${companion}`,
+        'Then the sail fills, and the island goes astern faster than you would have believed. Whoever made her knew what they were about.',
+      ],
+      choices: [{ label: 'sail on', fn: squall }],
+    });
+  };
+
+  /** A squall on the third day: run before it and risk capsizing, or drop the sail and bail. */
+  function squall() {
+    modal({
+      art: ART.scene('tempest'),
+      title: 'The Third Day',
+      text: ['A squall comes down on you out of a clear sky: a black wall of rain with white water at its foot. The canoe heels until the float lifts clear of the sea.'],
+      choices: [
+        {
+          label: 'run before it',
+          fn: () => {
+            if (chance(capsizeChance())) {
+              AU.sfx('hurt');
+              add('food', -Math.ceil(S.res.food / 2));
+              add('water', -Math.ceil(S.res.water / 2));
+              damage(3, 'storm');
+              if (!S.ended) afterSquall('She goes over in a gust, all at once, and you are in the sea with the hull above you. It takes you an hour to right her and bail her out, and half your stores are gone to the bottom.');
+            } else {
+              afterSquall('You let her run, and she flies, the float hissing through the crests, and an hour later you come out of the far side of the squall into sunshine, laughing like a fool.');
+            }
+          },
+        },
+        {
+          label: 'drop the sail and bail',
+          fn: () => {
+            AU.sfx('hurt');
+            add('food', -2);
+            add('water', -3);
+            damage(1, 'storm');
+            if (!S.ended) afterSquall('You get the sail down and bail all night, numb and soaked, while the squall drives you off your course. You will be days making it up, and the spray has spoiled some of your food.');
+          },
+        },
+      ],
+    });
+  }
+
+  /** After the squall: if the stores ran out, the last days of the voyage take their toll. */
+  function afterSquall(text) {
+    const short = !S.res.food || !S.res.water;
+    if (short) damage(3, 'thirst');
+    if (S.ended) return;
+    modal({
+      art: ART.scene('landfall', { canoe: 1 }),
+      title: 'Calm',
+      text: [text, short
+        ? 'The last days are the worst of your life: no food, then no water, and the sun like a hammer. On the ninth morning you see land, and do not believe it.'
+        : 'Six more days of steady wind. On the ninth morning there is land ahead: a high green island, sheer-sided, with the surf breaking white at its foot.'],
+      choices: [{ label: 'make for the land', fn: pitcairn }],
+    });
+  }
+
+  /** Landfall on Pitcairn's Island, among the children of another mutiny. */
+  function pitcairn() {
+    finish('pitcairn', ART.scene('landfall', { canoe: 1 }), [
+      'The people who come down the cliff path to meet you speak English, of a sort, and quote scripture, and their names are Christian, Young, Quintal and McCoy. Their grandfathers took the <i>Bounty</i>, they tell you, and burned her in the bay below.',
+      'You laugh until you weep, and cannot explain why. They take you in all the same. In the spring a whaler calls for water, and carries you on to Valparaíso.',
+    ]);
   }
 
   /** Landfall in the Society Islands, and the end of the voyage. */

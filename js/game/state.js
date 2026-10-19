@@ -38,6 +38,7 @@
       items: { pistol: 1, bible: 1 },
       built: {},
       raft: {},
+      canoe: {},
       flags: {},
       ail: {},
       visits: {},
@@ -182,6 +183,7 @@
     }
     s.events = s.events || {};
     s.ail = s.ail || {};
+    s.canoe = s.canoe || {};
     // the ball from the cask was once called Wilson
     if (s.items.wilson) s.items.bristow = 1;
     if (s.events.wilson) s.events.bristow = s.events.wilson;

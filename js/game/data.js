@@ -98,6 +98,19 @@
   G.LAUNCH_COST = { water: 16, food: 16 };
 
   /**
+   * Mending the old outrigger canoe at the lagoon, in order: each part has
+   * a label, a cost, and the line logged once it is done.
+   */
+  G.CANOE = [
+    { id: 'hull', label: 'pay the hull with gum', cost: { gum: 4, timber: 3 }, msg: 'You scrape the old hull clean, patch the split strakes, and pay every seam with gum. She will float.' },
+    { id: 'booms', label: 'lash new booms', cost: { timber: 3, rope: 6 }, msg: 'You shape new booms with the axe and lash the outrigger float to them, the way the old lashings went.' },
+    { id: 'sail', label: 'rig a sail', cost: { cloth: 3, rope: 2 }, msg: 'A mast, a yard, and a crab-claw sail of sailcloth. She looks like what she is: a boat that was made to go somewhere.' },
+  ];
+
+  /** Supplies needed to put to sea in the mended canoe: less than the raft can carry, and less than is wise. */
+  G.CANOE_LAUNCH = { water: 8, food: 8 };
+
+  /**
    * The day the trade winds turn. Only then, as Hale wrote, do ships pass
    * close enough to the north headland to see a fire on the summit.
    */
@@ -224,6 +237,7 @@
     rescue: ['Rescue', 'taken off by the whaler <i>Perseverance</i>'],
     landfall: ['Landfall', 'sailed the raft to the Society Islands'],
     articles: ['The Articles', 'signed on with the mutineers'],
+    pitcairn: ["Pitcairn's Island", "paddled the old canoe to Pitcairn's Island"],
   };
 
   /** How each way of dying that isn't a creature reads in the ship's log. */

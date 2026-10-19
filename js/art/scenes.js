@@ -19,6 +19,15 @@
       P(`M${x - 8} ${y - 46} q-8 4 -6 12 M${x + 8} ${y - 46} q8 4 6 12`, null, 1.6);
   }
 
+  /** The mended outrigger canoe under sail, its hull's left end at (x, y). */
+  function canoe(x, y) {
+    return P(`M${x} ${y - 8} Q${x + 90} ${y + 6} ${x + 180} ${y - 8} L${x + 186} ${y - 18} Q${x + 90} ${y - 4} ${x - 6} ${y - 18}Z`, 'url(#h3)', 1.3) +
+      P(`M${x + 50} ${y - 12} L${x + 46} ${y - 30} M${x + 120} ${y - 12} L${x + 124} ${y - 30}`, null, 2) +
+      P(`M${x + 30} ${y - 30} H${x + 140}`, null, 3) +
+      P(`M${x + 86} ${y - 12} V${y - 96}`, null, 2.4) +
+      P(`M${x + 88} ${y - 94} Q${x + 140} ${y - 70} ${x + 150} ${y - 22} L${x + 90} ${y - 18}Z`, 'url(#h1)', 1.2);
+  }
+
   /** The signal pyre on the summit, optionally lit and pouring smoke. */
   function pyre(lit) {
     let logs = '';
@@ -438,13 +447,14 @@
       return framed(b, 'A whaling ship lowers a boat');
     },
 
-    /** Landfall: the raft comes in toward an inhabited island. */
-    landfall() {
+    /** Landfall: the raft (or, with `opts.canoe`, the canoe) comes in toward an inhabited island. */
+    landfall(opts) {
+      opts = opts || {};
       const r = rng(141);
       const hz = 130;
       let b = seascape(r, hz);
       b += headland(r, 260, hz + 2, 340, 60, 5) + birds(r, 200, 50, 7, 120);
-      b += `<g class="bob">${raft(80, 220, { hull: 1, mast: 1, sail: 1, casks: 0 }, 0.8)}</g>`;
+      b += `<g class="bob">${opts.canoe ? canoe(30, 222) : raft(80, 220, { hull: 1, mast: 1, sail: 1, casks: 0 }, 0.8)}</g>`;
       for (let i = 0; i < 4; i++) {
         b += P(`M${300 + i * 30} ${hz + 6} l-10 14 h20Z`, 'url(#h2)', 0.8) + P(`M${300 + i * 30} ${hz + 6} v-8`, null, 1);
       }

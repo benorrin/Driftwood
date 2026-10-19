@@ -204,6 +204,8 @@
     if (S.built.trap) built.push(row('fish traps', S.built.trap));
     if (S.built.rack) built.push(row('smoking rack'));
     if (S.built.pyre) built.push(row('signal pyre', null, S.flags.trades ? 'watching for a sail' : 'waiting for the trade winds'));
+    const mended = G.CANOE.filter((p) => S.canoe[p.id]).length;
+    if (mended) built.push(row('outrigger canoe', null, mended < G.CANOE.length ? `${mended} of ${G.CANOE.length} mended` : 'ready at the lagoon'));
     if (S.flags.ally) built.push(row('Tom Hollis', null, HOLLIS_JOBS[G.hollisJob()][1]));
 
     $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + (built.length ? list('Camp', built) : '');
