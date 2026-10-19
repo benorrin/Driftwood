@@ -11,7 +11,7 @@
   const ART = window.DW.art;
   const {
     S, chance, pick, DAWNS, NIGHTFALLS, DAY_LEN, NIGHT_AT, FIRE_DECAY, TRADE_WINDS_DAY,
-    gainLine, add, log, heal, damage, setFire, save, session, queueModal, notice, leave, modalOpen, closeModal, rescueEnding,
+    gainLine, add, log, heal, damage, setFire, save, session, modal, queueModal, notice, leave, modalOpen, closeModal, rescueEnding,
   } = G;
 
   /** How often, in ticks, something may happen around the camp, and the chance it does. */
@@ -119,30 +119,77 @@
     if (text.length) notice('In the Night', text, lines.join(' '), ART.scene('night'));
   }
 
-  /** A ship on the horizon: light the pyre, or let her pass. */
-  G.sailSighted = function sailSighted() {
-    AU.sfx('sail');
-    queueModal({
+  /** The chance that a sail is the Meridian come back, until she has been seen once. */
+  const MERIDIAN_CHANCE = 0.35;
+
+  /** The chance that a whaler sails out of sight while the castaway studies her. */
+  const LOST_WHILE_LOOKING = 0.3;
+
+  /** What the Meridian looks like, close enough to know. */
+  const KNOW_MERIDIAN = 'There is a square of new canvas in her fore-topsail, and you know it, because you sewed it yourself off the Horn. She is the <i>Meridian</i>. Mr Crane has brought her back north.';
+
+  /** What a whaler looks like, close enough to know. */
+  const KNOW_WHALER = 'She is deep-laden and slow, her boats hanging in davits along her side, and a smudge of greasy smoke hangs over her deck from the try-works. A whaler.';
+
+  /** Lets the sail go by. Whoever she was, the wait begins again. */
+  function letPass(meridian, known) {
+    S.n.pyreDays = 0;
+    log(meridian && known
+      ? 'The <i>Meridian</i> sails on into the south, and takes Mr Crane with her. Good riddance.'
+      : 'The sail drops below the horizon. You chose this.', 'lore');
+    closeModal();
+  }
+
+  /** Studies the sail before lighting the pyre. Knowing her takes time, and a whaler may not wait. */
+  function studyShip(meridian) {
+    if (!meridian && chance(LOST_WHILE_LOOKING)) {
+      modal({
+        art: ART.scene('summit', { pyre: 1 }),
+        title: 'Hull Down',
+        text: [
+          'You shade your eyes and watch her until they water. Boats in davits. Smoke off her deck. A whaler, surely, but by the time you are sure, she is hull down to the south and running.',
+          gainLine('Light the pyre now, and nobody will see it.'),
+        ],
+        choices: [leave('let her go', 'You watched too long, and the whaler sailed out of sight.', 'lore')],
+      });
+      return;
+    }
+    modal({
       art: ART.scene('summit', { ship: 1, pyre: 1 }),
-      title: 'A Sail!',
-      text: [
-        S.flags.ally
-          ? 'Hollis comes running down the headland, shouting, waving his arms like a madman.'
-          : 'From the headland you see it, and do not believe it, and look again.',
-        'A fleck of white on the northern horizon. A ship, beating south under topsails, five miles off and passing.',
-      ],
+      title: meridian ? 'The Meridian' : 'A Whaler',
+      text: ['You shade your eyes and watch her come on.', meridian ? KNOW_MERIDIAN : KNOW_WHALER],
       choices: [
-        { label: 'light the pyre!', fn: rescueEnding },
-        {
-          label: 'let her pass',
-          fn: () => {
-            S.n.pyreDays = 0;
-            log('The sail drops below the horizon. You chose this.', 'lore');
-            closeModal();
-          },
-        },
+        { label: meridian ? 'light the pyre anyway' : 'light the pyre!', fn: meridian ? () => G.meridianLands(true) : rescueEnding },
+        { label: 'let her pass', fn: () => letPass(meridian, true) },
       ],
     });
+  }
+
+  /**
+   * A ship on the horizon: light the pyre, study her first, or let her pass.
+   * Once, she may be the Meridian, come back with the mutineers aboard.
+   * Hollis knows a whaler when he sees one, and says so.
+   */
+  G.sailSighted = function sailSighted() {
+    AU.sfx('sail');
+    const meridian = !S.flags.meridian && chance(MERIDIAN_CHANCE);
+    if (meridian) S.flags.meridian = 1;
+    const text = [
+      S.flags.ally
+        ? 'Hollis comes running down the headland, shouting, waving his arms like a madman.'
+        : 'From the headland you see it, and do not believe it, and look again.',
+      'A fleck of white on the northern horizon. A ship, beating south under topsails, five miles off and passing.',
+    ];
+    const choices = [{ label: 'light the pyre!', fn: meridian ? () => G.meridianLands(S.flags.ally) : rescueEnding }];
+    if (S.flags.ally) {
+      text.push(meridian
+        ? `Hollis squints at her a long while. "No whaler, that," he says. "No boats on her davits, and she's in a hurry." Then you know her yourself. ${KNOW_MERIDIAN}`
+        : '"Whaler!" Hollis shouts. "See the smoke off her deck? That\'s her try-works. Light it, man, light it!"');
+    } else {
+      choices.push({ label: 'study her first', fn: () => studyShip(meridian) });
+    }
+    choices.push({ label: 'let her pass', fn: () => letPass(meridian, S.flags.ally) });
+    queueModal({ art: ART.scene('summit', { ship: 1, pyre: 1 }), title: 'A Sail!', text, choices });
   };
 
   /** Counts `S.ticks[key]` up and runs `fn` (resetting the count) every `n` ticks. */

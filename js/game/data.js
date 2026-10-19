@@ -116,6 +116,13 @@
       heavy: 'drives the spear in with all his weight',
       intro: 'He howls, and comes at you with the spear.',
     },
+    crane: {
+      name: 'Mr Crane', art: 'crane', hp: 16, dmg: 2, hit: 0.65,
+      verbs: ['cuts at you with his cutlass', 'drives the hilt into your ribs', 'lays your arm open'],
+      tell: 'Crane steps back, takes the cutlass in both hands, and raises it over his head.',
+      heavy: 'brings the cutlass down with both hands',
+      intro: '"I gave you an island," says Crane, drawing his cutlass. "You might have had the sense to keep it."',
+    },
     shark: {
       name: 'the shark', art: 'shark', hp: 20, dmg: 2, hit: 0.6,
       verbs: ['tears at the logs, and at you', 'lunges from the water'],
