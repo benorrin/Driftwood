@@ -30,6 +30,8 @@
     AU.setFire(0);
   }
 
+  Object.assign(G, { endGame, BEGIN_AGAIN });
+
   /** The closing paragraphs, shaped by what the castaway did on the island. */
   function epilogue() {
     const lines = [];
@@ -100,9 +102,9 @@
       ],
       choices: [{
         label: 'go down to the beach',
-        fn: () => finish('rescue', ART.scene('rescue'), [
+        fn: () => (S.chapter >= 2 ? G.rescueChapterTwo() : finish('rescue', ART.scene('rescue'), [
           'She is the whaler <i>Perseverance</i>, of New Bedford, three years out. Her captain, a lean Nantucket Quaker named Eli Swain, hears your story without a word, and then says only: "Thee had better come aboard."',
-        ]),
+        ])),
       }],
     });
   };

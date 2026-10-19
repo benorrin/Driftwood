@@ -312,6 +312,7 @@
   Object.assign(ISLES.smoke, {
     land() {
       AU.sfx('page');
+      G.hollisAtFires();
       modal({
         art: ART.scene('landfall'),
         title: 'The Island of Fires',
@@ -325,6 +326,7 @@
       });
     },
     again() {
+      G.hollisAtFires();
       modal({
         art: ART.scene('landfall'),
         title: 'The Island of Fires',

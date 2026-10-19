@@ -25,7 +25,7 @@
   };
 
   /** The endings that take the castaway home. */
-  const HOMEWARD = ['rescue', 'landfall', 'pitcairn'];
+  const HOMEWARD = ['rescue', 'landfall', 'pitcairn', 'valparaiso'];
 
   /** Days within which a castaway must get home for "Fair Winds". */
   const FAIR_WINDS_DAYS = 15;
@@ -70,6 +70,8 @@
     { id: 'promise', kind: 'deed', name: 'A Promise', desc: 'Promise to bring their god home.', test: () => S.flags.promise },
     { id: 'fires', kind: 'deed', name: 'The Island of Fires', desc: 'Follow the canoes south.', test: () => S.landed && S.landed.smoke },
     { id: 'wayfinder', kind: 'deed', name: 'Three Swells', desc: 'Learn to read the sea from Tavake.', test: () => S.flags.wayfinder },
+    { id: 'valparaiso', kind: 'deed', name: 'Bound for Valparaíso', desc: 'Sail in the <i>Perseverance</i>.' },
+    { id: 'witness', kind: 'deed', name: 'A Witness', desc: 'Persuade Jem to come to Valparaíso and speak.', test: () => S.flags.jemSails },
     { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
     { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },
@@ -116,6 +118,7 @@
     { id: 'glass', kind: 'secret', name: 'Through a Glass', desc: 'Light the pyre for the <i>Meridian</i>, and be watched.', test: () => S.flags.meridianClose },
     { id: 'jemDead', kind: 'secret', name: 'Taken With Him', desc: 'Kill the deserter.', test: () => S.flags.jemDead },
     { id: 'notches', kind: 'secret', name: 'Thousands of Notches', desc: 'Kill the wild man.', test: () => S.flags.killedHollis },
+    { id: 'boyStayed', kind: 'secret', name: 'The Boy Who Stayed', desc: 'Leave Hollis with the people of the Island of Fires.', test: () => S.flags.hollisStayed },
     { id: 'greybeards', kind: 'secret', name: 'Two Grey Beards', desc: 'Grow old on the island with Hollis.' },
   ];
 

@@ -15,6 +15,9 @@
   /** Where the ship's log of every tale told is kept. */
   G.RECORDS_KEY = 'driftwood-records-v1';
 
+  /** Where a castaway who has sailed for Valparaíso is kept, for the chapter still to come. */
+  G.CARRY_KEY = 'driftwood-carry-v1';
+
   /** Where the achievements earned in this browser are kept. */
   G.ACHIEVEMENTS_KEY = 'driftwood-achievements-v1';
 
@@ -78,6 +81,7 @@
     idol: ['a carved figure', 'it is watching you'],
     dollar: ['a Spanish dollar', 'of no use at all'],
     bean: ['a black bean', 'from your jacket lining'],
+    shell: ['Tavake\'s shell', 'so it knows who you are'],
   };
 
   /**
@@ -287,6 +291,7 @@
     landfall: ['Landfall', 'sailed the raft to the Society Islands'],
     pitcairn: ["Pitcairn's Island", "paddled the old canoe to Pitcairn's Island"],
     stay: ['The Island', 'stayed, and made the island home'],
+    valparaiso: ['Bound for Valparaíso', 'sailed for Valparaíso in the <i>Perseverance</i>'],
   };
 
   /** Endings no longer in the tale, as old tales in the ship's log still name them. */

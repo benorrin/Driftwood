@@ -114,6 +114,7 @@
     if (S.chapter >= 2) G.shiftWind();
     G.jemDawn();
     G.islandersDawn();
+    G.whalerDawn();
     G.offerStay();
     if (S.built.pyre && S.flags.trades && !S.flags.sailing && G.atHome()) {
       S.n.pyreDays++;

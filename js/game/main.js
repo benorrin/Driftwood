@@ -26,6 +26,7 @@
   function refreshContinue() {
     $('#btn-continue').classList.toggle('hidden', !load());
     $('#btn-records').classList.toggle('hidden', !G.records().tales);
+    $('#carried').classList.toggle('hidden', !G.carried());
   }
 
   /** Stops the game and returns to the title screen. */
