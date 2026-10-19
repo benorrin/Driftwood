@@ -577,6 +577,13 @@
       ])),
     },
     {
+      id: 'jemTalk', weight: 0.5,
+      when: () => G.withJem(),
+      run: () => log(pick(G.withHollis()
+        ? ['Jem and Hollis eat on opposite sides of the fire, and watch each other over it.', 'Hollis shows Jem how to snare a bird. Jem does not say thank you, but he watches.', 'You hear Jem ask Hollis how long he has been here. Hollis tells him. Jem does not ask anything else that day.']
+        : ['Jem keeps looking at the sea, as if he expects to see a sail he does not want to see.', 'Jem whistles while he works, and stops himself, and looks round.', 'Jem asks you whether you believe in Jonahs. You do not answer, and he does not ask again.'])),
+    },
+    {
       id: 'hollisTalk', weight: 0.5,
       when: () => S.flags.ally,
       run: () => log(pick([

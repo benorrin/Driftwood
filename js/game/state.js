@@ -46,7 +46,7 @@
       events: {},
       log: [],
       n: { comb: 0, salvage: 0, pyreDays: 0 },
-      ticks: { catcher: 0, trap: 0, ally: 0, event: 0 },
+      ticks: { catcher: 0, trap: 0, ally: 0, event: 0, jem: 0 },
       chapter: 1,
       isle: 'home',
       wind: null,
@@ -209,6 +209,7 @@
     delete s.items.wilson;
     delete s.events.wilson;
     s.ticks.event = s.ticks.event || 0;
+    s.ticks.jem = s.ticks.jem || 0;
     // saved before there were chapters
     s.chapter = s.chapter || 1;
     s.isle = s.isle || 'home';

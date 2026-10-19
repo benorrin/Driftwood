@@ -298,6 +298,10 @@
       );
       if (broken.length) line = `You came home to a cold camp, and ${broken.join(', and ')}.`;
     }
+    if (S.flags.jem && !S.flags.jemHome) {
+      S.flags.jemHome = 1;
+      if (S.flags.ally) text.push('Hollis comes down the beach to meet you, and stops dead when he sees Jem. For a long moment the two of them look at each other: the man who was left, and the man who ran. Then Hollis nods once, and goes back to the fire.');
+    }
     if (S.flags.bristowLost) {
       // the tide got him home first
       delete S.flags.bristowLost;

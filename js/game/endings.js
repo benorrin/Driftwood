@@ -34,6 +34,8 @@
   function epilogue() {
     const lines = [];
     if (S.flags.ally) lines.push('Tom Hollis stands at the rail long after the island has sunk from sight. You do not disturb him.');
+    if (S.flags.jem) lines.push('Jem Rudd signs on with the whalermen as a hand, and works his passage, and never once looks back at the islands.');
+    if (S.flags.jemDead) lines.push('You do not speak of Jem Rudd. There is a grave by a stream on an island no one will ever find, and that is the end of it.');
     if (S.flags.killedHollis) lines.push('You never speak of the man in the jungle. But you count the notches, some nights, when you cannot sleep.');
     if (S.items.bristow) {
       lines.push(S.flags.sailing

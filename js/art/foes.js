@@ -130,6 +130,28 @@
       return framed(b, 'A sailor with a cutlass raised');
     },
 
+    /** Jem Rudd at bay: a starved young seaman in rags, bareheaded, a broken knife held low. */
+    jem() {
+      const r = rng(263);
+      let b = seascape(r, 120);
+      b += `<ellipse cx="300" cy="140" rx="150" ry="120" fill="${pal.paper}" opacity="0.85"/>`;
+      b += ground('M0 216 C200 208 400 222 600 212', 'url(#dots)', 1);
+      b += rock(r, 520, 220, 110, 44) + tufts(r, 40, 220, 216, 5);
+      // thin legs in torn slops, a ragged shirt hanging off him, arms out
+      b += P('M292 150 L280 214 M308 150 L320 214', null, 8);
+      b += P('M282 210 l-6 6 M318 210 l6 6', null, 2);
+      b += P('M278 96 L322 96 L318 150 L310 160 L304 150 L296 158 L288 150 L282 156Z', pal.ink, 1);
+      b += P('M280 102 L256 136 L246 150 M320 102 L340 130 L352 140', null, 6);
+      // the broken knife, low in the right hand
+      b += P('M352 140 l14 6', null, 3) + P('M366 146 l14 2', null, 2.2);
+      // head, bare and shaggy, a starveling beard, white-rimmed eyes
+      b += circle(300, 76, 14, pal.ink);
+      b += P('M286 70 l-4 -8 l6 2 l2 -8 l4 6 l4 -8 l3 8 l6 -5 l-1 9', pal.ink, 0.8);
+      b += P('M290 84 q10 12 20 0', null, 2.4);
+      b += circle(294, 74, 2.6, pal.paper) + circle(306, 74, 2.6, pal.paper) + circle(294, 74, 1, pal.ink) + circle(306, 74, 1, pal.ink);
+      return framed(b, 'A starved young sailor with a broken knife');
+    },
+
     /** A flock of gulls mobbing the camp, the nearest big as life, wings up. */
     gulls() {
       const r = rng(251);

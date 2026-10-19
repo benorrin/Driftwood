@@ -112,6 +112,7 @@
       }
     }
     if (S.chapter >= 2) G.shiftWind();
+    G.jemDawn();
     G.offerStay();
     if (S.built.pyre && S.flags.trades && !S.flags.sailing && G.atHome()) {
       S.n.pyreDays++;
@@ -152,6 +153,7 @@
       }
     }
     if (text.length) notice('In the Night', text, lines.join(' '), ART.scene('night'));
+    G.jemTale();
   }
 
   /** The chance that a sail is the Meridian come back, until she has been seen once. */
@@ -268,6 +270,7 @@
       if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));
       if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
     }
+    if (G.withJem()) every('jem', 40, G.jemWorks);
     if (G.withHollis()) {
       every('ally', 30, () => {
         const job = G.hollisJob();

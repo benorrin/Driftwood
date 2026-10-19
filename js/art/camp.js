@@ -18,7 +18,7 @@
   /**
    * Draws the camp. `st` describes it: night, fire (0–4), leanto, catcher
    * and trap (counts), rack, raft (parts built), raftStarted, ally (Hollis
-   * by the fire) and pyreLit.
+   * by the fire), jem (Jem Rudd beside him) and pyreLit.
    */
   DW.art.camp = function (st) {
     const r = rng(7);
@@ -47,6 +47,7 @@
     if (st.rack) b += rack(470, 290);
     if (st.raftStarted) b += raft(176, 296, st.raft, 0.9);
     if (st.ally) b += sitter(343, 266, 1.05, -1, true);
+    if (st.jem) b += sitter(224, 270, 1.05, 1);
     b += sitter(266, 266, 1.1, 1);
 
     // night falls over everything but the firelight; the fire itself stays crisp
@@ -60,7 +61,7 @@
    * Draws the shore of an island of the second chapter in place of the
    * camp: a hump of sand in the open sea, the castaway's own island far off,
    * and the boat on the sand. `st` has night, fire, boat (the parts
-   * patched), ally, and `isle`, which shapes the shore: the High Island
+   * patched), ally, jem, and `isle`, which shapes the shore: the High Island
    * rises steep and green behind it, the Bird Rock is bare black rock, and
    * the Sandbar is barely above the sea.
    */
@@ -101,6 +102,7 @@
     // the wreck, patched as far as it has been
     b += raft(70, 286, { hull: 1, mast: st.boat.mast, sail: st.boat.sail }, 0.85);
     if (st.ally) b += sitter(372, 270, 1.05, -1, true);
+    if (st.jem) b += sitter(250, 274, 1.05, 1);
     b += sitter(292, 270, 1.1, 1);
 
     let top = '';

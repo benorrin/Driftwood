@@ -90,6 +90,12 @@
     watch: ['keep watch', 'keeping watch', 'Hollis sits down by the stores with his spear across his knees, and feeds the fire, and watches.'],
   };
 
+  /** What Jem can be set to do: [button label, what he is doing, the line logged on setting him to it]. */
+  G.JEM_JOBS = {
+    gather: ['gather wood', 'gathering wood', 'Jem goes along the tide line after wood, keeping well clear of Hollis.'],
+    fish: ['fish the shallows', 'fishing', 'Jem takes a line down to the rocks. He fishes like a Bristol boy, patient and cursing.'],
+  };
+
   /**
    * Ailments that linger: [name in the condition panel, how many dawns
    * they last, the line logged when they pass]. A turned ankle keeps you
@@ -194,6 +200,13 @@
       tell: 'He crouches low, spear drawn back, to throw his whole weight behind it.',
       heavy: 'drives the spear in with all his weight',
       intro: 'He howls, and comes at you with the spear.',
+    },
+    jem: {
+      name: 'Jem Rudd', art: 'jem', hp: 9, dmg: 1, hit: 0.6,
+      verbs: ['claws at your face', 'gets his teeth into your arm', 'cuts at you with a broken knife'],
+      tell: 'He backs against a rock, the broken knife held low, gathering himself.',
+      heavy: 'flies at you with the knife',
+      intro: 'He comes up off the ground with a broken knife in his fist, and his eyes are white all round.',
     },
     crane: {
       name: 'Mr Crane', art: 'crane', hp: 16, dmg: 2, hit: 0.65,

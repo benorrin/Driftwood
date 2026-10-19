@@ -9,7 +9,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX, WINDS, PATCH, ISLES, HOME_POS,
+    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, JEM_JOBS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX, WINDS, PATCH, ISLES, HOME_POS,
     has, costText, builtCount, maxHealth, isNight, atHome, withHollis, bumps, session, view,
     workBoat, boatMended, upgradesLeft, destinations, sailBlocked, passageCost, passageDays, setSail,
     button, section, fill, ACTIONS, RECIPES, RAFT, LOCS,
@@ -46,12 +46,25 @@
       secs.push(hollis);
     }
 
+    const jemJob = G.jemJob();
+    if (jemJob) {
+      const jem = section('jem', 'Jem Rudd', 'He works for his keep, and eats a share of the provisions every dawn.');
+      fill(jem.querySelector('.btn-row'), Object.keys(JEM_JOBS).map((id) =>
+        button(`jem:${id}`, JEM_JOBS[id][0], id === jemJob ? 'his work now' : '', id !== jemJob, () => {
+          G.setJemJob(id);
+          G.render();
+        })));
+      secs.push(jem);
+    }
+
     const places = atHome() ? [] : G.isle().places.filter((p) => !p.show || p.show());
     if (places.length) {
       const sec = section('places', 'Explore');
       fill(sec.querySelector('.btn-row'), places.map((p) => {
-        const a = { id: `place:${p.id}`, cd: p.cd, run: p.run };
-        return button(a.id, p.label, '', true, () => doAction(a));
+        const a = { id: `place:${p.id}`, cd: p.cd, cost: p.cost, run: p.run };
+        const enabled = (!p.cost || has(p.cost)) && (!p.enabled || p.enabled());
+        const note = (p.note && p.note()) || (p.cost ? costText(p.cost) : '');
+        return button(a.id, p.label, note, enabled, () => doAction(a));
       }));
       secs.push(sec);
     }
@@ -174,7 +187,7 @@
       nav.innerHTML = '';
       return;
     }
-    const key = tabs.map((t) => t[0]).join() + view.tab + Object.keys(view.seenTabs).join();
+    const key = tabs.map((t) => t.join(':')).join() + view.tab + Object.keys(view.seenTabs).join();
     if (nav.dataset.key === key) return;
     nav.dataset.key = key;
     nav.innerHTML = '';
@@ -202,12 +215,13 @@
       raft: S.raft,
       raftStarted: S.flags.raftPlans && Object.keys(S.raft).length > 0,
       ally: withHollis(),
+      jem: G.withJem(),
     };
   }
 
   /** What the islet picture depends on. */
   function isletState() {
-    return { night: isNight(), fire: S.fire, boat: S.boat, ally: withHollis(), isle: S.isle };
+    return { night: isNight(), fire: S.fire, boat: S.boat, ally: withHollis(), jem: G.withJem(), isle: S.isle };
   }
 
   /** What the sea chart depends on: the charted islands, where the castaway is, and the wind. */
@@ -282,6 +296,7 @@
       const patched = PATCH.filter((p) => S.boat[p.id]).length;
       built.push(row(S.boat.kind === 'canoe' ? 'the canoe' : 'the raft', null, patched < PATCH.length ? `${patched} of ${PATCH.length} patched` : 'drawn up on the beach'));
       if (withHollis()) built.push(row('Tom Hollis', null, HOLLIS_JOBS[G.hollisJob()][1]));
+      if (G.withJem()) built.push(row('Jem Rudd', null, JEM_JOBS[G.jemJob()][1]));
       $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + list(G.isle().name, built);
       return;
     }
@@ -293,6 +308,7 @@
     const mended = G.CANOE.filter((p) => S.canoe[p.id]).length;
     if (mended) built.push(row('outrigger canoe', null, mended < G.CANOE.length ? `${mended} of ${G.CANOE.length} mended` : 'ready at the lagoon'));
     if (S.flags.ally) built.push(row('Tom Hollis', null, HOLLIS_JOBS[G.hollisJob()][1]));
+    if (G.withJem()) built.push(row('Jem Rudd', null, JEM_JOBS[G.jemJob()][1]));
     if (S.chapter >= 2) built.push(row(`the ${G.boatName()}`, null, `${G.UPGRADES.length - upgradesLeft().length} of ${G.UPGRADES.length} fittings`));
 
     $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + (built.length ? list('Camp', built) : '');

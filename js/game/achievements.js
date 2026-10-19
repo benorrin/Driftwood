@@ -64,6 +64,8 @@
     { id: 'shark', kind: 'deed', name: 'A Bigger Raft', desc: 'Fight off the shark at sea.' },
     { id: 'reef', kind: 'deed', name: 'The Reef', desc: 'Reach the second chapter.', test: () => S.chapter >= 2 },
     { id: 'homeAgain', kind: 'deed', name: 'Home Waters', desc: 'Sail the patched boat home from the islet.', test: () => S.flags.homeAgain },
+    { id: 'jem', kind: 'deed', name: 'Bread on the Waters', desc: 'Coax the deserter out of hiding.', test: () => S.flags.jem },
+    { id: 'beans', kind: 'deed', name: 'Every Bean Was Black', desc: 'Hear all that Jem has to tell.', test: () => S.n.jemTold >= 5 },
     { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
     { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },
@@ -109,6 +111,7 @@
     { id: 'overboard', kind: 'secret', name: 'Bristow!', desc: 'Lose your companion at sea.' },
     { id: 'meridian', kind: 'secret', name: 'Good Riddance', desc: 'Know the <i>Meridian</i>, and let her sail on.' },
     { id: 'articles', kind: 'secret', name: 'The Articles', desc: 'Sign on with the mutineers.' },
+    { id: 'jemDead', kind: 'secret', name: 'Taken With Him', desc: 'Kill the deserter.', test: () => S.flags.jemDead },
     { id: 'notches', kind: 'secret', name: 'Thousands of Notches', desc: 'Kill the wild man.', test: () => S.flags.killedHollis },
     { id: 'greybeards', kind: 'secret', name: 'Two Grey Beards', desc: 'Grow old on the island with Hollis.' },
   ];
