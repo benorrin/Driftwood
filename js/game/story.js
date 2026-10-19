@@ -127,7 +127,7 @@
     const first = !S.flags.metHollis;
     S.flags.metHollis = 1;
     modal({
-      art: ART.scene('hut'),
+      art: ART.scene('hut', { man: 1 }),
       title: "The Wild Man's Hut",
       text: first
         ? [
