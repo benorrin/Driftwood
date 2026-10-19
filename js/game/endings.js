@@ -359,7 +359,7 @@
               AU.sfx('hurt');
               add('food', -Math.ceil(S.res.food / 2));
               add('water', -Math.ceil(S.res.water / 2));
-              damage(3, 'storm');
+              damage(4, 'storm');
               if (!S.ended) afterSquall('She goes over in a gust, all at once, and you are in the sea with the hull above you. It takes you an hour to right her and bail her out, and half your stores are gone to the bottom.');
             } else {
               afterSquall('You let her run, and she flies, the float hissing through the crests, and an hour later you come out of the far side of the squall into sunshine, laughing like a fool.');
