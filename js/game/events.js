@@ -543,6 +543,14 @@
       run: () => log('The tide brings in a sea-boot, cracked and empty. You do not like to think whose it was.'),
     },
     {
+      id: 'bean', limit: 1,
+      when: () => S.day >= 6 && !isNight(),
+      run() {
+        S.items.bean = 1;
+        log('Mending a tear in your jacket, you find something hard caught in the lining of the pocket: a single dried black bean. You do not remember putting it there. You turn it over in your fingers for a long time, and then you put it back.', 'lore');
+      },
+    },
+    {
       id: 'tremor', limit: 1,
       run: () => log('The ground shivers underfoot. Every bird in the jungle bursts into the air at once — and then all is still.', 'lore'),
     },

@@ -126,7 +126,8 @@
   /* ---------------- by the fire ---------------- */
 
   /**
-   * What Jem tells, one evening at a time: the paragraphs of the telling,
+   * What Jem tells, one evening at a time: the paragraphs of the telling
+   * (or a function returning them, where they depend on the tale so far),
    * and the line it leaves in the log.
    */
   const TALES = [
@@ -147,10 +148,11 @@
       quote('"It wasn\'t gold. There was straw, and in the straw, a face. Black stone, with eyes of shell. Looking up. Not at us. Past us. Like it was waiting for somebody."'),
       quote('"Tom was took sick the next night. Four days, and he was dead. We buried him at the watering. I ran."'),
     ], 'Jem and Tom Abel opened the crate. Inside was a figure of black stone with eyes of shell. Tom sickened and died; he lies on the High Island.'],
-    [[
+    [() => [
       quote('"You don\'t remember the lots," Jem says. It is not a question.'),
       quote('"The night they took the ship, they cast lots for the Jonah. The old man had forbidden it, so they took the ship first. I held the hat. Beans in it, white for clear and one black for the Jonah. And you drew first."'),
       'He is quiet a while.',
+      ...(S.items.bean ? ['Without meaning to, you put your hand to your jacket pocket, and feel the bean in the lining, small and hard.'] : []),
       quote('"Every bean in that hat was black. I know, because I put them in. I was told to. You were always going to draw it." He will not say who told him. "Not here," he says, and looks out at the dark water. "He\'d know."'),
     ], 'The night of the mutiny the crew cast lots for a Jonah, and the lot fell to you. Jem held the hat: every bean was black. Someone made sure of it.'],
     [[
@@ -162,7 +164,8 @@
   /** At nightfall, if there is a fire and Jem is by it with more to tell, he tells the next part. */
   G.jemTale = function () {
     if (!G.withJem() || !S.fire || S.n.jemTold >= TALES.length || S.n.jemToldDay === S.day) return;
-    const [text, line] = TALES[S.n.jemTold];
+    const [told, line] = TALES[S.n.jemTold];
+    const text = typeof told === 'function' ? told() : told;
     S.n.jemTold++;
     S.n.jemToldDay = S.day;
     queueModal({ art: ART.scene('night'), title: 'By the Fire', text, choices: [leave('go on', line, 'lore')] });

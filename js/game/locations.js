@@ -402,8 +402,8 @@
       sighted: 'North of the jungle, swallowed by vines, the ground rises in steps: a great platform of fitted black stones, with upright slabs along its top.',
       blocked: requires('axe', 'the vines are too thick without an axe'),
       first() {
-        done('platform', 'It is a temple platform, of the kind the missionaries call a <i>marae</i>: the work of the people whose canoe lies by the lagoon, perhaps. Long abandoned, its upright stones still face the sea. You take nothing, and leave as quietly as you came.',
-          null, 'Long before any European ship, this island had its own people, and its own gods.');
+        done('platform', 'It is a temple platform, of the kind the missionaries call a <i>marae</i>: the work of the people whose canoe lies by the lagoon, perhaps. Long abandoned, its upright stones still face the sea, each standing on a plinth of its own. In the middle of the row one plinth stands empty, its top worn smooth where something rested for a very long time. You take nothing, and leave as quietly as you came.',
+          null, 'Long before any European ship, this island had its own people, and its own gods. One of them is missing from the marae.');
       },
       repeat() {
         if (S.items.idol) {
@@ -424,7 +424,16 @@
           return;
         }
         heal(1);
-        done('platform', pick(['You sit a while on the lowest step. It is the most peaceful place on the island.', 'Someone has laid a ring of white shells on the top step. Hollis, you suppose.']), null);
+        if (!S.flags.shells && S.visits.platform > 2) {
+          // the islanders still tend the marae, unseen
+          S.flags.shells = 1;
+          done('platform', S.flags.ally
+            ? 'Someone has laid a ring of white shells around the empty plinth, fresh from the sea. You ask Hollis about it that night. "Not me," he says. "They come every year, about this time. I\'ve never seen who." He will not go up the steps.'
+            : 'Someone has laid a ring of white shells around the empty plinth. They are fresh from the sea, still wet, and they were not there before.', null,
+          'Someone has laid fresh shells around the empty plinth on the marae. Not you, and not Hollis.');
+          return;
+        }
+        done('platform', 'You sit a while on the lowest step, below the empty plinth. It is the most peaceful place on the island.', null);
       },
     },
   });
