@@ -97,6 +97,16 @@
   /** Health is 10, or 12 with a lean-to to sleep under. */
   G.maxHealth = () => 10 + (S.built.leanto ? 2 : 0);
 
+  /** What Hollis is doing, once he has joined you: a HOLLIS_JOBS key. */
+  G.hollisJob = () => (S.flags.ally ? S.n.hollisJob || 'gather' : null);
+
+  /** Sets Hollis to `job`. */
+  G.setHollisJob = function (job) {
+    S.n.hollisJob = job;
+    G.log(G.HOLLIS_JOBS[job][2]);
+    G.save();
+  };
+
   /** Whether it is night on the clock. */
   G.isNight = () => S.t >= NIGHT_AT;
 

@@ -270,6 +270,9 @@
     beachCard('Wreckage', text, [leave('return to camp', 'The wreck of somebody else\'s raft came ashore. They did not get far.', 'lore')], { ball });
   }
 
+  /** Whether Hollis is keeping watch over the camp, so nothing dares raid it. */
+  const watched = () => G.hollisJob() === 'watch';
+
   /** Things that happen around the camp, now and then, as the days go by. */
   const AT_CAMP = [
     {
@@ -465,7 +468,7 @@
     },
     {
       id: 'gullRaid', limit: 6, weight: 2.5,
-      when: () => G.armed() && S.res.food > 2 && !isNight(),
+      when: () => G.armed() && !watched() && S.res.food > 2 && !isNight(),
       run: () => fight('gulls', {
         onWin: () => {
           log('You stand over your stores, bleeding from a dozen pecks, and the gulls keep their distance.');
@@ -480,7 +483,7 @@
     },
     {
       id: 'boarRaid', limit: 3, weight: 0.6,
-      when: () => G.armed() && isNight() && S.visits.jungle,
+      when: () => G.armed() && !watched() && isNight() && S.visits.jungle,
       run: () => fight('boar', {
         ambush: true,
         intro: 'A crash in the dark. A boar has come down out of the hills, and is rooting through your stores.',
@@ -497,7 +500,7 @@
     },
     {
       id: 'crabRaid', limit: 4, weight: 1,
-      when: () => G.armed() && isNight(),
+      when: () => G.armed() && !watched() && isNight(),
       run: () => fight('crab', {
         ambush: true,
         intro: 'Something clicks and scrapes in the dark beside your stores: a land crab, big as a dinner plate, after your food.',

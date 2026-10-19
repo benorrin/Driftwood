@@ -9,7 +9,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, RES, RES_ORDER, ITEMS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX,
+    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX,
     has, costText, builtCount, maxHealth, isNight, bumps, session, view,
     button, section, fill, ACTIONS, RECIPES, RAFT, LOCS,
     doAction, make, buildRaft, launch, expedition, knownLocs, blockedReason, scout, SCOUT_COST, darkness, tripCost,
@@ -29,6 +29,17 @@
       return button(a.id, a.label, a.cost ? costText(a.cost) : '', enabled, () => doAction(a));
     }));
     const secs = [camp];
+
+    const job = G.hollisJob();
+    if (job) {
+      const hollis = section('hollis', 'Tom Hollis', 'Set Hollis to work. He keeps the fire from going out, whatever he is doing.');
+      fill(hollis.querySelector('.btn-row'), Object.keys(HOLLIS_JOBS).map((id) =>
+        button(`hollis:${id}`, HOLLIS_JOBS[id][0], id === job ? 'his work now' : '', id !== job, () => {
+          G.setHollisJob(id);
+          G.render();
+        })));
+      secs.push(hollis);
+    }
 
     const recipes = RECIPES.filter(recipeAvailable);
     if (recipes.length) {
@@ -189,7 +200,7 @@
     if (S.built.trap) built.push(row('fish traps', S.built.trap));
     if (S.built.rack) built.push(row('smoking rack'));
     if (S.built.pyre) built.push(row('signal pyre', null, S.flags.trades ? 'watching for a sail' : 'waiting for the trade winds'));
-    if (S.flags.ally) built.push(row('Tom Hollis', null, 'companion'));
+    if (S.flags.ally) built.push(row('Tom Hollis', null, HOLLIS_JOBS[G.hollisJob()][1]));
 
     $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + (built.length ? list('Camp', built) : '');
   }

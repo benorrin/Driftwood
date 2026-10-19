@@ -69,6 +69,17 @@
     dollar: ['a Spanish dollar', 'of no use at all'],
   };
 
+  /**
+   * What Hollis can be set to do, once he has joined you: [button label,
+   * what he is doing (shown in the camp list), the line logged on setting
+   * him to it]. He gathers until told otherwise.
+   */
+  G.HOLLIS_JOBS = {
+    gather: ['gather wood', 'gathering wood', 'Hollis goes off into the palms with a rope over his shoulder, after wood and fibre.'],
+    fish: ['fish the reef', 'fishing the reef', 'Hollis takes his spear down to the reef. He fishes like a heron: still, and then very fast.'],
+    watch: ['keep watch', 'keeping watch', 'Hollis sits down by the stores with his spear across his knees, and feeds the fire, and watches.'],
+  };
+
   /** Where the camp sits on the chart. */
   G.CAMP_POS = [310, 258];
 

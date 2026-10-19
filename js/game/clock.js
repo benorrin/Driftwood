@@ -1,6 +1,6 @@
 /* Driftwood — the clock.
  * Each second is a tick. Fires burn down, catchers fill, traps catch fish,
- * and Hollis (once befriended) gathers wood; now and then something
+ * and Hollis (once befriended) gathers wood or fishes; now and then something
  * happens; night falls and day breaks, and every dawn the castaway must
  * eat and drink. */
 (function () {
@@ -202,13 +202,15 @@
 
   /**
    * The fire burns down a level every FIRE_DECAY ticks. Hollis keeps a low
-   * fire from dying: he holds it at "flickering", spending wood to do so.
+   * fire from dying: he holds it at "flickering", or at "burning" while he
+   * keeps watch, spending wood to do so.
    */
   function tendFire() {
     if (S.fire === 0 || ++S.fireT < FIRE_DECAY) return;
-    if (S.flags.ally && S.fire <= 2) {
+    const hold = G.hollisJob() === 'watch' ? 3 : 2;
+    if (S.flags.ally && S.fire <= hold) {
       S.fireT = 0;
-      if (S.res.wood > 0 && S.fire < 2) {
+      if (S.res.wood > 0 && S.fire < hold) {
         S.res.wood--;
         setFire(S.fire + 1, true);
       }
@@ -229,8 +231,13 @@
     if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
     if (S.flags.ally) {
       every('ally', 30, () => {
-        add('wood', 2);
-        add('fibre', 1);
+        const job = G.hollisJob();
+        if (job === 'gather') {
+          add('wood', 2);
+          add('fibre', 1);
+        } else if (job === 'fish') {
+          add('food', 1);
+        }
       });
     }
     if (S.day > 1) every('event', EVENT_EVERY, () => chance(EVENT_CHANCE) && G.happening());
