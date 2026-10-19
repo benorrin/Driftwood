@@ -17,6 +17,11 @@
   box-sizing: border-box;
 }
 
+/* new lines in the log, above the reader's place, must not push the page down */
+html {
+  overflow-anchor: none;
+}
+
 html,
 body {
   margin: 0;

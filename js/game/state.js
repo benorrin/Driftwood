@@ -210,6 +210,8 @@
     delete s.events.wilson;
     s.ticks.event = s.ticks.event || 0;
     s.ticks.jem = s.ticks.jem || 0;
+    // kept from when the log was longer
+    s.log = (s.log || []).slice(0, LOG_MAX);
     // saved before there were chapters
     s.chapter = s.chapter || 1;
     s.isle = s.isle || 'home';
