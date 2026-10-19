@@ -15,6 +15,9 @@
   /** Where the ship's log of every tale told is kept. */
   G.RECORDS_KEY = 'driftwood-records-v1';
 
+  /** Where the achievements earned in this browser are kept. */
+  G.ACHIEVEMENTS_KEY = 'driftwood-achievements-v1';
+
   /** Length of a day, in clock ticks (seconds). */
   G.DAY_LEN = 120;
 

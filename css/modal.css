@@ -178,3 +178,94 @@
   height: 12px;
   border: 1px solid currentColor;
 }
+
+/* ---------- achievements ---------- */
+
+/* the list: those not yet earned are faint */
+#modal-body p.deed {
+  color: var(--faint);
+  margin-bottom: 0.4em;
+}
+
+#modal-body p.deed.got {
+  color: var(--ink);
+}
+
+#modal-body p.deed.got .sc::before {
+  content: '\2726\00a0';
+}
+
+/* the card that announces one, in the corner, above the story card */
+#toasts {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  width: min(320px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 3px double var(--ink);
+  padding: 8px 14px 10px;
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--ink) 25%, transparent);
+  animation: toast-in 0.4s ease;
+}
+
+.toast.leaving {
+  animation: toast-out 0.4s ease forwards;
+}
+
+.toast .kind {
+  font-family: var(--font-sc);
+  letter-spacing: 0.12em;
+  font-size: 0.8em;
+  color: var(--faint);
+}
+
+.toast b {
+  font-family: var(--font-sc);
+  font-weight: normal;
+  font-size: 1.15em;
+}
+
+.toast .desc {
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+html[data-fx="mac"] .toast {
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+html[data-mono] .toast b,
+html[data-mono] .toast .kind {
+  text-transform: uppercase;
+}
+
+@keyframes toast-in {
+  from { transform: translateY(16px); opacity: 0; }
+}
+
+@keyframes toast-out {
+  to { transform: translateY(16px); opacity: 0; }
+}
+
+@media (max-width: 700px) {
+  #toasts {
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.leaving {
+    animation-duration: 0.01s;
+  }
+}

@@ -167,6 +167,7 @@
   /** Lets the sail go by. Whoever she was, the wait begins again. */
   function letPass(meridian, known) {
     S.n.pyreDays = 0;
+    if (meridian && known) G.achieve('meridian');
     log(meridian && known
       ? 'The <i>Meridian</i> sails on into the south, and takes Mr Crane with her. Good riddance.'
       : 'The sail drops below the horizon. You chose this.', 'lore');
@@ -176,6 +177,7 @@
   /** Studies the sail before lighting the pyre. Knowing her takes time, and a whaler may not wait. */
   function studyShip(meridian) {
     if (!meridian && chance(LOST_WHILE_LOOKING)) {
+      G.achieve('hullDown');
       modal({
         art: ART.scene('summit', { pyre: 1 }),
         title: 'Hull Down',

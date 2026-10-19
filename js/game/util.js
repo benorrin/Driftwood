@@ -5,7 +5,8 @@
  * takes what it needs from the files loaded before it at the top, like
  * imports. The few references that must reach "up" to a later file
  * (render, renderLog, die, toTitle, LOCS, mapArt, happening, washedUp,
- * wander, sailSighted and stormCheck) are looked up on `G` at the moment
+ * wander, sailSighted, stormCheck, and the achievement hooks such as
+ * achieve, foeBeaten and taleAchievements) are looked up on `G` at the moment
  * they are used instead. */
 (function () {
   'use strict';

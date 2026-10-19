@@ -62,6 +62,7 @@ xdg-open index.html        # macOS: open index.html
 | **Happenings** | Sails that pass you by, things the tide brings in, finds and misfortunes inland, and storms that can tear your camp apart. A couple of side stories, a light in the sea and a figure best left where it was found, wait for the curious. Some are nods to other castaways. |
 | **Endings** | Build a raft and brave the open sea, mend the old canoe by the lagoon and chance it, or build a signal pyre and wait for the trade winds to bring a ship past. Some castaways never leave at all. |
 | **Between tales** | Each tale is written into a ship's log on the title screen. Die, and the next castaway may find your bones. |
+| **Achievements** | Over sixty to earn, kept from one tale to the next: deeds that come in the course of a tale, feats that take some doing, follies best not aimed for, and secrets that stay hidden until found. |
 
 <p align="center">
   <img src="docs/chart.svg" alt="An old-style chart of the island with a compass rose and labelled locations" width="720">
@@ -96,7 +97,7 @@ The game has **no asset files at all.** Everything you see and hear is generated
 |---|---|
 | [`js/art/`](js/art) | Draws every illustration as SVG in code, in the manner of a 19th-century wood engraving: hatching, stipple and ink line, roughened with an SVG displacement filter so nothing is quite ruler-straight. `draw.js` holds the palette and SVG helpers; `nature.js` and `objects.js` draw the parts; `camp.js`, `chart.js`, `scenes.js` and `foes.js` compose the pictures. |
 | [`js/audio/`](js/audio) | Synthesises all the sound with the Web Audio API: breaking surf, a crackling fire (`ambience.js`), an original fiddle lament in D dorian and a heartbeat drum for fights (`music.js`), ship's bells at dawn and every sound effect (`effects.js`), all built on the engine in `synth.js`. |
-| [`js/game/`](js/game) | The game itself: state, saving and the ship's log (`state.js`), camp actions and crafting (`camp.js`), the clock (`clock.js`), exploration (`locations.js`, `story.js`), random happenings (`events.js`), combat (`combat.js`), endings (`endings.js`), and drawing the screen (`ui.js`, `render.js`). `main.js` starts it all. |
+| [`js/game/`](js/game) | The game itself: state, saving and the ship's log (`state.js`), achievements (`achievements.js`), camp actions and crafting (`camp.js`), the clock (`clock.js`), exploration (`locations.js`, `story.js`), random happenings (`events.js`), combat (`combat.js`), endings (`endings.js`), and drawing the screen (`ui.js`, `render.js`). `main.js` starts it all. |
 | [`js/styles.js`](js/styles.js) | The visual style palettes. |
 | [`js/core.js`](js/core.js) | The shared `DW` namespace and safe `localStorage` helpers. |
 | [`css/`](css) | Layout (`base.css`, `screens.css`, `game.css`, `modal.css`) and the screen effects of the visual styles (`themes.css`). |

@@ -113,6 +113,11 @@
     sail(t) {
       peal(t, [0, 0.45, 1.2, 1.65]);
     },
+    honour(t) {
+      ['A4', 'D5'].forEach((n, i) => {
+        tone(t + i * 0.16, 0.7, { type: 'triangle', f: mtof(midi(n)), g: 0.09 });
+      });
+    },
   };
 
   /** Plays the named sound effect, if sound is on and the engine has started. */
