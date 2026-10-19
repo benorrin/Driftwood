@@ -9,17 +9,30 @@
 
   G.SAVE_KEY = 'driftwood-save-v1';
 
+  /** Where the last castaway to die on the island is remembered, for the next to find. */
+  G.REMAINS_KEY = 'driftwood-remains-v1';
+
+  /** Where the ship's log of every tale told is kept. */
+  G.RECORDS_KEY = 'driftwood-records-v1';
+
   /** Length of a day, in clock ticks (seconds). */
   G.DAY_LEN = 120;
 
   /** The tick at which night falls. */
   G.NIGHT_AT = 84;
 
+  /**
+   * The tide: two in a day, each low for half its length, and coming in a
+   * little later each day, as tides do.
+   */
+  G.TIDE_LEN = 60;
+  G.TIDE_LATER = 8;
+
   /** Ticks before an untended fire burns down a level. */
   G.FIRE_DECAY = 40;
 
   /** Most entries kept in the log. */
-  G.LOG_MAX = 50;
+  G.LOG_MAX = 25;
 
   /** The fire's description at each level, 0–4. */
   G.FIRE_NAMES = ['cold', 'smouldering', 'flickering', 'burning', 'roaring'];
@@ -63,11 +76,46 @@
     dollar: ['a Spanish dollar', 'of no use at all'],
   };
 
+  /**
+   * What Hollis can be set to do, once he has joined you: [button label,
+   * what he is doing (shown in the camp list), the line logged on setting
+   * him to it]. He gathers until told otherwise.
+   */
+  G.HOLLIS_JOBS = {
+    gather: ['gather wood', 'gathering wood', 'Hollis goes off into the palms with a rope over his shoulder, after wood and fibre.'],
+    fish: ['fish the reef', 'fishing the reef', 'Hollis takes his spear down to the reef. He fishes like a heron: still, and then very fast.'],
+    watch: ['keep watch', 'keeping watch', 'Hollis sits down by the stores with his spear across his knees, and feeds the fire, and watches.'],
+  };
+
+  /**
+   * Ailments that linger: [name in the condition panel, how many dawns
+   * they last, the line logged when they pass]. A turned ankle keeps you
+   * out of the palms and makes every trip thirstier; a fever stops you
+   * healing, doubles your thirst, and may do worse.
+   */
+  G.AILMENTS = {
+    ankle: ['a turned ankle', 2, 'Your ankle will bear your weight again.'],
+    fever: ['a fever', 3, 'The fever breaks in the night. You wake weak, clear-headed, and ravenous.'],
+  };
+
   /** Where the camp sits on the chart. */
   G.CAMP_POS = [310, 258];
 
   /** Supplies needed to put to sea on the finished raft. */
   G.LAUNCH_COST = { water: 16, food: 16 };
+
+  /**
+   * Mending the old outrigger canoe at the lagoon, in order: each part has
+   * a label, a cost, and the line logged once it is done.
+   */
+  G.CANOE = [
+    { id: 'hull', label: 'pay the hull with gum', cost: { gum: 4, timber: 4 }, msg: 'You scrape the old hull clean, patch the split strakes, and pay every seam with gum. She will float.' },
+    { id: 'booms', label: 'lash new booms', cost: { timber: 6, rope: 8 }, msg: 'You shape new booms with the axe and lash the outrigger float to them, the way the old lashings went.' },
+    { id: 'sail', label: 'rig a sail', cost: { cloth: 4, rope: 4 }, msg: 'A mast, a yard, and a crab-claw sail of sailcloth. She looks like what she is: a boat that was made to go somewhere.' },
+  ];
+
+  /** Supplies needed to put to sea in the mended canoe: less than the raft can carry, and less than is wise. */
+  G.CANOE_LAUNCH = { water: 8, food: 8 };
 
   /**
    * The day the trade winds turn. Only then, as Hale wrote, do ships pass
@@ -112,6 +160,13 @@
       tell: 'He crouches low, spear drawn back, to throw his whole weight behind it.',
       heavy: 'drives the spear in with all his weight',
       intro: 'He howls, and comes at you with the spear.',
+    },
+    crane: {
+      name: 'Mr Crane', art: 'crane', hp: 16, dmg: 2, hit: 0.65,
+      verbs: ['cuts at you with his cutlass', 'drives the hilt into your ribs', 'lays your arm open'],
+      tell: 'Crane steps back, takes the cutlass in both hands, and raises it over his head.',
+      heavy: 'brings the cutlass down with both hands',
+      intro: '"I gave you an island," says Crane, drawing his cutlass. "You might have had the sense to keep it."',
     },
     shark: {
       name: 'the shark', art: 'shark', hp: 20, dmg: 2, hit: 0.6,
@@ -183,6 +238,24 @@
     'The sun drops into the sea. Darkness.',
     'Night. The stars are strange here.',
   ];
+
+  /** The ways a tale can end well, or at least end: [title, a line for the ship's log]. */
+  G.ENDINGS = {
+    rescue: ['Rescue', 'taken off by the whaler <i>Perseverance</i>'],
+    landfall: ['Landfall', 'sailed the raft to the Society Islands'],
+    articles: ['The Articles', 'signed on with the mutineers'],
+    pitcairn: ["Pitcairn's Island", "paddled the old canoe to Pitcairn's Island"],
+    stay: ['The Island', 'stayed, and made the island home'],
+  };
+
+  /** How each way of dying that isn't a creature reads in the ship's log. */
+  G.DEATH_NOTES = {
+    thirst: 'died of hunger and thirst',
+    cold: 'died of the cold',
+    fall: 'died of a fall',
+    fever: 'died of a fever',
+    storm: 'lost in a storm',
+  };
 
   /** Epitaphs for each way of dying that isn't a creature. */
   G.DEATHS = {

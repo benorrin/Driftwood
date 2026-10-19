@@ -6,17 +6,40 @@
   const DW = window.DW;
   const draw = DW.draw;
   const {
-    pal, f, rng, SW, SH, framed, P, circle, backdrop, ground, darkness,
+    pal, f, rng, SW, SH, framed, P, circle, at, backdrop, ground, darkness,
     sky, sea, seascape, sun, moon, stars, birds, palm, rock, tufts, headland, leaf,
     fire, sitter, stander, raft, ship, longboat,
   } = draw;
 
-  /** A boar's skull on a stake planted at (x, y). */
+  /**
+   * A boar's skull on a stake planted at (x, y): a broad brow narrowing to a
+   * long snout, with short tusks curling up beside it.
+   */
   function skullStake(x, y) {
     return P(`M${x} ${y} V${y - 50}`, null, 2) +
-      P(`M${x - 10} ${y - 56} Q${x} ${y - 70} ${x + 10} ${y - 56} L${x + 6} ${y - 44} L${x - 6} ${y - 44}Z`, pal.paper, 1.2) +
-      circle(x - 4, y - 55, 2.5, pal.ink) + circle(x + 4, y - 55, 2.5, pal.ink) +
-      P(`M${x - 8} ${y - 46} q-8 4 -6 12 M${x + 8} ${y - 46} q8 4 6 12`, null, 1.6);
+      P(`M${x - 11} ${y - 62} Q${x} ${y - 72} ${x + 11} ${y - 62} L${x + 5} ${y - 36} Q${x} ${y - 33} ${x - 5} ${y - 36}Z`, pal.paper, 1.2) +
+      circle(x - 4.5, y - 59, 2.4, pal.ink) + circle(x + 4.5, y - 59, 2.4, pal.ink) +
+      circle(x - 1.6, y - 38, 0.9, pal.ink) + circle(x + 1.6, y - 38, 0.9, pal.ink) +
+      P(`M${x - 5} ${y - 40} q-4 -1 -4 -7 M${x + 5} ${y - 40} q4 -1 4 -7`, null, 1.4);
+  }
+
+  /** Hollis, the wild man, standing at (x, y): bareheaded, hair to his shoulders, a spear upright in his fist. */
+  function wildMan(x, y, sc) {
+    return at(x, y, sc, sc,
+      P('M-5 -29 L5 -29 L6 -14 L3.5 0 L1 0 L0 -12 L-1 0 L-3.5 0 L-6 -14 Z', pal.ink, 0.6) +
+      circle(0, -34, 4.6, pal.ink) +
+      P('M-4 -37 l-4 11 M-2 -38 l-3 9 M4 -37 l4 11 M2 -38 l3 9', null, 1.2) +
+      P('M-4 -26 L-7 -16 L-6 -10 M4 -26 L10 -21', null, 3) +
+      P('M11 4 V-52', null, 1.4) + P('M9 -50 L11 -59 L13 -50Z', pal.ink, 0.6));
+  }
+
+  /** The mended outrigger canoe under sail, its hull's left end at (x, y). */
+  function canoe(x, y) {
+    return P(`M${x} ${y - 8} Q${x + 90} ${y + 6} ${x + 180} ${y - 8} L${x + 186} ${y - 18} Q${x + 90} ${y - 4} ${x - 6} ${y - 18}Z`, 'url(#h3)', 1.3) +
+      P(`M${x + 50} ${y - 12} L${x + 46} ${y - 30} M${x + 120} ${y - 12} L${x + 124} ${y - 30}`, null, 2) +
+      P(`M${x + 30} ${y - 30} H${x + 140}`, null, 3) +
+      P(`M${x + 86} ${y - 12} V${y - 96}`, null, 2.4) +
+      P(`M${x + 88} ${y - 94} Q${x + 140} ${y - 70} ${x + 150} ${y - 22} L${x + 90} ${y - 18}Z`, 'url(#h1)', 1.2);
   }
 
   /** The signal pyre on the summit, optionally lit and pouring smoke. */
@@ -231,7 +254,9 @@
     },
 
     /** The wild man's hut of poles and thatch, ringed by boar skulls on stakes. */
-    hut() {
+    /** The wild man's hut, ringed by boar skulls; `opts.man` puts him before it. */
+    hut(opts) {
+      opts = opts || {};
       const r = rng(91);
       let b = sky(r, SW, 0, 110, false);
       b += `<rect y="70" width="${SW}" height="80" fill="url(#h2)"/>`;
@@ -246,10 +271,11 @@
       b += `<rect x="236" y="130" width="128" height="66" fill="${pal.paper}"/>` + P(poles, null, 1.6);
       b += P('M286 196 V150 Q300 140 314 150 V196Z', pal.ink, 1);
       b += P('M300 46 c-8 -10 8 -18 0 -28', null, 0.8, 'class="smoke"');
-      [[180, 200], [420, 202], [470, 198]].forEach(([x, y]) => {
+      [[180, 200], [440, 202], [490, 198]].forEach(([x, y]) => {
         b += skullStake(x, y);
       });
-      return framed(b, 'A hut of poles and thatch, boar skulls on stakes');
+      if (opts.man) b += wildMan(392, 200, 1.5);
+      return framed(b, opts.man ? 'A wild man with a spear before his hut, boar skulls on stakes' : 'A hut of poles and thatch, boar skulls on stakes');
     },
 
     /**
@@ -438,13 +464,14 @@
       return framed(b, 'A whaling ship lowers a boat');
     },
 
-    /** Landfall: the raft comes in toward an inhabited island. */
-    landfall() {
+    /** Landfall: the raft (or, with `opts.canoe`, the canoe) comes in toward an inhabited island. */
+    landfall(opts) {
+      opts = opts || {};
       const r = rng(141);
       const hz = 130;
       let b = seascape(r, hz);
       b += headland(r, 260, hz + 2, 340, 60, 5) + birds(r, 200, 50, 7, 120);
-      b += `<g class="bob">${raft(80, 220, { hull: 1, mast: 1, sail: 1, casks: 0 }, 0.8)}</g>`;
+      b += `<g class="bob">${opts.canoe ? canoe(30, 222) : raft(80, 220, { hull: 1, mast: 1, sail: 1, casks: 0 }, 0.8)}</g>`;
       for (let i = 0; i < 4; i++) {
         b += P(`M${300 + i * 30} ${hz + 6} l-10 14 h20Z`, 'url(#h2)', 0.8) + P(`M${300 + i * 30} ${hz + 6} v-8`, null, 1);
       }

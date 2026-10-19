@@ -164,6 +164,17 @@ svg.art {
   transition: width 0.4s;
 }
 
+/* an ailment, and the days it has to run */
+.ail {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.ail i {
+  color: var(--faint);
+}
+
 /* low health is hatched rather than solid */
 .meter.low i {
   background: repeating-linear-gradient(45deg, var(--ink) 0 2px, transparent 2px 4px);

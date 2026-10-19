@@ -8,10 +8,13 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, rand, chance, pick, gainLine, CAMP_POS,
+    S, $, el, rand, chance, pick, gainLine, CAMP_POS, CANOE, CANOE_LAUNCH,
     has, pay, costText, gain, log, damage, heal, save, session, isNight,
     modal, leave, fight, armed, done, wreck, journal, hut,
   } = G;
+
+  /** Why a place only the ebb uncovers can't be reached at high water. */
+  const HIGH_WATER = 'the tide is in: wait for the ebb';
 
   /** A `blocked()` check: the place can't be reached without possession `item`. */
   const requires = (item, why) => () => (!S.items[item] ? why : null);
@@ -71,6 +74,7 @@
     tidepools: {
       name: 'The Tide Pools', x: 446, y: 236, cost: { water: 1, food: 1 }, time: 5, art: 'tidepools',
       findable: () => S.mapped.wreck,
+      blocked: () => (G.lowTide() ? null : HIGH_WATER),
       clue: 'Along the eastern shore the sand gives way to black rock, and the surf there sounds different.',
       sighted: 'You follow the shore east until the sand gives out and black rock begins, stepping down into the sea in shelves. At low water every shelf holds a pool, bright with life.',
       sees: [
@@ -161,6 +165,7 @@
       ],
       blocked: () => {
         if (S.flags.wreckCabin && S.flags.wreckHold) return 'picked clean (salvage from camp)';
+        if (!G.lowTide()) return HIGH_WATER;
         return (S.res.rope || 0) < 3 ? 'needs 3 rope to cross the reef' : null;
       },
       first() {
@@ -307,9 +312,20 @@
           { food: 3, fibre: 2 }, 'Someone came to this island by canoe, long ago, and went away again.');
       },
       repeat() {
-        done('lagoon', pick(['You wade the warm shallows for clams.', 'Fish hang in the clear water, slow and fat, easy to take.', 'You sit by the old canoe a while. Whoever made it knew the sea better than you.']), {
-          food: rand(2, 3), fibre: rand(0, 2),
-        });
+        const got = gain({ food: rand(2, 3), fibre: rand(0, 2) });
+        const text = [pick(['You wade the warm shallows for clams.', 'Fish hang in the clear water, slow and fat, easy to take.']), gainLine(`You gather ${got}.`)];
+        const choices = [];
+        if (!S.items.axe) {
+          text.push('You sit by the old canoe a while. Whoever made it knew the sea better than you. With an axe, and gum for her seams, she might be made to float again.');
+        } else if (CANOE.some((p) => !S.canoe[p.id])) {
+          text.push('The old canoe lies where it always has. With an axe, gum and rope, she might be made to float again.');
+          choices.push({ label: 'work on the canoe', fn: canoeWork });
+        } else {
+          text.push('The canoe sits at the water\'s edge, mended and rigged, nodding at the swell as if impatient to be off.');
+          choices.push({ label: 'put to sea in the canoe', cost: CANOE_LAUNCH, fn: G.launchCanoe });
+        }
+        choices.push(leave('return to camp'));
+        modal({ art: ART.scene('lagoon'), title: 'The Lagoon', text: text.concat(G.sightings('lagoon')), choices });
       },
     },
 
@@ -414,6 +430,37 @@
     },
   });
 
+  /** Mending the canoe: the next part to do, if it can be paid for, or leave it for another day. */
+  function canoeWork() {
+    const p = CANOE.find((q) => !S.canoe[q.id]);
+    if (!p) {
+      G.closeModal();
+      return;
+    }
+    const mended = CANOE.filter((q) => S.canoe[q.id]).length;
+    modal({
+      art: ART.scene('lagoon'),
+      title: 'The Canoe',
+      text: [
+        mended ? `The canoe is ${mended} part${mended === 1 ? '' : 's'} mended of ${CANOE.length}.` : 'Her hull is sound under the sand, and her lines are better than anything you could make. She wants her seams paid, new booms for the float, and a sail.',
+        'She is smaller than a raft, and will carry less. But she will be quicker, if the sea lets her.',
+      ],
+      choices: [
+        {
+          label: p.label,
+          cost: p.cost,
+          fn: () => {
+            S.canoe[p.id] = 1;
+            AU.sfx('craft');
+            log(p.msg);
+            canoeWork();
+          },
+        },
+        leave('leave it for now'),
+      ],
+    });
+  }
+
   /** The chance that a day's watch from the summit sees a sail, and how much each day of waiting adds. */
   const WATCH_CHANCE = 0.25;
   const WATCH_GROWTH = 0.05;
@@ -461,7 +508,13 @@
   G.darkness = () => (isNight() && !S.res.torch ? 'too dark to go without a torch' : null);
 
   /** What a trip costing `cost` costs just now: at night, a torch as well, unless one is needed anyway. */
-  G.tripCost = (cost) => (isNight() && !cost.torch ? Object.assign({}, cost, { torch: 1 }) : cost);
+  G.tripCost = function (cost) {
+    const c = Object.assign({}, cost);
+    if (isNight() && !c.torch) c.torch = 1;
+    // a turned ankle makes a slow, thirsty walk of every trip
+    if (S.ail.ankle) c.water = (c.water || 0) + 1;
+    return c;
+  };
 
   /** The reason location `L` can't be reached right now, or null. */
   G.blockedReason = (L) => (L.blocked && L.blocked()) || G.darkness();

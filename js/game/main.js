@@ -22,9 +22,10 @@
     window.scrollTo(0, 0);
   }
 
-  /** Offers "continue" on the title screen only when there is a saved game. */
+  /** Offers "continue" only when there is a saved game, and the ship's log once a tale has ended. */
   function refreshContinue() {
     $('#btn-continue').classList.toggle('hidden', !load());
+    $('#btn-records').classList.toggle('hidden', !G.records().tales);
   }
 
   /** Stops the game and returns to the title screen. */
@@ -138,9 +139,9 @@
 
   /** The rules, briefly, as headed paragraphs. */
   const HOW_TO_PLAY = [
-    ['Survive', 'Gather driftwood and light a fire before night falls, then keep it fed. Each dawn you eat a share of your provisions and drink some fresh water; go without, and your health suffers.'],
+    ['Survive', 'Gather driftwood and light a fire before night falls, then keep it fed. Each dawn you eat a share of your provisions and drink some fresh water; go without, and your health suffers. Fresh food will not keep in the heat for long unless it is smoked.'],
     ['Make', 'Comb the beach for what the tide brings in. Twist fibre into rope, and make shelter, tools and traps from the <i>Make</i> list. A button greys out while you rest from the last job.'],
-    ['Explore', 'Before long you will draw a map. Explore the island to find places to put on it: the story tells you what to look for, a fruitless trip may still bring back a clue, and some places you may spot from somewhere else. Every trip costs supplies, and after dark you will need a torch to see your way.'],
+    ['Explore', 'Before long you will draw a map. Explore the island to find places to put on it: the story tells you what to look for, a fruitless trip may still bring back a clue, and some places you may spot from somewhere else. Every trip costs supplies, and after dark you will need a torch to see your way. Some places can only be reached when the tide is out.'],
     ['Fight', 'Fights are turn based, and can be long. Strike, eat to heal, or flee. When a foe gathers itself for a heavy blow, brace yourself to turn it aside. Once you carry a blade, the island\'s creatures will start to come for you.'],
     ['Escape', 'There is more than one way off the island, and some of the choices you make along the way will follow you home.'],
     ['Time', 'Time passes while you play, and stands still while a notice is open. Your progress is saved in this browser.'],
@@ -155,6 +156,71 @@
       text: HOW_TO_PLAY.map(([head, body]) => `<p><b class="sc">${head}.</b> ${body}</p>`),
       choices: [leave('back')],
     });
+  }
+
+  /* ---------------- what's new ---------------- */
+
+  /** What changed in each release, newest first, as headed paragraphs. */
+  const NEWS = [
+    {
+      date: '19 October 2026',
+      items: [
+        ['The last castaway', 'Die on the island, and the next castaway may find your bones, with what you kept and the notches you cut. Take what they had, or bury them. Those lost at sea come back another way.'],
+        ['Not every sail', 'Once, a sail from the summit may be the <i>Meridian</i> come back, with Mr Crane aboard. Study a ship before you light the pyre, if you dare to let a whaler slip away while you look.'],
+        ['The old canoe', 'With an axe, gum and rope, the outrigger by the lagoon can be made to float again. She is quicker than a raft, and riskier, and she knows the way to an island with a mutiny of its own.'],
+        ['Staying', 'Make your peace with the island, and in time you may choose not to leave it at all.'],
+        ['A darker ending', 'There is another way off the island now, though not a happy one.'],
+        ['Tides', 'The tide comes in and goes out twice a day, a little later each day. The wreck and the tide pools can only be reached at low water, and the ebb leaves shellfish on the beach.'],
+        ['Spoilage', 'Fresh food goes bad in the heat. Keep a big store of provisions and some will spoil each dawn, unless you build a smoking rack.'],
+        ['Ailments', 'A turned ankle or a fever now lingers for days. Rest by the fire once a day to mend faster.'],
+        ['Tom Hollis', 'Once Hollis has joined you, set him to gather wood, fish the reef, or keep watch over the camp by night.'],
+        ['The ship\'s log', 'Every tale you finish is written into a log on the title screen: how long each castaway lasted, how they ended, and how many endings are still to find.'],
+      ],
+    },
+    {
+      date: '18 October 2026',
+      items: [
+        ['Storms', 'Storms come in from the west and can tear the camp apart. Hold the camp, or retreat inland.'],
+        ['Side stories', 'A light in the sea, and a carved figure best left where it was found.'],
+        ['Exploring', 'Six minor places to find, clues to follow, and finds and misfortunes along the way. Keep watch from the summit once the pyre is built.'],
+      ],
+    },
+  ];
+
+  /** Opens the news of recent releases. */
+  function openNews() {
+    AU.sfx('page');
+    const text = [];
+    NEWS.forEach((r) => {
+      text.push(`<p class="dateline">${r.date}</p>`);
+      r.items.forEach(([head, body]) => text.push(`<p><b class="sc">${head}.</b> ${body}</p>`));
+    });
+    modal({ art: ART.scene('beach', { ball: 1 }), title: "What's New", text, choices: [leave('back')] });
+  }
+
+  /* ---------------- the ship's log ---------------- */
+
+  /** A tale in the ship's log, e.g. "Day 14: killed by the boar". */
+  function taleLine(t) {
+    const how = t.end === 'death'
+      ? G.DEATH_NOTES[t.cause] || `killed by ${t.cause}`
+      : G.ENDINGS[t.end][1];
+    return `<p><b class="sc">Day ${t.day}.</b> ${G.cap(how)}.</p>`;
+  }
+
+  /** Opens the record of every tale told in this browser, with the endings still to find hidden. */
+  function openRecords() {
+    AU.sfx('page');
+    const r = G.records();
+    const ends = Object.keys(G.ENDINGS);
+    const found = ends.filter((id) => r.found[id]);
+    const text = [
+      `${r.tales} castaway${r.tales === 1 ? '' : 's'} put ashore. The longest lasted ${r.best} day${r.best === 1 ? '' : 's'}.`,
+      `<p class="dateline">Endings found: ${found.length} of ${ends.length}</p>`,
+      `<p class="endings">${ends.map((id) => (r.found[id] ? G.ENDINGS[id][0] : '? ? ?')).join(' &middot; ')}</p>`,
+      '<p class="dateline">Lately</p>',
+    ].concat(r.recent.map(taleLine));
+    modal({ art: ART.scene('summit'), title: "The Ship's Log", text, choices: [leave('back')] });
   }
 
   /* ---------------- visual styles ---------------- */
@@ -215,6 +281,8 @@
     $('#btn-style').onclick = openStyles;
     $('#btn-style-title').onclick = openStyles;
     $('#btn-help').onclick = openHelp;
+    $('#btn-news').onclick = openNews;
+    $('#btn-records').onclick = openRecords;
     $('#btn-restart').onclick = restart;
     $('#tgl-music').onclick = $('#tgl-music-title').onclick = () => {
       AU.init();

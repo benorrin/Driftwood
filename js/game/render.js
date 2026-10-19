@@ -9,7 +9,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, RES, RES_ORDER, ITEMS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX,
+    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX,
     has, costText, builtCount, maxHealth, isNight, bumps, session, view,
     button, section, fill, ACTIONS, RECIPES, RAFT, LOCS,
     doAction, make, buildRaft, launch, expedition, knownLocs, blockedReason, scout, SCOUT_COST, darkness, tripCost,
@@ -26,9 +26,21 @@
     const camp = section('camp', 'The Beach');
     fill(camp.querySelector('.btn-row'), ACTIONS.filter((a) => a.show()).map((a) => {
       const enabled = (!a.cost || has(a.cost)) && (!a.enabled || a.enabled());
-      return button(a.id, a.label, a.cost ? costText(a.cost) : '', enabled, () => doAction(a));
+      const note = a.cost ? costText(a.cost) : (a.note && a.note()) || '';
+      return button(a.id, a.label, note, enabled, () => doAction(a));
     }));
     const secs = [camp];
+
+    const job = G.hollisJob();
+    if (job) {
+      const hollis = section('hollis', 'Tom Hollis', 'Set Hollis to work. He keeps the fire from going out, whatever he is doing.');
+      fill(hollis.querySelector('.btn-row'), Object.keys(HOLLIS_JOBS).map((id) =>
+        button(`hollis:${id}`, HOLLIS_JOBS[id][0], id === job ? 'his work now' : '', id !== job, () => {
+          G.setHollisJob(id);
+          G.render();
+        })));
+      secs.push(hollis);
+    }
 
     const recipes = RECIPES.filter(recipeAvailable);
     if (recipes.length) {
@@ -154,13 +166,17 @@
   /** A meter bar filled to `pct` percent; `low` hatches it as a warning. */
   const meter = (pct, low) => `<div class="meter${low ? ' low' : ''}"><i style="width:${pct}%"></i></div>`;
 
+  /** The castaway's ailments, each with the days it has left to run. */
+  const ailments = () => Object.keys(S.ail).map((k) =>
+    `<div class="ail">${G.AILMENTS[k][0]} <i>${S.ail[k]} day${S.ail[k] === 1 ? '' : 's'}</i></div>`).join('');
+
   /** Draws the clock, the castaway's health, and the fire. */
   function renderStatus() {
-    $('#clock').textContent = `Day ${S.day}, ${phase()}`;
+    $('#clock').textContent = `Day ${S.day}, ${phase()}${G.tideKnown() ? `, ${G.lowTide() ? 'low' : 'high'} tide` : ''}`;
     const hp = Math.max(0, S.health);
     const mh = maxHealth();
     $('#status').innerHTML =
-      `<div class="stat"><h3>Condition</h3>health ${hp} / ${mh}${meter((hp / mh) * 100, hp <= 3)}</div>` +
+      `<div class="stat"><h3>Condition</h3>health ${hp} / ${mh}${meter((hp / mh) * 100, hp <= 3)}${ailments()}</div>` +
       (S.flags.fireLit ? `<div class="stat">the fire is ${FIRE_NAMES[S.fire]}${meter(S.fire * 25)}</div>` : '');
   }
 
@@ -189,7 +205,9 @@
     if (S.built.trap) built.push(row('fish traps', S.built.trap));
     if (S.built.rack) built.push(row('smoking rack'));
     if (S.built.pyre) built.push(row('signal pyre', null, S.flags.trades ? 'watching for a sail' : 'waiting for the trade winds'));
-    if (S.flags.ally) built.push(row('Tom Hollis', null, 'companion'));
+    const mended = G.CANOE.filter((p) => S.canoe[p.id]).length;
+    if (mended) built.push(row('outrigger canoe', null, mended < G.CANOE.length ? `${mended} of ${G.CANOE.length} mended` : 'ready at the lagoon'));
+    if (S.flags.ally) built.push(row('Tom Hollis', null, HOLLIS_JOBS[G.hollisJob()][1]));
 
     $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + (built.length ? list('Camp', built) : '');
   }

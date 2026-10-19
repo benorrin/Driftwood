@@ -8,7 +8,7 @@
 
   const G = window.DW.game;
   const AU = window.DW.audio;
-  const { RES, FIRE_NAMES, NIGHT_AT, LOG_MAX, SAVE_KEY } = G;
+  const { RES, FIRE_NAMES, NIGHT_AT, TIDE_LEN, TIDE_LATER, LOG_MAX, SAVE_KEY, REMAINS_KEY, RECORDS_KEY } = G;
   const storage = window.DW.storage;
 
   /** The current game. Empty until a game is started or loaded. */
@@ -38,7 +38,9 @@
       items: { pistol: 1, bible: 1 },
       built: {},
       raft: {},
+      canoe: {},
       flags: {},
+      ail: {},
       visits: {},
       mapped: {},
       events: {},
@@ -97,6 +99,40 @@
   /** Health is 10, or 12 with a lean-to to sleep under. */
   G.maxHealth = () => 10 + (S.built.leanto ? 2 : 0);
 
+  /** What Hollis is doing, once he has joined you: a HOLLIS_JOBS key. */
+  G.hollisJob = () => (S.flags.ally ? S.n.hollisJob || 'gather' : null);
+
+  /** Sets Hollis to `job`. */
+  G.setHollisJob = function (job) {
+    S.n.hollisJob = job;
+    G.log(G.HOLLIS_JOBS[job][2]);
+    G.save();
+  };
+
+  /** Afflicts the castaway with ailment `kind` for its full course, starting again if they have it already. */
+  G.afflict = function (kind) {
+    S.ail[kind] = G.AILMENTS[kind][1];
+  };
+
+  /** Whether the castaway has any ailment. */
+  G.ailing = () => Object.keys(S.ail).length > 0;
+
+  /** Takes a day off every ailment, logging those that pass. */
+  G.mend = function () {
+    Object.keys(S.ail).forEach((k) => {
+      if (--S.ail[k] <= 0) {
+        delete S.ail[k];
+        G.log(G.AILMENTS[k][2]);
+      }
+    });
+  };
+
+  /** Whether the tide is out, baring the reef and the rock pools. */
+  G.lowTide = () => (S.t + S.day * TIDE_LATER) % TIDE_LEN < TIDE_LEN / 2;
+
+  /** Whether the tide matters yet: once there is a place on the map that only the ebb uncovers. */
+  G.tideKnown = () => !!(S.mapped.wreck || S.mapped.tidepools);
+
   /** Whether it is night on the clock. */
   G.isNight = () => S.t >= NIGHT_AT;
 
@@ -152,6 +188,8 @@
       if (f.chart) s.items.map = 1;
     }
     s.events = s.events || {};
+    s.ail = s.ail || {};
+    s.canoe = s.canoe || {};
     // the ball from the cask was once called Wilson
     if (s.items.wilson) s.items.bristow = 1;
     if (s.events.wilson) s.events.bristow = s.events.wilson;
@@ -169,4 +207,53 @@
 
   /** Deletes the saved game. */
   G.clearSave = () => storage.remove(SAVE_KEY);
+
+  /* ---------------- the ship's log ---------------- */
+
+  /** How many of the latest tales the ship's log keeps in full. */
+  const RECENT = 6;
+
+  /**
+   * Every tale told in this browser: how many, the longest on the island,
+   * which endings have been reached, and the latest few in full.
+   */
+  G.records = () => storage.getJSON(RECORDS_KEY, null) || { tales: 0, best: 0, found: {}, recent: [] };
+
+  /** Writes the tale just ended into the ship's log: `end` is an ENDINGS key, or 'death' by `cause`. */
+  G.recordTale = function (end, cause) {
+    const r = G.records();
+    r.tales++;
+    r.best = Math.max(r.best, S.day);
+    if (end !== 'death') r.found[end] = 1;
+    r.recent.unshift(cause ? { end, day: S.day, cause } : { end, day: S.day });
+    r.recent.length = Math.min(r.recent.length, RECENT);
+    storage.setJSON(RECORDS_KEY, r);
+  };
+
+  /* ---------------- the last castaway ---------------- */
+
+  /** Stores a castaway's bones may still hold for the next, and the most of each they keep. */
+  const KEPT = { rope: 4, stone: 4, iron: 4, cloth: 3, gum: 3, torch: 2, shot: 1 };
+
+  /**
+   * Remembers the castaway who has just died of `cause`, for the next to
+   * find: the day they died, whether at sea, half of what they kept that
+   * would last, and whether Bristow was with them.
+   */
+  G.leaveRemains = function (cause) {
+    const keep = {};
+    for (const k in KEPT) {
+      const n = Math.min(KEPT[k], Math.ceil((S.res[k] || 0) / 2));
+      if (n > 0) keep[k] = n;
+    }
+    storage.setJSON(REMAINS_KEY, {
+      day: S.day, cause, sea: !!S.flags.sailing, keep, bristow: !!S.items.bristow,
+    });
+  };
+
+  /** The last castaway to die here, if no one has found them yet; otherwise null. */
+  G.remains = () => storage.getJSON(REMAINS_KEY, null);
+
+  /** Forgets the last castaway, once they have been found. */
+  G.clearRemains = () => storage.remove(REMAINS_KEY);
 })();
