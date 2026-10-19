@@ -32,7 +32,7 @@
   G.FIRE_DECAY = 40;
 
   /** Most entries kept in the log. */
-  G.LOG_MAX = 50;
+  G.LOG_MAX = 25;
 
   /** The fire's description at each level, 0–4. */
   G.FIRE_NAMES = ['cold', 'smouldering', 'flickering', 'burning', 'roaring'];
