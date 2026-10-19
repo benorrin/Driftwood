@@ -46,7 +46,7 @@
 
   /** Possessions: [name, note shown beside it]. */
   G.ITEMS = {
-    pistol: ['flintlock pistol', 'one ball, one choice'],
+    pistol: ['flintlock pistol', 'one shot, one choice'],
     bible: ["the ship's Bible", 'the Authorised Version'],
     map: ['a makeshift map', 'drawn on its flyleaf'],
     knife: ['stone knife', ''],
@@ -145,7 +145,7 @@
     '<p class="dateline">The South Pacific. The Year of Our Lord 1846.</p>',
     'You were bosun\'s mate aboard the barque <i>Meridian</i>, eleven months out of Bristol, carrying iron for Valparaíso and a captain whose temper was harder than his cargo.',
     'When the crew rose against Captain Ashby, you would not stand with them. Nor would you stand against them. Mr Crane, the first mate, said that a man who would choose no side might have an island all to himself.',
-    'They rowed you ashore at first light, as the old custom demands: a flintlock with a single ball, a flask of water, a tin of ship\'s biscuit — and the Bible, so that you might make your peace.',
+    'They rowed you ashore at first light, as the old custom demands: a flintlock with a single shot, a flask of water, a tin of ship\'s biscuit — and the Bible, so that you might make your peace.',
     'The <i>Meridian</i>\'s sails grow small against the sun. Behind you the island waits, green and silent. The tide is coming in.',
   ];
 

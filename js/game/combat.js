@@ -37,7 +37,7 @@
     { id: 'spear', label: 'thrust the spear', dmg: [2, 4], has: () => S.items.spear, snd: 'swing', verb: 'You run the spear into' },
     { id: 'cutlass', label: 'swing the cutlass', dmg: [3, 5], has: () => S.items.cutlass, snd: 'swing', verb: 'You cut' },
   ];
-  const PISTOL = { id: 'pistol', label: 'fire the pistol', dmg: [6, 9], snd: 'shot', ammo: 'shot', verb: 'The ball takes' };
+  const PISTOL = { id: 'pistol', label: 'fire the pistol', dmg: [6, 9], snd: 'shot', ammo: 'shot', verb: 'The shot takes' };
 
   /** Whether the castaway has a blade to fight with. Until then, nothing picks a fight with them. */
   G.armed = () => BLADES.some((w) => w.id !== 'fists' && w.has());

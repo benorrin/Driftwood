@@ -51,7 +51,7 @@
       art: ART.scene('wreck'),
       title: "The Captain's Cabin",
       text: [
-        'The cabin is a grotto of weed and sand. In a sea-chest, wrapped in oilcloth: a cutlass, bright still beneath its grease, and a tin of powder and ball the sea has somehow spared. The ship\'s log has rotted to pulp, all but the last page:',
+        'The cabin is a grotto of weed and sand. In a sea-chest, wrapped in oilcloth: a cutlass, bright still beneath its grease, and a tin of powder and shot the sea has somehow spared. The ship\'s log has rotted to pulp, all but the last page:',
         quote('Fever among the men. I have moved the sick to the cave beneath the north headland, where it is dry. The boy Hollis will not come. He says the island is watching us.'),
         gainLine(`You take the cutlass and ${gain({ shot: 2 })}.`),
       ],

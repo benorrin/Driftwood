@@ -25,7 +25,7 @@
 
 ## The story
 
-> *They rowed you ashore at first light, as the old custom demands: a flintlock with a single ball, a flask of water, a tin of ship's biscuit — and the Bible, so that you might make your peace.*
+> *They rowed you ashore at first light, as the old custom demands: a flintlock with a single shot, a flask of water, a tin of ship's biscuit — and the Bible, so that you might make your peace.*
 
 You were bosun's mate aboard the barque *Meridian*, out of Bristol and bound for Valparaíso. When the crew mutinied you would choose neither side, so the mutineers left you alone on an uncharted island.
 
@@ -57,7 +57,7 @@ xdg-open index.html        # macOS: open index.html
 | **Survival** | A day/night cycle, a fire to feed, and hunger and thirst every dawn. Nights without a fire are cold, and something prowls beyond the light. |
 | **Crafting** | Twist palm fibre into cord. Build a lean-to, stone tools, rain catchers, fish traps and a smoking rack. |
 | **Exploration** | A makeshift map drawn on a page torn from your Bible, with fourteen places to find and draw on it: a palm grove, a lagoon, a wreck on the reef, tide pools, a spring, a sealers' camp, bird cliffs, a gum wood, a blowhole, the jungle, an old stone platform, a cave, a hut, and the summit. Each turns up only once the story gives you reason to look; you may find it exploring, follow a clue to it, or spot it from somewhere else. |
-| **Combat** | Turn-based fights with land crabs, boar, a viper, gulls, sharks… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol ball, brace against the heavy blows, and eat to keep your strength up. Once you are armed, things come for your stores in the night. |
+| **Combat** | Turn-based fights with land crabs, boar, a viper, gulls, sharks… and perhaps a man. Fight with a knife, spear, cutlass, or your one precious pistol shot, brace against the heavy blows, and eat to keep your strength up. Once you are armed, things come for your stores in the night. |
 | **Story** | A message in a bottle, a captain's log and a dead man's journal lead you through the island's history, and you make choices that change the ending. |
 | **Happenings** | Sails that pass you by, things the tide brings in, finds and misfortunes inland, and storms that can tear your camp apart. A couple of side stories, a light in the sea and a figure best left where it was found, wait for the curious. Some are nods to other castaways. |
 | **Endings** | Build a raft and brave the open sea, or build a signal pyre and wait for the trade winds to bring a ship past. |
