@@ -147,7 +147,7 @@
     ['Fight', 'Fights are turn based, and can be long. Strike, eat to heal, or flee. When a foe gathers itself for a heavy blow, brace yourself to turn it aside. Once you carry a blade, the island\'s creatures will start to come for you.'],
     ['Escape', 'There is more than one way off the island, and some of the choices you make along the way will follow you home.'],
     ['Sail', 'In time you may have a boat that will carry you between islands. She runs before the wind: see which way it blows before you choose a passage, and carry water for every day at sea. Load her with what you will need, no more than she will carry; the rest stays at the camp. A camp left to itself suffers; a camp somebody keeps does not.'],
-    ['Time', 'Time passes while you play, and stands still while a notice is open. Your progress is saved in this browser.'],
+    ['Time', 'Time passes while you play, and stands still while a notice is open, or while you pause the game (press P, or pause at the top). Your progress is saved in this browser.'],
   ];
 
   /** Opens the rules of the game. */
@@ -176,6 +176,7 @@
         ['A deserter', 'Somebody is hiding out among the islands. If you can coax him out, he has a story to tell, one evening at a time.'],
         ['The canoe people', 'They still come back, once a moon, to the old stone platform. How they receive you depends on what you have done.'],
         ['The Meridian', 'She still comes back. But she no longer stops.'],
+        ['Pause', 'Press P, or pause at the top of the screen, and time on the island stands still until you come back.'],
         ['Bound for Valparaíso', 'The second chapter ends aboard a whaler. A castaway who sails in her is kept for the third chapter, which is still to be written.'],
       ],
     },
@@ -219,6 +220,34 @@
       r.items.forEach(([head, body]) => text.push(`<p><b class="sc">${head}.</b> ${body}</p>`));
     });
     modal({ art: ART.scene('beach', { ball: 1 }), title: "What's New", text, choices: [leave('back')] });
+  }
+
+  /* ---------------- pausing ---------------- */
+
+  /** Whether the pause card is the one showing. */
+  let paused = false;
+
+  /**
+   * Pauses the game: a card over everything, so that, as with any card,
+   * time stands still and nothing can be done until it is put away. Not
+   * while another card is open, which has stopped the clock already.
+   */
+  function pause() {
+    if (!session.running || G.modalOpen()) return;
+    paused = true;
+    AU.sfx('page');
+    modal({
+      art: ART.scene('night'),
+      title: 'Paused',
+      text: ['The island waits. The tide will not turn, nor the fire burn down, until you come back to it.'],
+      choices: [{ label: 'resume', fn: resume }],
+    });
+  }
+
+  /** Puts the pause card away, and time goes on. */
+  function resume() {
+    paused = false;
+    closeModal();
   }
 
   /* ---------------- the ship's log ---------------- */
@@ -315,6 +344,14 @@
     $('#btn-achievements').onclick = G.openAchievements;
     $('#btn-achievements-game').onclick = G.openAchievements;
     $('#btn-restart').onclick = restart;
+    $('#btn-pause').onclick = pause;
+    // P pauses, and P again resumes; not while typing anywhere
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'p' && e.key !== 'P') return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest('input, textarea')) return;
+      if (paused) resume();
+      else pause();
+    });
     $('#tgl-music').onclick = $('#tgl-music-title').onclick = () => {
       AU.init();
       AU.toggleMusic();
