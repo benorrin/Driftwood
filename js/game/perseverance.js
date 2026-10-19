@@ -64,7 +64,7 @@
         quote('"She is here," he says, before he is out of the canoe. "The <i>Perseverance</i>. Five days, six. Then she goes. Come."'),
       ],
       choices: [
-        { label: 'sail south with him', cost: G.passageCost('smoke', true), fn: () => G.setSail('smoke', true) },
+        { label: 'sail south with him', fn: () => G.setSail('smoke', true) },
         leave('not yet', 'The Perseverance is lying off the Island of Fires, and will sail in a few days. Tupa\'s canoe will lead you south.', 'lore'),
       ],
     });

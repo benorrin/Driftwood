@@ -51,6 +51,7 @@
       isle: 'home',
       wind: null,
       boat: {},
+      camp: null,
       charted: {},
       landed: {},
       ended: false,

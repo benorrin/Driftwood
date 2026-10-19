@@ -164,7 +164,7 @@
       }, p.note);
     });
     if (RAFT.every((p) => S.raft[p.id])) {
-      nodes.push(button('launch', 'put to sea', `${costText(LAUNCH_COST)} · there is no coming back`, has(LAUNCH_COST), launch));
+      nodes.push(button('launch', 'load her and put to sea', `${costText(LAUNCH_COST)} for the voyage · there is no coming back`, has(LAUNCH_COST), launch));
     }
     fill(sec.querySelector('.btn-row'), nodes);
     return [sec];
@@ -300,7 +300,8 @@
       built.push(row(S.boat.kind === 'canoe' ? 'the canoe' : 'the raft', null, patched < PATCH.length ? `${patched} of ${PATCH.length} patched` : 'drawn up on the beach'));
       if (withHollis()) built.push(row('Tom Hollis', null, HOLLIS_JOBS[G.hollisJob()][1]));
       if (G.withJem()) built.push(row('Jem Rudd', null, JEM_JOBS[G.jemJob()][1]));
-      $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + list(G.isle().name, built);
+      const left = RES_ORDER.filter((k) => S.camp && S.camp[k] > 0).map((k) => row(RES[k], S.camp[k]));
+      $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + list(G.isle().name, built) + (left.length ? list('Left at the Camp', left) : '');
       return;
     }
     if (S.built.leanto) built.push(row('lean-to'));

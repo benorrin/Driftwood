@@ -107,10 +107,18 @@
 
   /* ---------------- the voyage ---------------- */
 
-  /** Puts to sea on the finished raft, if the supplies for the voyage are in store. */
+  /** Loads the finished raft and puts to sea, if the supplies for the voyage are in store. */
   G.launch = function () {
     if (!has(LAUNCH_COST)) return;
-    pay(LAUNCH_COST);
+    G.provision(LAUNCH_COST, G.boatRoom('raft', true), (load) => {
+      G.stow(load);
+      pay(LAUNCH_COST);
+      putToSea();
+    });
+  };
+
+  /** The raft goes out over the bar. */
+  function putToSea() {
     S.flags.sailing = 1;
     AU.sfx('splash');
     const companion = S.flags.ally ? ', Hollis pushing beside you, laughing like a boy' : '';
@@ -123,7 +131,7 @@
       ],
       choices: [{ label: 'sail on', fn: storm }],
     });
-  };
+  }
 
   /** A storm on the fourth day: endure it at the mast, or cut the sail away and lose supplies. */
   function storm() {
@@ -227,8 +235,18 @@
     return 0.45 - (S.flags.ally ? 0.2 : 0) - (S.flags.idolReturned ? 0.2 : 0);
   }
 
-  /** Puts to sea in the mended canoe; its supplies are paid by the lagoon card's choice. */
+  /** Loads the mended canoe and puts to sea, if the supplies for the voyage are in store. */
   G.launchCanoe = function () {
+    if (!has(G.CANOE_LAUNCH)) return;
+    G.provision(G.CANOE_LAUNCH, G.boatRoom('canoe'), (load) => {
+      G.stow(load);
+      pay(G.CANOE_LAUNCH);
+      paddleOut();
+    });
+  };
+
+  /** The canoe goes out through the gap in the reef. */
+  function paddleOut() {
     S.flags.sailing = 1;
     AU.sfx('splash');
     const companion = S.flags.ally ? ' Hollis kneels in the bow with a paddle, and sets the stroke without a word, as if he has done this all his life.' : '';
@@ -241,7 +259,7 @@
       ],
       choices: [{ label: 'sail on', fn: squall }],
     });
-  };
+  }
 
   /** A squall on the third day: run before it and risk capsizing, or drop the sail and bail. */
   function squall() {

@@ -8,7 +8,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, rand, chance, pick, gainLine, CAMP_POS, CANOE, CANOE_LAUNCH,
+    S, $, el, rand, chance, pick, gainLine, CAMP_POS, CANOE,
     has, pay, costText, gain, log, damage, heal, save, session, isNight,
     modal, leave, fight, armed, done, wreck, journal, hut,
   } = G;
@@ -321,7 +321,8 @@
           choices.push({ label: 'work on the canoe', fn: canoeWork });
         } else {
           text.push('The canoe sits at the water\'s edge, mended and rigged, nodding at the swell as if impatient to be off.');
-          choices.push({ label: 'put to sea in the canoe', cost: CANOE_LAUNCH, fn: G.launchCanoe });
+          if (has(G.CANOE_LAUNCH)) choices.push({ label: 'load the canoe', fn: G.launchCanoe });
+          else text.push(`For the voyage she will want ${costText(G.CANOE_LAUNCH)} at the least.`);
         }
         choices.push(leave('return to camp'));
         modal({ art: ART.scene('lagoon'), title: 'The Lagoon', text: text.concat(G.sightings('lagoon')), choices });

@@ -9,13 +9,20 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, rand, pick, cap, gainLine, WINDS, PATCH, UPGRADES, ISLES, view,
-    has, pay, add, gain, log, damage, setFire, save, modal, leave,
+    S, $, el, rand, pick, cap, gainLine, RES, RES_ORDER, WINDS, PATCH, UPGRADES, ISLES, view,
+    has, pay, add, gain, costText, log, damage, setFire, save, modal, leave,
   } = G;
 
-  /** Each dawn's chance that the trades give way to a westerly, or die to a calm. */
-  const WESTERLY_CHANCE = 0.18;
-  const CALM_CHANCE = 0.1;
+  /**
+   * How the wind may change at dawn: for each wind, the chance of each wind
+   * the next day. The trades blow most often, but seldom for long without
+   * a westerly or a calm between.
+   */
+  const WIND_SHIFTS = {
+    trades: { trades: 0.55, westerly: 0.3, calm: 0.15 },
+    westerly: { trades: 0.45, westerly: 0.4, calm: 0.15 },
+    calm: { trades: 0.45, westerly: 0.3, calm: 0.25 },
+  };
 
   /** Dawns after the wreck is patched before a westerly comes to the islet, whatever the odds. */
   const SURE_WESTERLY = 2;
@@ -42,11 +49,9 @@
    */
   G.shiftWind = function () {
     const was = S.wind;
-    const roll = Math.random();
-    let next;
-    if (was === 'westerly') next = roll < 0.5 ? 'westerly' : 'trades';
-    else if (was === 'calm') next = roll < 0.4 ? 'calm' : roll < 0.8 ? 'trades' : 'westerly';
-    else next = roll < WESTERLY_CHANCE ? 'westerly' : roll < WESTERLY_CHANCE + CALM_CHANCE ? 'calm' : 'trades';
+    const odds = WIND_SHIFTS[was] || WIND_SHIFTS.trades;
+    let roll = Math.random();
+    let next = Object.keys(odds).find((w) => (roll -= odds[w]) < 0) || 'trades';
     // saves from before the patching was dated count from the wreck
     if (readyOnIslet() && S.day - (S.n.mendedDay || S.n.wreckDay) >= SURE_WESTERLY) next = 'westerly';
     S.wind = next;
@@ -86,6 +91,109 @@
 
   /** The upgrades not yet fitted. */
   G.upgradesLeft = () => UPGRADES.filter((u) => !S.boat[u.id]);
+
+  /* ---------------- loading the boat ---------------- */
+
+  /** How many stores of every kind together each boat will carry, and how many more with water casks. */
+  const ROOM = { raft: 40, canoe: 30 };
+  const CASK_ROOM = 20;
+
+  /** Stores that go wherever the castaway goes, and are not loaded: powder and shot is light, and goes with the pistol. */
+  const CARRIED = ['shot'];
+
+  /** The days of water and food beyond what the passage needs that the loading card starts from. */
+  const IN_HAND = 4;
+
+  /** How much a boat of `kind` ('raft' or 'canoe') will carry, with or without `casks`. */
+  G.boatRoom = (kind, casks) => ROOM[kind] + (casks ? CASK_ROOM : 0);
+
+  /**
+   * The loading card, before putting to sea from the camp: how much of
+   * each store to take aboard, at least `need` (what the passage itself
+   * will eat) and no more than `room` in all. `go(load)` puts to sea with
+   * it; whatever is not taken stays at the camp.
+   */
+  G.provision = function (need, room, go) {
+    const kinds = RES_ORDER.filter((k) => S.res[k] > 0 && !CARRIED.includes(k));
+    const load = {};
+    kinds.forEach((k) => {
+      load[k] = 0;
+    });
+    // start from what the passage needs and a few days in hand, and a torch or two
+    ['water', 'food'].forEach((k) => {
+      if (k in load) load[k] = Math.min(S.res[k], (need[k] || 0) + IN_HAND);
+    });
+    if ('torch' in load) load.torch = Math.min(S.res.torch, 2);
+    const total = () => kinds.reduce((t, k) => t + load[k], 0);
+    const enough = () => Object.keys(need).every((k) => (load[k] || 0) >= need[k]);
+    const ready = () => total() <= room && enough();
+    modal({
+      art: ART.scene('raft'),
+      title: 'Loading',
+      text: [`Choose what to take aboard. She will carry ${room} stores of every kind together; whatever you leave stays at the camp until you come back for it.`],
+      choices: [
+        { label: 'put to sea', fn: () => (ready() ? go(load) : null) },
+        leave('not yet'),
+      ],
+    });
+    const grid = el('div', 'provision');
+    const tally = el('p', 'gain');
+    const draw = () => {
+      grid.replaceChildren();
+      kinds.forEach((k) => {
+        grid.append(el('span', 'name', RES[k]), el('span', 'num', `${load[k]} <i>of ${S.res[k]}</i>`));
+        [[-5, '−5'], [-1, '−1'], [1, '+1'], [5, '+5']].forEach(([d, label]) => {
+          const b = el('button', 'link', label);
+          b.onclick = () => {
+            AU.sfx('click');
+            load[k] = Math.max(0, Math.min(S.res[k], load[k] + d));
+            draw();
+          };
+          grid.append(b);
+        });
+      });
+      const t = total();
+      tally.innerHTML = `Aboard: ${t} of ${room}.${t > room ? ' She will not carry so much.' : ''} The passage itself will eat ${costText(need)}${enough() ? '' : ', and you have not loaded so much'}.`;
+      $('#modal-choices button').disabled = !ready();
+    };
+    $('#modal-body').append(grid, tally);
+    draw();
+  };
+
+  /** Puts `load` aboard, and leaves every other store at the camp. */
+  G.stow = function (load) {
+    const aboard = {};
+    S.camp = {};
+    for (const k in S.res) {
+      const n = CARRIED.includes(k) ? S.res[k] : Math.min(S.res[k], load[k] || 0);
+      if (n > 0) aboard[k] = n;
+      if (S.res[k] - n > 0) S.camp[k] = S.res[k] - n;
+    }
+    S.res = aboard;
+    S.n.leftHome = S.day;
+  };
+
+  /** The share of the provisions left at an untended camp that the gulls and the damp take each day, and the most they take. */
+  const CAMP_SPOILS = 0.05;
+  const CAMP_SPOILS_MOST = 0.5;
+
+  /**
+   * Back at the camp after `away` days: the stores left there join what
+   * was brought home, less the provisions spoiled if nobody `kept` it.
+   * Returns a line telling of them, or '' if none were left.
+   */
+  function unstow(kept, away) {
+    const camp = S.camp;
+    S.camp = null;
+    if (!camp || !Object.keys(camp).length) return '';
+    let spoiled = 0;
+    if (!kept && camp.food) {
+      spoiled = Math.ceil(camp.food * Math.min(CAMP_SPOILS_MOST, away * CAMP_SPOILS));
+      camp.food -= spoiled;
+    }
+    for (const k in camp) add(k, camp[k]);
+    return spoiled ? `Your stores are where you left them, but the gulls and the damp have had ${spoiled} of the provisions.` : 'Your stores are where you left them.';
+  }
 
   /* ---------------- passages ---------------- */
 
@@ -134,6 +242,13 @@
    */
   G.setSail = function (id, guided) {
     if ((!guided && G.sailBlocked(id)) || !has(G.passageCost(id, guided))) return;
+    // putting out from the camp, the boat must be loaded first
+    const load = (hollisStays) => (G.atHome()
+      ? G.provision(G.passageCost(id, guided), G.boatRoom(S.boat.kind, S.boat.casks), (taken) => {
+        G.stow(taken);
+        depart(id, hollisStays, guided);
+      })
+      : depart(id, hollisStays, guided));
     if (G.atHome() && S.flags.ally) {
       modal({
         art: ART.scene('beach'),
@@ -143,14 +258,14 @@
           'If he comes, there is another pair of hands aboard. If he stays, the camp will be kept: the fire fed, the traps emptied, and nothing taken while you are gone.',
         ],
         choices: [
-          { label: 'he comes with you', fn: () => depart(id, false, guided) },
-          { label: 'he keeps the camp', fn: () => depart(id, true, guided) },
+          { label: 'he comes with you', fn: () => load(false) },
+          { label: 'he keeps the camp', fn: () => load(true) },
           leave('not yet'),
         ],
       });
       return;
     }
-    depart(id, false, guided);
+    load(false);
   };
 
   /** How each kind of passage begins. */
@@ -166,10 +281,7 @@
     const cost = G.passageCost(id, guided);
     if (!has(cost)) return;
     pay(cost);
-    if (G.atHome()) {
-      S.n.leftHome = S.day;
-      S.flags.hollisHome = hollisStays ? 1 : 0;
-    }
+    if (G.atHome()) S.flags.hollisHome = hollisStays ? 1 : 0;
     S.n.passage = daysTo(id);
     S.flags.sailing = 1;
     G.leaveFire();
@@ -348,6 +460,8 @@
       );
       if (broken.length) line = `You came home to a cold camp, and ${broken.join(', and ')}.`;
     }
+    const stores = unstow(kept, away);
+    if (stores) text.push(gainLine(stores));
     if (S.flags.jem && !S.flags.jemHome) {
       S.flags.jemHome = 1;
       if (S.flags.ally) text.push('Hollis comes down the beach to meet you, and stops dead when he sees Jem. For a long moment the two of them look at each other: the man who was left, and the man who ran. Then Hollis nods once, and goes back to the fire.');

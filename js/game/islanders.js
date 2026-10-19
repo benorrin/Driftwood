@@ -291,7 +291,7 @@
           quote('"The wind is going round," he says, and points his chin at the sky, where you can see nothing at all. "We go home at first light. You come?"'),
         ],
         choices: [
-          { label: 'sail south with them', cost: G.passageCost('smoke', true), fn: () => G.setSail('smoke', true) },
+          { label: 'sail south with them', fn: () => G.setSail('smoke', true) },
           leave('not this time', 'The canoes will go home without you. They will be back at the next moon.', 'lore'),
         ],
       });

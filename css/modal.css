@@ -157,6 +157,25 @@
   margin-bottom: 12px;
 }
 
+/* the loading card: a row for each store, how much goes aboard, and steps to change it */
+.provision {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto repeat(4, auto);
+  gap: 2px 6px;
+  align-items: baseline;
+  margin: 0.4em 0 0.8em;
+}
+
+.provision .num {
+  min-width: 5em;
+  text-align: right;
+}
+
+.provision .num i {
+  color: var(--faint);
+  font-size: 0.85em;
+}
+
 .styles .btn {
   margin: 0;
   min-width: 0;
