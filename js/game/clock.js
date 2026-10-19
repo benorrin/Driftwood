@@ -27,12 +27,28 @@
     ['food', 'Hunger gnaws at you. There is nothing left to eat.'],
   ];
 
+  /**
+   * Fresh food keeps only so long in the heat: without a smoking rack, each
+   * dawn one in every SPOIL_SHARE provisions above SPOIL_FROM goes bad.
+   */
+  const SPOIL_FROM = 6;
+  const SPOIL_SHARE = 4;
+
+  /** Some of the provisions rot, unless there is a smoking rack to keep them. */
+  function spoil() {
+    if (S.built.rack) return;
+    const n = Math.floor((S.res.food - SPOIL_FROM) / SPOIL_SHARE);
+    if (n <= 0) return;
+    add('food', -n);
+    log(`${n} of your provisions ${n === 1 ? 'has' : 'have'} spoiled in the heat. A smoking rack would keep them.`, 'warn');
+  }
+
   /** The chance, each dawn of a fever, that it does the castaway harm. */
   const FEVER_HARM = 0.3;
 
   /**
    * Daybreak: eat and drink (or suffer for the lack), heal a little unless
-   * fevered, mend ailments, and,
+   * fevered, mend ailments, lose food that has spoiled, and,
    * with the pyre built and the trade winds turned, watch for a sail; the
    * longer the wait, the likelier.
    */
@@ -72,6 +88,7 @@
         'The fever burned all night.', ART.scene('night'));
     }
     G.mend();
+    spoil();
     if (hurt) {
       const title = lack.length > 1 ? 'Hunger and Thirst' : short === 'water' ? 'Thirst' : 'Hunger';
       notice(title, lack.concat(gainLine(`You lose ${hurt} health. Find food and water before another dawn.`)),

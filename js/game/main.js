@@ -140,7 +140,7 @@
 
   /** The rules, briefly, as headed paragraphs. */
   const HOW_TO_PLAY = [
-    ['Survive', 'Gather driftwood and light a fire before night falls, then keep it fed. Each dawn you eat a share of your provisions and drink some fresh water; go without, and your health suffers.'],
+    ['Survive', 'Gather driftwood and light a fire before night falls, then keep it fed. Each dawn you eat a share of your provisions and drink some fresh water; go without, and your health suffers. Fresh food will not keep in the heat for long unless it is smoked.'],
     ['Make', 'Comb the beach for what the tide brings in. Twist fibre into rope, and make shelter, tools and traps from the <i>Make</i> list. A button greys out while you rest from the last job.'],
     ['Explore', 'Before long you will draw a map. Explore the island to find places to put on it: the story tells you what to look for, a fruitless trip may still bring back a clue, and some places you may spot from somewhere else. Every trip costs supplies, and after dark you will need a torch to see your way.'],
     ['Fight', 'Fights are turn based, and can be long. Strike, eat to heal, or flee. When a foe gathers itself for a heavy blow, brace yourself to turn it aside. Once you carry a blade, the island\'s creatures will start to come for you.'],
@@ -181,6 +181,7 @@
         ['The old canoe', 'With an axe, gum and rope, the outrigger by the lagoon can be made to float again. She is quicker than a raft, and riskier, and she knows the way to an island with a mutiny of its own.'],
         ['Staying', 'Make your peace with the island, and in time you may choose not to leave it at all.'],
         ['A darker ending', 'There is another way off the island now, though not a happy one.'],
+        ['Spoilage', 'Fresh food goes bad in the heat. Keep a big store of provisions and some will spoil each dawn, unless you build a smoking rack.'],
         ['Ailments', 'A turned ankle or a fever now lingers for days. Rest by the fire once a day to mend faster.'],
         ['Tom Hollis', 'Once Hollis has joined you, set him to gather wood, fish the reef, or keep watch over the camp by night.'],
         ['The ship\'s log', 'Every tale you finish is written into a log on the title screen: how long each castaway lasted, how they ended, and how many endings are still to find.'],
