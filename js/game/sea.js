@@ -72,14 +72,23 @@
   /** Which way a passage to `id` runs: from home, its bearing; from an island, back the other way. */
   const bearingTo = (id) => (id === 'home' ? OPPOSITE[G.isle().bearing] : ISLES[id].bearing);
 
-  /** How many days a passage to `id` takes. */
-  const daysTo = (id) => (id === 'home' ? G.isle().days : ISLES[id].days);
+  /** How many days a passage to `id` takes: a day less, on the longer passages, for a castaway who can read the sea. */
+  function daysTo(id) {
+    const days = id === 'home' ? G.isle().days : ISLES[id].days;
+    return S.flags.wayfinder && days > 1 ? days - 1 : days;
+  }
+
+  /** Whether a passage to `id` goes with the canoes: south behind them, or home from their island with one of theirs alongside. */
+  const withCanoes = (id, guided) => guided || (id === 'home' && S.isle === 'smoke');
 
   /** The places the boat can make for from here: any charted island from home, and only home from anywhere else. */
   G.destinations = () => (G.atHome() ? Object.keys(ISLES).filter((id) => S.charted[id]) : ['home']);
 
-  /** What a passage to `id` costs: a day's water and a day's food for every day at sea. */
-  G.passageCost = (id) => ({ water: daysTo(id), food: daysTo(id) });
+  /**
+   * What a passage to `id` costs: a day's water and a day's food for every
+   * day at sea; with the canoes, who share their water, only a little food.
+   */
+  G.passageCost = (id, guided) => (withCanoes(id, guided) ? { food: 2 } : { water: daysTo(id), food: daysTo(id) });
 
   /** How long a passage to `id` takes, for the buttons. */
   G.passageDays = (id) => daysTo(id);
@@ -87,7 +96,9 @@
   /** Why the boat can't sail for `id` just now, or null. */
   G.sailBlocked = function (id) {
     if (!G.boatMended()) return `patch the ${G.boatName()} first`;
-    if (id !== 'home' && ISLES[id].far) return ISLES[id].far;
+    if (withCanoes(id)) return S.wind === 'calm' ? 'there is no wind' : null;
+    const far = id !== 'home' && ISLES[id].far && ISLES[id].far();
+    if (far) return far;
     if (daysTo(id) > CASK_DAYS && !S.boat.casks) return 'too far without water casks';
     if (S.wind === 'calm') return 'there is no wind';
     const b = bearingTo(id);
@@ -97,9 +108,12 @@
     return null;
   };
 
-  /** Sets sail for `id`. Leaving home, Hollis must either come or keep the camp. */
-  G.setSail = function (id) {
-    if (G.sailBlocked(id) || !has(G.passageCost(id))) return;
+  /**
+   * Sets sail for `id`; `guided` follows the canoes south, whatever the
+   * wind. Leaving home, Hollis must either come or keep the camp.
+   */
+  G.setSail = function (id, guided) {
+    if ((!guided && G.sailBlocked(id)) || !has(G.passageCost(id, guided))) return;
     if (G.atHome() && S.flags.ally) {
       modal({
         art: ART.scene('beach'),
@@ -109,14 +123,14 @@
           'If he comes, there is another pair of hands aboard. If he stays, the camp will be kept: the fire fed, the traps emptied, and nothing taken while you are gone.',
         ],
         choices: [
-          { label: 'he comes with you', fn: () => depart(id, false) },
-          { label: 'he keeps the camp', fn: () => depart(id, true) },
+          { label: 'he comes with you', fn: () => depart(id, false, guided) },
+          { label: 'he keeps the camp', fn: () => depart(id, true, guided) },
           leave('not yet'),
         ],
       });
       return;
     }
-    depart(id, false);
+    depart(id, false, guided);
   };
 
   /** How each kind of passage begins. */
@@ -127,9 +141,9 @@
   };
   SET_OUT.south = SET_OUT.north;
 
-  /** Puts to sea for `id`; `hollisStays` leaves Hollis to keep the camp. */
-  function depart(id, hollisStays) {
-    const cost = G.passageCost(id);
+  /** Puts to sea for `id`; `hollisStays` leaves Hollis to keep the camp, and `guided` follows the canoes. */
+  function depart(id, hollisStays, guided) {
+    const cost = G.passageCost(id, guided);
     if (!has(cost)) return;
     pay(cost);
     if (G.atHome()) {
@@ -141,14 +155,20 @@
     G.leaveFire();
     AU.sfx('splash');
     const aboard = S.flags.ally && !S.flags.hollisHome;
-    const text = id === 'home' && !S.flags.homeAgain
+    if (guided) {
+      S.charted[id] = 1;
+      G.islandersLeave();
+    }
+    const text = guided
+      ? ['At first light the canoes put out through the surf, three of them, their crab-claw sails filling one after another, and you push off after them.', `The Island of Fires: ${S.n.passage} days, if you can keep up.`]
+      : id === 'home' && !S.flags.homeAgain
       ? [
         `You push off at the top of the tide${aboard ? ', Hollis at the steering oar' : ''}, and the westerly finds the patched sail and leans on it, and the ${G.boatName()} groans in every lashing, and goes. Behind you the islet sinks into the sea like a stone into a pond.`,
         'All that day and all the night the wind holds. You steer by the peak of your island, and then by the stars above where it was, and you do not sleep.',
       ]
       : [SET_OUT[bearingTo(id)], `${id === 'home' ? 'Home' : ISLES[id].name}: ${S.n.passage} day${S.n.passage === 1 ? '' : 's'}, if the wind holds.`];
     if (hollisStays) text.push('Hollis stands at the edge of the surf with his spear, watching you go, until he is too small to see.');
-    modal({ art: ART.scene('raft'), title: id === 'home' && !S.flags.homeAgain ? 'Homeward' : 'Under Sail', text, choices: [{ label: 'sail on', fn: () => atSea(id) }] });
+    modal({ art: ART.scene('raft'), title: id === 'home' && !S.flags.homeAgain ? 'Homeward' : 'Under Sail', text, choices: [{ label: 'sail on', fn: () => atSea(id, guided) }] });
   }
 
   /**
@@ -216,9 +236,19 @@
     return e;
   }
 
-  /** Something happens on passage; then the landfall. */
-  function atSea(id) {
-    const e = seaEvent();
+  /** The passage behind the canoes, the navigator in the bow of the lead canoe. */
+  const FOLLOWING = {
+    title: 'Following the Canoes',
+    run: () => [
+      'For days you follow the canoes south. They wait for you, which you suspect they find funny, and when your sail flogs they come back and laugh at it.',
+      'Tavake sits in the bow of the lead canoe with one hand trailing in the water, as if she were feeling the pulse of the sea. She never once looks at the sun. At night the canoes sing to one another across the dark, so that you can follow them by the sound.',
+      ...(G.withHollis() ? ['Hollis sits in the bow, watching the old woman, and does not speak for a whole day.'] : []),
+    ],
+  };
+
+  /** Something happens on passage (or, behind the canoes, nothing but the canoes); then the landfall. */
+  function atSea(id, guided) {
+    const e = guided ? FOLLOWING : seaEvent();
     const text = e.run();
     if (S.ended) return;
     modal({ art: ART.scene(e.art || 'raft'), title: e.title || 'At Sea', text, choices: [{ label: 'make for the land', fn: () => landfall(id) }] });

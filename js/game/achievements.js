@@ -68,6 +68,8 @@
     { id: 'beans', kind: 'deed', name: 'Every Bean Was Black', desc: 'Hear all that Jem has to tell.', test: () => S.n.jemTold >= 5 },
     { id: 'tupa', kind: 'deed', name: 'Tupa and Tavake', desc: 'Be welcomed by the people who tend the marae.', test: () => S.flags.contact === 'warm' },
     { id: 'promise', kind: 'deed', name: 'A Promise', desc: 'Promise to bring their god home.', test: () => S.flags.promise },
+    { id: 'fires', kind: 'deed', name: 'The Island of Fires', desc: 'Follow the canoes south.', test: () => S.landed && S.landed.smoke },
+    { id: 'wayfinder', kind: 'deed', name: 'Three Swells', desc: 'Learn to read the sea from Tavake.', test: () => S.flags.wayfinder },
     { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
     { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },

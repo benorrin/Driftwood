@@ -136,7 +136,10 @@
 
   /** The sea tab's section: the wind, and a passage button for every place the boat can make for from here. */
   function seaSections() {
-    const sec = section('sea', 'The Sea', `The wind is ${WINDS[S.wind][0]}. She can only run before it${S.boat.leeboards ? ', or cross it with a leeboard down' : ''}. Every day at sea costs a day's water and food.`);
+    const note = S.isle === 'smoke'
+      ? `The wind is ${WINDS[S.wind][0]}. One of Tavake's canoes will see you home whatever its quarter, and they send water with you.`
+      : `The wind is ${WINDS[S.wind][0]}. She can only run before it${S.boat.leeboards ? ', or cross it with a leeboard down' : ''}. Every day at sea costs a day's water and food.`;
+    const sec = section('sea', 'The Sea', note);
     fill(sec.querySelector('.btn-row'), destinations().map((id) => {
       const why = sailBlocked(id);
       const cost = passageCost(id);

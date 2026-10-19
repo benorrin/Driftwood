@@ -127,8 +127,8 @@
    * drink from, `timber` to fell. `land()` tells of the first landing and
    * `again()` of the rest. `places` are the things to do there, each with
    * a label, an optional `show()`, a `cd` in seconds, and `run()`. `finds`
-   * are what combing its beach turns up: [weight, run]. `far` gives the
-   * reason an island can be seen but not reached.
+   * are what combing its beach turns up: [weight, run]. `far()` gives the
+   * reason an island can be seen but not reached, if it can't.
    */
   const ISLES = (G.ISLES = {
     islet: {
@@ -251,7 +251,10 @@
     },
     smoke: {
       name: 'The Island of Fires', x: 330, y: 306, bearing: 'south', days: 5,
-      far: 'too far for her: she would never come back against the trades',
+      stream: 1, palms: 1, hill: 1,
+      far: () => (S.flags.wayfinder ? null
+        : S.flags.promise ? 'only Tavake\'s people know the way: follow their canoes'
+          : 'too far for her: she would never come back against the trades'),
     },
   });
 

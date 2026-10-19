@@ -62,8 +62,9 @@
    * camp: a hump of sand in the open sea, the castaway's own island far off,
    * and the boat on the sand. `st` has night, fire, boat (the parts
    * patched), ally, jem, and `isle`, which shapes the shore: the High Island
-   * rises steep and green behind it, the Bird Rock is bare black rock, and
-   * the Sandbar is barely above the sea.
+   * rises steep and green behind it, the Bird Rock is bare black rock,
+   * the Sandbar is barely above the sea, and the Island of Fires has its
+   * village above the beach.
    */
   DW.art.islet = function (st) {
     const r = rng(17);
@@ -75,7 +76,7 @@
     b += st.night ? moon(120, 46, 15) + stars(r, W, hz - 20) : sun(130, 58, 16, true) + birds(r, 260, 50, 9, 160);
     b += sea(r, W, hz, H, st.night);
     const isle = st.isle || 'islet';
-    if (isle === 'high') {
+    if (isle === 'high' || isle === 'smoke') {
       // the island's own heights, and the cloud that sits on them
       b += headland(r, 300, hz + 80, 320, 170, 6);
       b += P('M380 40 q20 -16 46 -6 q24 -14 50 0 q22 0 26 14 q-60 8 -122 -8Z', pal.paper, 1);
@@ -90,12 +91,22 @@
       high: ['M-10 300 C40 256 160 226 300 222 S540 232 610 262 V300Z', 'url(#dots)'],
       rock: ['M-10 300 C30 250 120 214 240 206 C330 196 420 214 500 236 S590 270 610 300Z', 'url(#h1)'],
       sandbar: ['M-10 300 C60 274 180 252 300 250 S540 262 610 300Z', 'url(#dots)'],
+      smoke: ['M-10 300 C40 256 160 226 300 222 S540 232 610 262 V300Z', 'url(#dots)'],
     }[isle];
     b += P(shore[0], shore[1], 1.2);
     b += P('M0 262 q40 -14 70 -26 M540 238 q36 10 60 24', null, 0.7, 'stroke-dasharray="5 6"');
-    if (isle === 'islet' || isle === 'high') {
+    if (isle === 'islet' || isle === 'high' || isle === 'smoke') {
       b += tufts(r, 380, 560, 262, 4);
       b += palm(r, 470, 262, 130, -22, 0.85) + palm(r, 528, 266, 96, 16, 0.7);
+    }
+    if (isle === 'smoke') {
+      // the village above the beach, smoke going up, and canoes drawn up on the sand
+      for (let i = 0; i < 4; i++) {
+        const hx = 330 + i * 34;
+        b += P(`M${hx - 14} 228 L${hx} 208 L${hx + 14} 228Z`, 'url(#h2)', 1) + P(`M${hx - 10} 228 V236 M${hx + 10} 228 V236`, null, 1);
+        if (i % 2 === 0) b += P(`M${hx} 206 c-4 -10 4 -16 0 -28`, null, 0.8);
+      }
+      b += P('M150 268 q50 10 100 0 l4 -6 q-54 8 -108 0Z', 'url(#h3)', 1) + P('M160 252 h80', null, 2);
     }
     if (isle === 'rock') b += birds(r, 300, 150, 14, 260);
 

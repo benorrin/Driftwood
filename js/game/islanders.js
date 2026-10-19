@@ -12,8 +12,8 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, rand, quote, isNight,
-    log, save, modal, leave, done,
+    S, rand, pick, quote, gainLine, isNight, ISLES,
+    gain, log, save, modal, leave, done,
   } = G;
 
   /** How many days a visit lasts, and how long until the next, at the next moon. */
@@ -82,6 +82,9 @@
     S.n.visitUntil = 0;
     S.n.visitDue = S.day + NEXT_MOON;
   }
+
+  /** They leave the marae with the castaway following. */
+  G.islandersLeave = sendAway;
 
   /* ---------------- how they receive the castaway ---------------- */
 
@@ -279,8 +282,114 @@
       modal({ art: marae(), title: 'Tupa and Tavake', text: ['They make room for you by the fire on the lowest step. Tavake looks at you, waiting. You know something now that you did not before.'], choices: [{ label: 'tell them about the crate', fn: tellCrate }, leave('go back to camp')] });
       return;
     }
-    done('platform', S.flags.promise
-      ? 'They make room for you by the fire on the lowest step. Tupa wants to know about Valparaíso, and whether it is like Nantucket. "When the wind goes round," he says. "Soon."'
-      : 'They make room for you by the fire on the lowest step, and give you fish baked in leaves, and Tupa asks you about Bristol and does not believe a word of it.', null);
+    if (S.flags.promise) {
+      modal({
+        art: marae(),
+        title: 'Tupa and Tavake',
+        text: [
+          'They make room for you by the fire on the lowest step. Tupa wants to know about Valparaíso, and whether it is like Nantucket.',
+          quote('"The wind is going round," he says, and points his chin at the sky, where you can see nothing at all. "We go home at first light. You come?"'),
+        ],
+        choices: [
+          { label: 'sail south with them', cost: G.passageCost('smoke', true), fn: () => G.setSail('smoke', true) },
+          leave('not this time', 'The canoes will go home without you. They will be back at the next moon.', 'lore'),
+        ],
+      });
+      return;
+    }
+    done('platform', 'They make room for you by the fire on the lowest step, and give you fish baked in leaves, and Tupa asks you about Bristol and does not believe a word of it.', null);
   }
+
+  /* ---------------- the Island of Fires ---------------- */
+
+  /** Lessons in reading the sea from Tavake: one a day, and on the last, the castaway can find their own way. */
+  const LESSONS = [
+    'Tavake has you lie on your back in the bottom of a canoe in the mouth of the lagoon, with your eyes shut, until you can feel it: not one swell but three, crossing, each from its own quarter of the world, and the island bending them as a rock bends a stream.',
+    'At dawn Tavake takes you out beyond the reef to watch the terns go out to their fishing, and at dusk to watch them come home, and makes you point each time to where the land must be. Then she shows you a cloud over a far island, and how it is greener underneath, from the lagoon below.',
+    'All one night on the beach, Tavake names the stars as they come up out of the sea, one after another, each over its own island, and makes you say them back to her, again and again, until you do not get one wrong.',
+  ];
+
+  Object.assign(ISLES.smoke, {
+    land() {
+      AU.sfx('page');
+      modal({
+        art: ART.scene('landfall'),
+        title: 'The Island of Fires',
+        text: [
+          'On the last morning the island stands up out of the sea ahead: high and green, cloud on its peaks, smoke going up from a dozen places along the shore. The canoes run in through a gap in the reef with the surf behind them, and you follow, and somehow you do not drown.',
+          'The whole beach is people. Children wade out to grab at your gunwale. Tupa jumps out of the lead canoe into the shallows and shouts something that makes everyone laugh, and you suspect it was about you.',
+          'He tells you the island\'s name, and laughs at the way you say it, and after that you call it what the whalers call it: the Island of Fires. You see why the first night, when the torches of the fishing canoes go out along the reef, as many as the stars, and stay there till dawn.',
+          ...(G.withHollis() ? ['An old man comes down the beach and stands in front of Hollis, and looks at him for a long time, and then puts his nose to Hollis\'s nose and his hands on his shoulders, and does not let go.'] : []),
+        ],
+        choices: [leave('go up the beach', 'You have come to the Island of Fires, behind Tavake\'s canoes. Its people trade for iron, and Tavake can teach you to read the sea.', 'lore')],
+      });
+    },
+    again() {
+      modal({
+        art: ART.scene('landfall'),
+        title: 'The Island of Fires',
+        text: [pick([
+          'Children run down the beach to meet you, shouting for nails.',
+          'Tupa is on the beach before your keel touches, asking what you have brought.',
+          'The canoes come out through the reef to meet you, and race you in, and win.',
+        ])],
+        choices: [leave('go up the beach')],
+      });
+    },
+    places: [
+      {
+        id: 'food', label: 'trade nails for food', cd: 15, cost: { iron: 2 },
+        run: () => log(`Two nails buy ${gain({ food: 6 })}: breadfruit, fish baked in leaves, and a bunch of plantains as long as your arm.`),
+      },
+      {
+        id: 'water', label: 'trade a nail for water', cd: 15, cost: { iron: 1 },
+        run: () => log(`A nail buys ${gain({ water: 6 })}, in gourds, from the stream above the village.`),
+      },
+      {
+        id: 'outrigger', label: 'go to the canoe-builders', cd: 20, cost: { iron: 6 },
+        show: () => !S.boat.outrigger,
+        run() {
+          S.boat.outrigger = 1;
+          AU.sfx('craft');
+          log(`For six nails the canoe-builders fit your ${G.boatName()} with a float and booms, lashed the way they lash their own, and laugh at her the whole time they are doing it. She will not roll now.`);
+        },
+      },
+      {
+        id: 'tavake', label: 'sit with Tavake', cd: 30,
+        show: () => !S.flags.wayfinder,
+        enabled: () => S.n.lessonDay !== S.day,
+        note: () => (S.n.lessonDay === S.day ? 'tomorrow' : ''),
+        run() {
+          S.n.lessonDay = S.day;
+          S.n.lessons = (S.n.lessons || 0) + 1;
+          log(LESSONS[S.n.lessons - 1], 'lore');
+          if (S.n.lessons >= LESSONS.length) {
+            S.flags.wayfinder = 1;
+            log('"Now you will not get lost," Tupa says, for her. "Not easily." The longer passages are a day shorter for you now, and you can find your own way back to the Island of Fires.', 'lore');
+          }
+        },
+      },
+      {
+        id: 'whalers', label: 'ask Tupa about the whalers', cd: 20,
+        show: () => !S.flags.whalerKnown,
+        run() {
+          S.flags.whalerKnown = 1;
+          modal({
+            art: ART.scene('rescue'),
+            title: 'Tupa',
+            text: [
+              quote('"Once a year, when the trades blow hardest, a whale-ship comes here for water and wood," Tupa says. "Always the same one. The <i>Perseverance</i>. The captain says \'thee\' and does not drink. He pays in nails."'),
+              quote('"When she comes again, she goes on to your Valparaíso." He looks at you. "When she goes, I go with her. And you, I think. To bring back the <i>etua</i>."'),
+            ],
+            choices: [leave('go on', 'The whaler Perseverance calls at the Island of Fires once a year for water, and goes on to Valparaíso. Tupa means to sail in her, and so do you.', 'lore')],
+          });
+        },
+      },
+    ],
+    finds: [
+      [3, () => log(`Somebody's grandmother gives you ${gain({ food: 2 })} wrapped in a leaf, and will not be refused.`)],
+      [2, () => log(pick(['A crowd of children follows you along the beach, copying the way you walk.', 'Children bring you shells, one each, and wait to see what you will give them back.']))],
+      [1, () => log(`On the reef at low water: ${gain({ food: 1 })}.`)],
+    ],
+  });
 })();
