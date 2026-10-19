@@ -10,7 +10,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, rand, chance, pick, quote, gainLine, RES,
+    S, rand, chance, pick, cap, quote, gainLine, RES,
     add, gain, log, damage, setFire, maxHealth, isNight, modal, queueModal, notice, leave, closeModal, fight,
   } = G;
 
@@ -191,6 +191,85 @@
     closeModal();
   }
 
+  /* ---------------- the last castaway ---------------- */
+
+  /** How the last castaway lies, by what killed them; a creature leaves its marks. */
+  const LAID = {
+    thirst: 'curled in the thin shade of a rock, as if they had crawled there out of the sun',
+    cold: 'lying on their side beside a ring of long-cold ashes, knees drawn up to the chest',
+    fall: 'at the foot of a little cliff, one leg folded under in a way no leg should go',
+    fever: 'under a rough shelter of fronds, arms folded, as if they knew and had made ready',
+    storm: 'half buried in a drift of weed and sand, flung far above the tide line by some great sea',
+  };
+
+  /** The bones of the last castaway, found while exploring: take what they had, or bury them with it. */
+  function strangerBones(last) {
+    const laid = LAID[last.cause] || `scattered across a clearing. There are marks on the bones. ${cap(last.cause)}, you think, or something like it`;
+    const text = [
+      `In a hollow of the scrub, a man's bones, ${laid}.`,
+      `Beside them, notches cut in the rock: ${last.day} of them. A seaman's jacket, Bristol-made, its buttons stamped with an anchor. The boots, you notice, are your size.`,
+    ];
+    if (last.bristow) text.push('Propped against the rock sits a leather ball, the charcoal face on it rubbed almost away.');
+    const things = Object.keys(last.keep).length || (last.bristow && !S.items.bristow);
+    const choices = [];
+    if (things) {
+      choices.push({
+        label: 'take what they had',
+        fn: () => {
+          const got = gain(last.keep);
+          const lines = got ? [gainLine(`You take ${got}.`)] : [];
+          if (last.bristow && !S.items.bristow) {
+            S.items.bristow = 1;
+            S.events.bristow = 1;
+            lines.push('And the ball. You cannot leave him here alone. You will call him Bristow, though you could not say why.');
+          }
+          modal({
+            art: ART.scene('grove'),
+            title: 'Exploring',
+            text: ['They have no more need of it, and you do.'].concat(lines),
+            choices: [leave('return to camp', 'You found a castaway\'s bones in the scrub, and took what they had.', 'lore')],
+          });
+        },
+      });
+    }
+    choices.push({
+      label: things ? 'bury them, and their things with them' : 'bury them',
+      fn: () => {
+        S.flags.buriedStranger = 1;
+        G.heal(2);
+        modal({
+          art: ART.scene('grave'),
+          title: 'A Stranger',
+          text: [
+            'You scrape a grave in the sand with your hands and a flat stone, and lay them in it with everything that was theirs, and mark it with a driftwood cross. You do not know the words, so you say the ones from the back of the Bible.',
+            gainLine('You walk home lighter than you came, and rest well that night.'),
+          ],
+          choices: [leave('return to camp', 'You buried a stranger in the scrub. Whoever they were, they were here before you.', 'lore')],
+        });
+      },
+    });
+    modal({ art: ART.scene('grove'), title: 'Bones', text, choices });
+  }
+
+  /** What the sea has left of the last castaway's raft, washed up on the beach. */
+  function strangerRaft(last) {
+    const salvage = { timber: rand(3, 5), rope: 2 };
+    for (const k in last.keep) salvage[k] = (salvage[k] || 0) + last.keep[k];
+    const got = gain(salvage);
+    const text = [
+      'Wreckage on the tide line: logs lashed together with rope, a broken mast, a rag of sail. A raft, or what the sea has left of one.',
+      'Somebody else tried to sail from here. The lashings are knotted the way you knot them.',
+    ];
+    const ball = last.bristow && !S.items.bristow;
+    if (ball) {
+      S.items.bristow = 1;
+      S.events.bristow = 1;
+      text.push('Wedged between two logs is a leather ball with a face drawn on it in charcoal, grinning at you as if he has been waiting. You call him Bristow, though you could not say why.');
+    }
+    text.push(gainLine(`You salvage ${got}.`));
+    beachCard('Wreckage', text, [leave('return to camp', 'The wreck of somebody else\'s raft came ashore. They did not get far.', 'lore')], { ball });
+  }
+
   /** Things that happen around the camp, now and then, as the days go by. */
   const AT_CAMP = [
     {
@@ -294,6 +373,15 @@
             },
           },
         ], { ball: 1 });
+      },
+    },
+    {
+      id: 'lastRaft', limit: 1, weight: 3,
+      when: () => S.day >= 2 && G.remains() && G.remains().sea,
+      run() {
+        const last = G.remains();
+        G.clearRemains();
+        strangerRaft(last);
       },
     },
     {
@@ -496,7 +584,7 @@
   G.happening = () => happen(AT_CAMP);
 
   /** Things the tide brings in, found while combing the beach. Returns whether one turned up. */
-  G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'parcel', 'crusoe', 'boot', 'turtle'].includes(e.id)));
+  G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'lastRaft', 'parcel', 'crusoe', 'boot', 'turtle'].includes(e.id)));
 
   /* ---------------- while exploring ---------------- */
 
@@ -696,6 +784,15 @@
         intro: 'You blunder into a thicket and something in it explodes toward you, all tusks and bristles.',
         onWin: () => wanderCard('You butcher it where it fell.', { food: 4, hide: 1 }),
       }),
+    },
+    {
+      id: 'bones', limit: 1, weight: 3,
+      when: () => S.day >= 3 && G.remains() && !G.remains().sea,
+      run() {
+        const last = G.remains();
+        G.clearRemains();
+        strangerBones(last);
+      },
     },
     {
       id: 'viper', weight: 0.4,

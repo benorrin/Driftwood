@@ -39,6 +39,7 @@
         ? 'Somewhere in the storm, Bristow went over the side. You still say sorry to him, some nights.'
         : 'Bristow comes aboard with you. The whalermen think you mad, and they are not altogether wrong.');
     }
+    if (S.flags.buriedStranger) lines.push('Some nights you think of the bones in the scrub, and the boots that fitted you so well. You are glad you buried them.');
     if (S.flags.buried) lines.push('Captain Hale\'s journal you send to his widow in Liverpool, if she still lives. You never learn whether it reaches her.');
     if (S.items.locket) {
       lines.push(S.flags.buried
@@ -67,6 +68,7 @@
   G.die = function (cause) {
     if (S.ended) return;
     S.health = 0;
+    G.leaveRemains(cause);
     endGame('silent');
     AU.sfx('death');
     const why = DEATHS[cause] || `You fell to ${cause}. The island is patient; it was always going to win.`;

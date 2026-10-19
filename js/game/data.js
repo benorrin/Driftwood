@@ -9,6 +9,9 @@
 
   G.SAVE_KEY = 'driftwood-save-v1';
 
+  /** Where the last castaway to die on the island is remembered, for the next to find. */
+  G.REMAINS_KEY = 'driftwood-remains-v1';
+
   /** Length of a day, in clock ticks (seconds). */
   G.DAY_LEN = 120;
 

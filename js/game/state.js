@@ -8,7 +8,7 @@
 
   const G = window.DW.game;
   const AU = window.DW.audio;
-  const { RES, FIRE_NAMES, NIGHT_AT, LOG_MAX, SAVE_KEY } = G;
+  const { RES, FIRE_NAMES, NIGHT_AT, LOG_MAX, SAVE_KEY, REMAINS_KEY } = G;
   const storage = window.DW.storage;
 
   /** The current game. Empty until a game is started or loaded. */
@@ -169,4 +169,31 @@
 
   /** Deletes the saved game. */
   G.clearSave = () => storage.remove(SAVE_KEY);
+
+  /* ---------------- the last castaway ---------------- */
+
+  /** Stores a castaway's bones may still hold for the next, and the most of each they keep. */
+  const KEPT = { rope: 4, stone: 4, iron: 4, cloth: 3, gum: 3, torch: 2, shot: 1 };
+
+  /**
+   * Remembers the castaway who has just died of `cause`, for the next to
+   * find: the day they died, whether at sea, half of what they kept that
+   * would last, and whether Bristow was with them.
+   */
+  G.leaveRemains = function (cause) {
+    const keep = {};
+    for (const k in KEPT) {
+      const n = Math.min(KEPT[k], Math.ceil((S.res[k] || 0) / 2));
+      if (n > 0) keep[k] = n;
+    }
+    storage.setJSON(REMAINS_KEY, {
+      day: S.day, cause, sea: !!S.flags.sailing, keep, bristow: !!S.items.bristow,
+    });
+  };
+
+  /** The last castaway to die here, if no one has found them yet; otherwise null. */
+  G.remains = () => storage.getJSON(REMAINS_KEY, null);
+
+  /** Forgets the last castaway, once they have been found. */
+  G.clearRemains = () => storage.remove(REMAINS_KEY);
 })();
