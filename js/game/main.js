@@ -8,7 +8,6 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const STY = window.DW.styles;
-  const storage = window.DW.storage;
   const {
     S, $, el, paragraph, INTRO, BTNS, view, session,
     freshState, replaceState, log, save, load, clearSave,
@@ -161,19 +160,9 @@
 
   /* ---------------- what's new ---------------- */
 
-  /** Where the newest release the player has read about is remembered. */
-  const NEWS_KEY = 'driftwood-news';
-
-  /**
-   * Things stored only once someone has played, which mark a returning
-   * player. The visual style is stored on every visit, so it can't.
-   */
-  const VISITED_KEYS = [G.SAVE_KEY, G.REMAINS_KEY, G.RECORDS_KEY, 'driftwood-audio'];
-
   /** What changed in each release, newest first, as headed paragraphs. */
   const NEWS = [
     {
-      id: '2026-10-19',
       date: '19 October 2026',
       items: [
         ['The last castaway', 'Die on the island, and the next castaway may find your bones, with what you kept and the notches you cut. Take what they had, or bury them. Those lost at sea come back another way.'],
@@ -189,7 +178,6 @@
       ],
     },
     {
-      id: '2026-10-18',
       date: '18 October 2026',
       items: [
         ['Storms', 'Storms come in from the west and can tear the camp apart. Hold the camp, or retreat inland.'],
@@ -199,30 +187,15 @@
     },
   ];
 
-  /** Opens the news of recent releases, and remembers that it has been read. */
+  /** Opens the news of recent releases. */
   function openNews() {
     AU.sfx('page');
-    storage.set(NEWS_KEY, NEWS[0].id);
     const text = [];
     NEWS.forEach((r) => {
       text.push(`<p class="dateline">${r.date}</p>`);
       r.items.forEach(([head, body]) => text.push(`<p><b class="sc">${head}.</b> ${body}</p>`));
     });
     modal({ art: ART.scene('beach', { ball: 1 }), title: "What's New", text, choices: [leave('back')] });
-  }
-
-  /**
-   * Shows the news once for each new release to a returning player. A first
-   * visit has nothing to compare, so it is simply recorded as read.
-   */
-  function announceNews() {
-    const seen = storage.get(NEWS_KEY);
-    if (seen === NEWS[0].id) return;
-    if (!seen && !VISITED_KEYS.some((k) => storage.get(k) != null)) {
-      storage.set(NEWS_KEY, NEWS[0].id);
-      return;
-    }
-    openNews();
   }
 
   /* ---------------- the ship's log ---------------- */
@@ -342,7 +315,6 @@
     document.addEventListener('keydown', () => AU.init(), { once: true });
     window.addEventListener('beforeunload', save);
     syncToggles();
-    announceNews();
     setInterval(tick, 1000);
   }
 
