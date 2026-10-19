@@ -33,6 +33,24 @@
       P('M11 4 V-52', null, 1.4) + P('M9 -50 L11 -59 L13 -50Z', pal.ink, 0.6));
   }
 
+  /**
+   * One of the people of the Island of Fires standing at (x, y), facing
+   * right (flip with dir = -1): bareheaded, hair tied up, a cloth wrapped
+   * at the waist; `opts.torch` puts a burning torch in the raised hand.
+   */
+  function islander(x, y, sc, dir, opts) {
+    opts = opts || {};
+    const arm = opts.torch
+      ? P('M4 -26 L10 -34 L12 -42', null, 3) + P('M12 -42 l2 -10', null, 2) + fire(14, -50, 2, 0.18)
+      : P('M4 -26 L8 -16 L7 -10', null, 3);
+    return at(x, y, sc * dir, sc,
+      P('M-5 -29 L5 -29 L5 -16 L-5 -16 Z', pal.ink, 0.6) +
+      P('M-7 -16 L7 -16 L6 -8 L-6 -8 Z', 'url(#h2)', 0.8) +
+      P('M-3 -8 L-3.5 0 M3 -8 L3.5 0', null, 2.6) +
+      circle(0, -34, 4.6, pal.ink) + circle(1, -40, 2.4, pal.ink) +
+      P('M-4 -26 L-7 -16 L-6 -10', null, 3) + arm);
+  }
+
   /** The mended outrigger canoe under sail, its hull's left end at (x, y). */
   function canoe(x, y) {
     return P(`M${x} ${y - 8} Q${x + 90} ${y + 6} ${x + 180} ${y - 8} L${x + 186} ${y - 18} Q${x + 90} ${y - 4} ${x - 6} ${y - 18}Z`, 'url(#h3)', 1.3) +
@@ -375,7 +393,8 @@
     },
 
     /** An old stepped platform of fitted stones, upright slabs along its top, half swallowed by jungle. */
-    platform() {
+    platform(opts) {
+      opts = opts || {};
       const r = rng(181);
       let b = backdrop('url(#h1)');
       b += ground('M0 214 C200 206 400 220 600 210', pal.paper, 1);
@@ -387,11 +406,24 @@
         for (let jx = x + 20 + r() * 20; jx < x + w - 10; jx += 26 + r() * 20) joints += `M${f(jx)} ${y}v26`;
         b += P(`M${x} ${y}h${w}v26h${-w}Z`, pal.paper, 1.4) + P(joints, null, 0.8);
       }
-      [214, 262, 314, 366].forEach((x) => {
-        b += P(`M${x} 136 l4 -54 l20 0 l4 54Z`, 'url(#h3)', 1.2);
+      // the upright stones, each on its plinth, and the empty plinth in the middle of the row
+      [196, 244, 288, 332, 380].forEach((x) => {
+        b += P(`M${x - 4} 136 h36 v-8 h-36Z`, pal.paper, 1.1);
+        if (x !== 288) b += P(`M${x} 128 l4 -50 l20 0 l4 50Z`, 'url(#h3)', 1.2);
       });
+      if (opts.shells || opts.people) {
+        for (let i = 0; i < 12; i++) {
+          const a = (i / 12) * Math.PI * 2;
+          b += circle(f(306 + Math.cos(a) * 26), f(132 + Math.sin(a) * 5), 1.8, pal.paper, 0.6);
+        }
+      }
       for (let i = 0; i < 6; i++) b += leaf(i < 3 ? 10 + i * 30 : 500 + (i - 3) * 34, 220, 70 + r() * 20, i < 3 ? -50 : -130, 0.25);
-      return framed(b, 'An old stone platform in the jungle');
+      if (!opts.people) return framed(b, opts.shells ? 'The old stone platform, a ring of shells around its empty plinth' : 'An old stone platform in the jungle');
+
+      // night, and the people of the Island of Fires on the steps, by torchlight
+      let top = darkness(SW, SH, 306, 140, 170, 0.8);
+      top += islander(268, 162, 1.2, 1, { torch: 1 }) + islander(306, 136, 1.15, -1) + islander(352, 188, 1.25, -1, { torch: 1 }) + islander(230, 214, 1.3, 1);
+      return framed(b, 'People with torches on the old stone platform at night', top);
     },
 
     /** A storm breaking on the beach: palms bent flat, driving rain, the surf over the camp. */

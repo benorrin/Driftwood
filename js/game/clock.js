@@ -113,6 +113,7 @@
     }
     if (S.chapter >= 2) G.shiftWind();
     G.jemDawn();
+    G.islandersDawn();
     G.offerStay();
     if (S.built.pyre && S.flags.trades && !S.flags.sailing && G.atHome()) {
       S.n.pyreDays++;
@@ -154,6 +155,7 @@
     }
     if (text.length) notice('In the Night', text, lines.join(' '), ART.scene('night'));
     G.jemTale();
+    G.islandersNight();
   }
 
   /** The chance that a sail is the Meridian come back, until she has been seen once. */

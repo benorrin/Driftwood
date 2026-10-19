@@ -66,6 +66,8 @@
     { id: 'homeAgain', kind: 'deed', name: 'Home Waters', desc: 'Sail the patched boat home from the islet.', test: () => S.flags.homeAgain },
     { id: 'jem', kind: 'deed', name: 'Bread on the Waters', desc: 'Coax the deserter out of hiding.', test: () => S.flags.jem },
     { id: 'beans', kind: 'deed', name: 'Every Bean Was Black', desc: 'Hear all that Jem has to tell.', test: () => S.n.jemTold >= 5 },
+    { id: 'tupa', kind: 'deed', name: 'Tupa and Tavake', desc: 'Be welcomed by the people who tend the marae.', test: () => S.flags.contact === 'warm' },
+    { id: 'promise', kind: 'deed', name: 'A Promise', desc: 'Promise to bring their god home.', test: () => S.flags.promise },
     { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
     { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },

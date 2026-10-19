@@ -402,10 +402,12 @@
       sighted: 'North of the jungle, swallowed by vines, the ground rises in steps: a great platform of fitted black stones, with upright slabs along its top.',
       blocked: requires('axe', 'the vines are too thick without an axe'),
       first() {
+        if (G.maraeVisited()) return;
         done('platform', 'It is a temple platform, of the kind the missionaries call a <i>marae</i>: the work of the people whose canoe lies by the lagoon, perhaps. Long abandoned, its upright stones still face the sea, each standing on a plinth of its own. In the middle of the row one plinth stands empty, its top worn smooth where something rested for a very long time. You take nothing, and leave as quietly as you came.',
           null, 'Long before any European ship, this island had its own people, and its own gods. One of them is missing from the marae.');
       },
       repeat() {
+        if (G.maraeVisited()) return;
         if (S.items.idol) {
           modal({
             art: ART.scene('platform'),
