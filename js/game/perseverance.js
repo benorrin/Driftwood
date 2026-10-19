@@ -12,7 +12,7 @@
   const ART = window.DW.art;
   const storage = window.DW.storage;
   const {
-    S, rand, quote, gainLine, ISLES, CARRY_KEY,
+    S, rand, quote, gainLine, CARRY_KEY,
     log, modal, queueModal, leave,
   } = G;
 
@@ -44,13 +44,15 @@
     }
     if (S.n.whalerUntil || S.day < S.n.whalerDue) return;
     S.n.whalerUntil = S.day + AT_ANCHOR - 1;
+    // everybody on the island knows where she is lying
+    S.mapped.ifAnchorage = 1;
     AU.sfx('sail');
     if (S.isle === 'smoke') {
       queueModal({
         art: ART.scene('rescue'),
         title: 'A Sail',
         text: ['At first light the whole village is on the beach, pointing. A ship is standing in toward the reef under topsails, deep-laden, her boats in their davits and a smudge of try-works smoke hanging over her deck.', quote('"<i>Perseverance</i>," Tupa says. "She is here."')],
-        choices: [leave('go on', 'The Perseverance is lying off the Island of Fires. She will sail in a few days.', 'lore')],
+        choices: [leave('go on', 'The Perseverance is lying in the anchorage on the Island of Fires. She will sail in a few days.', 'lore')],
       });
       return;
     }
@@ -181,11 +183,7 @@
     endChapter(text, true);
   }
 
-  ISLES.smoke.places.push({
-    id: 'perseverance', label: 'go out to the Perseverance', cd: 5,
-    show: () => G.whalerIn(),
-    run: goAboard,
-  });
+  G.goAboard = goAboard;
 
   /* ---------------- the end of the chapter ---------------- */
 

@@ -10,7 +10,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, quote, gainLine, JEM_JOBS, ISLES,
+    S, quote, gainLine, JEM_JOBS,
     add, gain, log, save, modal, queueModal, closeModal, leave, fight,
   } = G;
 
@@ -35,19 +35,50 @@
   /* ---------------- finding him ---------------- */
 
   /**
-   * Leaving food by the stream on the High Island, once a day. The first
-   * time it is only left; the next it has gone, and he is glimpsed; the
-   * third he is there, and will talk, unless Hollis is with the castaway.
+   * The Waterfall Pool on the High Island, where Jem hides: what is there
+   * on a visit (`first` or not), and, until he has been found, a meal to
+   * leave for him on the flat stone, once a day.
+   */
+  G.jemPool = function (first) {
+    if (S.flags.jem || S.flags.jemDead || S.flags.jemGone) {
+      G.done('hiPool', S.flags.jem ? 'Behind the falls is the hollow where Jem slept for weeks, with the fish bones of his suppers still in it. He does not like to come up here.'
+        : S.flags.jemDead ? 'The pool is very quiet. On the rise above the camp there are two graves now.'
+          : 'His fern bed behind the falls is cold. He has gone deeper into the forest, where you will not find him.');
+      return;
+    }
+    const fed = S.n.jemFedDay === S.day;
+    const seen = [
+      'Nobody comes.',
+      'The food you left is gone, every crumb, and the stone wiped clean.',
+      'The food you left is gone again.',
+    ][Math.min(S.n.jemFood || 0, 2)];
+    modal({
+      art: ART.scene('spring'),
+      title: 'The Waterfall Pool',
+      text: first
+        ? ['A waterfall drops into a deep green pool. And behind the curtain of the falls, in a hollow of the rock: a bed of cut fern, fish bones, a fire\'s ashes, a sailor\'s knife with a broken blade. Somebody lives here. Nobody is at home.', 'By the pool is a flat stone, worn smooth. A good place to leave something.']
+        : [seen, fed ? 'You have left food on the stone today. There is nothing to do but wait.' : 'The flat stone by the pool is empty.'],
+      choices: (fed ? [] : [{ label: 'leave food on the stone', cost: OFFERING, fn: offer }]).concat([leave('go back to camp')]),
+    });
+  };
+
+  /**
+   * Leaving food on the stone by the pool. The first time it is only left;
+   * the next it has gone, and he is glimpsed; the third he is there, and
+   * will talk, unless Hollis is with the castaway.
    */
   function offer() {
     S.n.jemFedDay = S.day;
     S.n.jemFood = (S.n.jemFood || 0) + 1;
     if (S.n.jemFood === 1) {
-      log('You leave food on a flat stone by the stream, where the footprint was, and go back to the beach without looking round.', 'lore');
+      closeModal();
+      log('You leave food on the flat stone by the pool, and go back down to the beach without looking round.', 'lore');
     } else if (S.n.jemFood === 2) {
-      log('The food you left is gone, every crumb, and the stone wiped clean. You leave more, and wait in the ferns. Near dusk a man comes down out of the forest, thin as a rake, in the rags of a sailor\'s slops. He sees you, and is gone.', 'lore');
+      closeModal();
+      log('You leave more food on the stone, and wait in the ferns. Near dusk a man comes down out of the forest, thin as a rake, in the rags of a sailor\'s slops. He sees you, and is gone.', 'lore');
     } else if (G.withHollis()) {
       S.n.jemFood = 2;
+      closeModal();
       log('He is there by the stone when you come, crouched over the food, and you are nearly up to him when he sees Hollis behind you: the hair, the spear. He is gone into the trees like a deer. He will not come near while Hollis is with you.', 'warn');
     } else {
       meet();
@@ -114,14 +145,6 @@
       choices: [leave('go back to the beach', 'You killed Jem Rudd by the stream on the High Island. Whatever he knew, he took with him.', 'lore')],
     });
   }
-
-  ISLES.high.places.push({
-    id: 'offer', label: 'leave food by the stream', cd: 20, cost: OFFERING,
-    show: () => S.flags.meridianCamp && !S.flags.jem && !S.flags.jemGone && !S.flags.jemDead,
-    enabled: () => S.n.jemFedDay !== S.day,
-    note: () => (S.n.jemFedDay === S.day ? 'come back tomorrow' : ''),
-    run: offer,
-  });
 
   /* ---------------- by the fire ---------------- */
 

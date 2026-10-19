@@ -216,6 +216,17 @@
     s.boat = s.boat || {};
     s.landed = s.landed || (s.chapter > 1 ? { islet: 1 } : {});
     s.charted = s.charted || (s.chapter > 1 ? { islet: 1, high: 1, rock: s.flags.homeAgain ? 1 : 0 } : {});
+    // saved before the other islands had places of their own: put on the map what was already found there
+    const been = (ids) => ids.forEach((id) => {
+      s.mapped[id] = 1;
+      s.visits[id] = s.visits[id] || 1;
+    });
+    if (s.flags.meridianCamp) been(['hiCamp', 'hiGrave']);
+    if (s.flags.meridianCamp && s.charted.smoke) been(['hiRidge']);
+    if (s.n.jemFood || s.flags.jem || s.flags.jemDead || s.flags.jemGone) been(['hiPool']);
+    if (s.landed && s.landed.rock) been(['brCleft', 'brLedges']);
+    if (s.landed && s.landed.smoke) been(['ifVillage', 'ifSheds', 'ifTavake']);
+    if (s.flags.whalerKnown) been(['ifAnchorage']);
     return s;
   }
 

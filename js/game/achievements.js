@@ -83,6 +83,7 @@
     { id: 'boars', kind: 'feat', name: 'Swineherd', desc: `Kill ${BOARS} boar, over all your tales.` },
     { id: 'parcel', kind: 'feat', name: 'Special Delivery', desc: 'Carry the sealed parcel to Valparaíso.' },
     { id: 'stay', kind: 'feat', name: 'Monarch of All I Survey', desc: 'Make the island your home.' },
+    { id: 'charts', kind: 'feat', name: 'Charts of the Islands', desc: 'Put every place on the islands of the archipelago on your maps.', test: () => S.chapter > 1 && Object.values(G.ISLES).every((i) => Object.keys(i.locs || {}).every((id) => S.mapped[id])) },
     { id: 'isles', kind: 'feat', name: 'Before the Wind', desc: 'Land on every island your boat can reach.', test: () => ['islet', 'high', 'rock', 'sandbar'].every((id) => S.landed && S.landed[id]) },
     { id: 'endings', kind: 'feat', name: 'Every Way Home', desc: 'Find every ending.' },
     { id: 'all', kind: 'feat', name: 'The Whole Log', desc: 'Earn every other achievement.' },

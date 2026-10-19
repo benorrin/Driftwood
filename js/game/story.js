@@ -10,17 +10,17 @@
   const { S, rand, pick, quote, gainLine, gain, log, heal, modal, leave, fight } = G;
 
   /**
-   * The end of a visit to `id`: a card of `text`, the resources `got` (if
-   * any), any places spotted from here, and a "return to camp" that logs
-   * `logLine` as lore.
+   * The end of a visit to `id`: a card of `text` (a paragraph, or several),
+   * the resources `got` (if any), any places spotted from here, and a
+   * "return to camp" that logs `logLine` as lore.
    */
   function done(id, text, got, logLine) {
-    const L = G.LOCS[id];
+    const L = G.places()[id];
     const g = got ? gain(got) : '';
     modal({
       art: ART.scene(L.art),
       title: L.name,
-      text: [text].concat(g ? [gainLine(`You return with ${g}.`)] : [], G.sightings(id)),
+      text: [].concat(text, g ? [gainLine(`You return with ${g}.`)] : [], G.sightings(id)),
       choices: [leave('return to camp', logLine, 'lore')],
     });
   }

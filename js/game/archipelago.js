@@ -122,13 +122,21 @@
    * The islands of the archipelago, besides the castaway's own. Each has a
    * name, a position on the sea chart, a `bearing` from the island ('west'
    * runs before the trades, 'east' needs a westerly, 'north' and 'south'
-   * cross the wind), the `days` a passage takes, the scene `art` of the
-   * islet picture, and what it offers: `palms` to climb, a `stream` to
-   * drink from, `timber` to fell. `land()` tells of the first landing and
-   * `again()` of the rest. `places` are the things to do there, each with
-   * a label, an optional `show()`, a `cd` in seconds, and `run()`. `finds`
-   * are what combing its beach turns up: [weight, run]. `far()` gives the
-   * reason an island can be seen but not reached, if it can't.
+   * cross the wind), the `days` a passage takes, and what its shore offers:
+   * `palms` to climb, a `stream` to drink from, `timber` to fell. `land()`
+   * tells of the first landing and `again()` of the rest. `finds` are what
+   * combing its beach turns up: [weight, run]. `far()` gives the reason an
+   * island can be seen but not reached, if it can't.
+   *
+   * The larger islands have a chart of their own: `camp`, where the
+   * castaway lands, on it, and `locs`, places to find and visit, just as on
+   * the castaway's own island (see LOCS); every place id is unique across
+   * all the islands. `trail` is what a trip exploring there may turn up
+   * instead: [weight, text, gains, scene]. `lead()` points the way on when
+   * there is nothing left to find yet. `places` are things to do from the
+   * beach, once the place they belong to has been found: each with a label,
+   * a `show()`, a `cd` in seconds, an optional `cost`, `enabled()` and
+   * `note()`, and `run()`.
    */
   const ISLES = (G.ISLES = {
     islet: {
@@ -138,33 +146,109 @@
       places: [],
     },
     high: {
-      name: 'The High Island', x: 120, y: 250, bearing: 'west', days: 3, stream: 1, palms: 1, timber: 1, hill: 1,
+      name: 'The High Island', x: 120, y: 250, bearing: 'west', days: 3, stream: 1, palms: 1, timber: 1,
+      camp: [440, 212],
       land() {
         isleCard('spring', 'The High Island', [
           'She is the cloud-capped island you saw from the islet: steep, green, loud with water. A stream comes down out of the forest and spreads across the beach in a fan of little channels, and you lie down in it, all of you, and drink like a horse.',
           'On the sand above the stream mouth, among the wrack, lies a broken cask stave. Burned into it, upside down, are the letters <i>MERIDIAN</i>.',
           gainLine(`You fill everything you have: ${gain({ water: 6 })}.`),
-        ], 'The Meridian has been to the High Island before you.');
+        ], 'The Meridian has been to the High Island before you. Explore it to see what she left.');
       },
-      again: () => isleCard('spring', 'The High Island', ['The stream is still running, and the forest is still loud with birds. Nobody has been here since you.'], null),
+      again: () => isleCard('spring', 'The High Island', ['The stream is still running, and the forest is still loud with birds.'], null),
+      locs: {
+        hiCamp: {
+          name: 'The Watering Camp', x: 400, y: 258, cost: { food: 1 }, time: 4, art: 'sealers',
+          findable: () => true,
+          clue: 'Along the beach to the east, the stumps of saplings cut with an axe. Somebody camped near here.',
+          sighted: 'East along the beach, round a point of rock, there is a scar in the trees where somebody has been cutting saplings.',
+          sees: [['hiGrave', 1, 'Above the camp, on a little rise looking out to sea, there is a long mound of earth.']],
+          first: meridianCamp,
+          repeat: () => G.done('hiCamp', 'The fire-ring is cold, and the fern beds are flattened by the rain. They are not coming back.'),
+        },
+        hiGrave: {
+          name: 'The Grave on the Rise', x: 356, y: 230, cost: { food: 1 }, time: 3, art: 'grave',
+          findable: () => !!S.visits.hiCamp,
+          sighted: 'Above the watering camp, on a little rise looking out to sea, a long mound of earth.',
+          first() {
+            G.done('hiGrave', [
+              'It is a grave: a long mound of earth, and a cross of two sticks lashed together with spunyarn. Someone took the trouble to dig it deep, and to face it toward the sea, as sailors like.',
+              (S.n.jemTold || 0) >= 3 ? 'Tom Abel. Who opened the crate, and sickened, and was dead in four days.' : 'There is no name on it.',
+            ], null, 'Above the Meridian\'s watering camp on the High Island is a sailor\'s grave.');
+          },
+          repeat: () => G.done('hiGrave', [
+            'The mound has settled a little. The cross of lashed sticks still stands.',
+            G.withHollis() ? 'Hollis takes off his hat, which you have never seen him do, and stands a while.' : 'You stand a while, and then you go back down.',
+          ]),
+        },
+        hiForest: {
+          name: 'The Forest', x: 246, y: 206, cost: { water: 1 }, time: 5, art: 'jungle',
+          findable: () => true,
+          clue: 'Inland the forest comes right down to the stream, and there are pig tracks in the mud. You turn back before it gets dark.',
+          sighted: 'Inland, behind the beach, the forest: tall, dark, and full of birds.',
+          sees: [['hiPool', 0.6, 'Somewhere upstream, beyond the trees, you can hear water falling.']],
+          first() {
+            G.done('hiForest', [
+              'The forest is old and tall, and the light under it is green. There are wild plantains, and breadfruit gone to seed, and the wallows of pigs everywhere.',
+              'And a snare: a noose of plaited vine set across a pig run, by somebody who knew what they were about. It is not yours. The vine is fresh.',
+            ], { food: 3 }, 'Somebody has been setting snares in the forest on the High Island.');
+          },
+          repeat() {
+            if (chance(0.2)) {
+              G.fight('boar', { canFlee: true, onWin: () => G.done('hiForest', 'You drag the pig back to the beach on a pole.', { food: 6 }) });
+              return;
+            }
+            G.done('hiForest', 'You come back with your arms full of plantains.', { food: rand(2, 3) });
+          },
+        },
+        hiPool: {
+          name: 'The Waterfall Pool', x: 330, y: 150, cost: { food: 1 }, time: 5, art: 'spring',
+          findable: () => !!(S.flags.highFootprint || S.visits.hiForest),
+          clue: 'Following the stream inland, you hear falling water; but the way is choked with fern, and you turn back.',
+          sighted: 'Up the stream, under a wall of fern, a waterfall drops into a deep green pool.',
+          first: () => G.jemPool(true),
+          repeat: () => G.jemPool(false),
+        },
+        hiRidge: {
+          name: 'The Ridge', x: 290, y: 108, cost: { water: 2, food: 1 }, time: 7, art: 'summit',
+          findable: () => !!(S.visits.hiCamp || S.visits.hiForest),
+          clue: 'A path of sorts goes up from the stream toward the heights, but the cloud comes down on it, and you turn back.',
+          sighted: 'Above the forest, a ridge of bare rock runs along the island\'s spine. From up there you could see everything.',
+          sees: [['hiLookout', 1, 'Out on the western headland, below you, a heap of stones too regular to be natural, and a pole standing up from it.']],
+          first: highRidge,
+          repeat: () => G.done('hiRidge', 'You can see the whole archipelago from here: your island, the islet, the Bird Rock, and far to the south, the smoke of the Island of Fires.'),
+        },
+        hiLookout: {
+          name: 'The Old Lookout', x: 172, y: 170, cost: { water: 1, food: 1 }, time: 6, art: 'cliffs',
+          findable: () => !!S.visits.hiRidge,
+          sighted: 'Out on the western headland, a heap of stones too regular to be natural, and a pole standing up from it.',
+          first() {
+            S.flags.lookout = 1;
+            G.done('hiLookout', [
+              'It is a lookout: a cairn of stones with a spar lashed upright in it for a flagstaff, and a bed of fern in its lee. Somebody kept watch here, day and night, while the <i>Meridian</i> lay at the watering. Watching for what, you wonder. A sail coming after them?',
+              'The spar is carved all over, the way bored men carve things on a long watch: initials, a dozen sets of them. <i>J.R.</i> <i>T.A.</i> Others you half know.',
+              'And below them, cut deeper than the rest, a circle with a dozen little round marks inside it. Every one of them has been gouged out black.',
+            ], null, 'At the Meridian\'s old lookout on the High Island, someone carved a circle of beans into the flagstaff, every one of them black.');
+          },
+          repeat: () => G.done('hiLookout', 'The spar still stands in its cairn. You do not look at the circle of beans for long.'),
+        },
+      },
+      trail: [
+        [2, 'You follow a pig run for an hour and come out exactly where you went in.', null, 'jungle'],
+        [2, 'The forest\'s edge is heavy with wild plantains.', { food: 2 }, 'jungle'],
+        [1, 'In the long grass by the stream, an empty bottle with the stamp of a Bristol brewery. The <i>Meridian</i>\'s, without a doubt.', null, 'spring'],
+        [1, 'Vines as thick as your wrist hang from the trees by the stream. You cut what you can carry.', { fibre: 4 }, 'jungle'],
+      ],
+      lead() {
+        if (!S.visits.hiCamp) return 'Somebody cut saplings along the beach to the east. Follow it, and see.';
+        if (!S.visits.hiPool) return 'Somebody is living rough on this island. The stream, and the forest, may lead you to them.';
+        return 'You have walked every path on the High Island you can find. For now, it has shown you all it will.';
+      },
       places: [
         {
-          id: 'camp', label: 'follow the beach east', cd: 20,
-          show: () => !S.flags.meridianCamp,
-          run: meridianCamp,
-        },
-        {
-          id: 'grave', label: 'go up to the grave', cd: 20,
-          show: () => S.flags.meridianCamp,
-          run: () => isleCard('grave', 'The Grave', [
-            'The mound above the camp has settled a little since you first saw it. The cross of lashed sticks still stands. Whoever lies here, someone took the trouble.',
-            S.flags.ally && !S.flags.hollisHome ? 'Hollis takes off his hat, which you have never seen him do, and stands a while.' : 'You stand a while, and then you go back down.',
-          ], null),
-        },
-        {
-          id: 'ridge', label: 'climb the ridge', cd: 30,
-          show: () => S.flags.meridianCamp && !S.charted.smoke,
-          run: highRidge,
+          id: 'forage', label: 'forage at the forest edge', cd: 20,
+          show: () => !!S.visits.hiForest,
+          run: () => log(`At the edge of the forest: ${gain({ food: rand(1, 2), fibre: 1 })}.`),
         },
       ],
       finds: [
@@ -178,23 +262,59 @@
             return;
           }
           S.flags.highFootprint = 1;
-          log('In the wet sand by the stream: a bare footprint, a man\'s, a day old or less. It is not yours.', 'lore');
+          log('In the wet sand by the stream: a bare footprint, a man\'s, a day old or less. It is not yours. It goes upstream.', 'lore');
         }],
       ],
     },
     rock: {
       name: 'The Bird Rock', x: 548, y: 112, bearing: 'east', days: 2, rocky: 1,
+      camp: [300, 244],
       land() {
         isleCard('cliffs', 'The Bird Rock', [
           'It is not an island so much as a tooth: a black rock standing out of the sea, white with the droppings of ten thousand birds, and loud with them. There is one landing place, a shelf of rock on the lee side, and you get ashore wet to the waist.',
-          'Jammed into a cleft above the shelf, where some great sea threw her years ago, are the bones of a ship. Not the <i>Calliope</i>: bigger, and older. On a fragment of her stern board, in letters that were once gilt, you can make out <i>…ANT, SALEM</i>.',
-          'She had a figurehead, once. The empty bolt-holes are still there at her stem.',
-        ], 'A ship from Salem lies broken on the Bird Rock. Her figurehead is on your island\'s bird cliffs.');
+          'Above the shelf, wedged in the rock, something that is not rock: timbers. The ribs of a ship.',
+        ], 'There are the bones of a ship on the Bird Rock.');
       },
       again: () => isleCard('cliffs', 'The Bird Rock', ['The birds rise in a screaming cloud as you come ashore, and settle again when they see it is only you.'], null),
+      locs: {
+        brCleft: {
+          name: 'The Cleft', x: 250, y: 178, cost: { water: 1 }, time: 3, art: 'wreck',
+          findable: () => true,
+          sighted: 'Above the landing shelf, jammed into a cleft in the rock, the ribs of a ship.',
+          sees: [['brTop', 1, 'Behind the wreck, a way up: steps, cut into the rock by hand.']],
+          first() {
+            G.done('brCleft', [
+              'Jammed into the cleft, where some great sea threw her years ago, are the bones of a ship. Not the <i>Calliope</i>: bigger, and older. On a fragment of her stern board, in letters that were once gilt, you can make out <i>…ANT, SALEM</i>.',
+              'She had a figurehead, once. The empty bolt-holes are still there at her stem. You know where it went: it is on your own island\'s bird cliffs, her carved woman with her hands crossed on her breast.',
+            ], null, 'A ship from Salem lies broken in the cleft on the Bird Rock. Her figurehead is on your island\'s bird cliffs.');
+          },
+          repeat: () => G.done('brCleft', 'The old ship groans when the wind gets into her, as if she would still be off, if she could.'),
+        },
+        brLedges: {
+          name: 'The Ledges', x: 368, y: 148, cost: { water: 1 }, time: 3, art: 'cliffs',
+          findable: () => true,
+          sighted: 'Up the seaward face of the rock, ledge after ledge of nesting birds.',
+          first: () => G.done('brLedges', 'Ledge after ledge of birds, so many that the rock moves. They scream at you, and you take their eggs anyway.', { food: rand(3, 4) }, 'The ledges on the Bird Rock are thick with eggs, if you will brave the birds.'),
+          repeat: () => G.done('brLedges', 'The birds have laid again.', { food: rand(2, 4) }),
+        },
+        brTop: {
+          name: 'The Top of the Rock', x: 300, y: 126, cost: { water: 1, food: 1 }, time: 4, art: 'summit',
+          findable: () => !!S.visits.brCleft,
+          clue: 'Behind the old wreck, steps go up the rock: cut by hand. They are slick with droppings, and you do not trust them yet.',
+          sighted: 'Behind the wreck, steps cut by hand go up to the top of the rock.',
+          first: salemMessage,
+          repeat: () => G.done('brTop', 'The wind is never still up here. The words in the rock are wearing away.'),
+        },
+      },
+      trail: [
+        [3, 'You scramble about the rock for an hour, and find nothing but birds, and more birds.', null, 'cliffs'],
+        [1, 'In a crack in the rock, a rusted iron spike from the Salem ship.', { iron: 1 }, 'wreck'],
+        [1, 'A seal hauls out on the shelf below you, looks up at you with great wet eyes, and decides you are not worth moving for.', null, 'cliffs'],
+      ],
       places: [
         {
           id: 'eggs', label: 'take eggs', cd: 15,
+          show: () => !!S.visits.brLedges,
           run() {
             if (chance(0.2)) {
               G.fight('gulls', { onWin: () => { log(`You fight your way to the ledges: ${gain({ food: 4 })}.`); closeModal(); } });
@@ -205,6 +325,7 @@
         },
         {
           id: 'salem', label: 'salvage the Salem ship', cd: 25,
+          show: () => !!S.visits.brCleft,
           run() {
             AU.sfx('chop');
             log(`From the old wreck in the cleft you pry ${gain({ iron: rand(1, 2), timber: rand(1, 2) })}.`);
@@ -251,7 +372,7 @@
     },
     smoke: {
       name: 'The Island of Fires', x: 330, y: 306, bearing: 'south', days: 5,
-      stream: 1, palms: 1, hill: 1,
+      stream: 1, palms: 1,
       far: () => (S.flags.wayfinder ? null
         : S.flags.promise ? 'only Tavake\'s people know the way: follow their canoes'
           : 'too far for her: she would never come back against the trades'),
@@ -261,28 +382,44 @@
   /** The island the castaway is on, or null at home. */
   G.isle = () => ISLES[S.isle] || null;
 
-  /** The Meridian's old camp on the High Island, with a grave above it, and the wreck of a letter. */
+  /** The Meridian's old watering camp on the High Island, and the wreck of a letter. */
   function meridianCamp() {
     S.flags.meridianCamp = 1;
     AU.sfx('page');
-    isleCard('sealers', 'A Camp', [
-      'Round the point, in the lee of the forest, someone has camped: a ring of fire-blackened stones, the ashes long cold, a bed of cut fern, the stumps of a dozen saplings cut with a ship\'s axe. Empty bread bags. A broken water breaker. They stayed some days, and filled their casks, and went.',
+    G.done('hiCamp', [
+      'Round the point, in the lee of the forest, somebody has camped: a ring of fire-blackened stones, the ashes long cold, a bed of cut fern, the stumps of a dozen saplings cut with a ship\'s axe. Empty bread bags. A broken water breaker. They stayed some days, and filled their casks, and went.',
       'In the ashes, a scrap of paper the fire did not quite finish. Most of it is gone. What is left is in a clerk\'s hand:',
       quote('…of pig iron, forty tons, consigned to Messrs Morrow &amp;…'),
       'Morrow. You think of the sealed parcel, and the name on it.',
-      'Above the camp, on a little rise looking out to sea, is a grave: a long mound of earth, and a cross of two sticks lashed with spunyarn. There is no name on it.',
-    ], 'The Meridian camped on the High Island. Someone is buried there, and her cargo was consigned to someone named Morrow.');
+    ], null, 'The Meridian camped on the High Island, and her papers name someone called Morrow.');
   }
 
-  /** From the High Island's ridge, the island where fires burn at night, far to the south. */
+  /** From the High Island's ridge: the whole archipelago, and the island where fires burn, far to the south. */
   function highRidge() {
     S.charted.smoke = 1;
     AU.sfx('page');
-    isleCard('summit', 'The Ridge', [
+    G.done('hiRidge', [
       'It takes you half a day to fight your way up through the forest to the ridge, and when you come out above the trees you can see the whole archipelago laid out like a chart: your island to the north-east, the islet, the black tooth of the Bird Rock, and the sea shining between them.',
       'And far to the south, further than any of them, a big island, blue with distance, with a thread of smoke going straight up from it into the still air. Then another. Cookfires. A village.',
       'Too far, and the wrong way. Not with this boat.',
-    ], 'Far to the south of the High Island lies an island where people live.');
+    ], null, 'Far to the south of the High Island lies an island where people live.');
+  }
+
+  /** At the top of the Bird Rock, the Salem crew's last words, cut into the stone: the god went away in their boat. */
+  function salemMessage() {
+    S.flags.salemMessage = 1;
+    AU.sfx('page');
+    const text = [
+      'The top of the rock is a flat place no bigger than a cabin floor, swept by the wind. Somebody lived up here once: there is a ring of stones for a fire, and a gutter cut to catch the rain.',
+      'And words, cut into the rock with a knife, letter by letter, by somebody who had a long time to do it:',
+      quote('<i>…ANT</i> OF SALEM WRECKED HERE MARCH 1809. 9 OF US. THE MATE TOOK THE LONGBOAT &amp; 3 MEN &amp; THE HEATHEN GOD WE TOOK FROM THE ISLAND FOR HELP. HE HAS NOT COME BACK. GOD FORGIVE US. J.P.'),
+      'Below it, a column of notches. It stops.',
+    ];
+    if (!S.charted.sandbar) {
+      S.charted.sandbar = 1;
+      text.push('From up here you can see a long way. To the north, there is a line of white water where there should be nothing: a sandbar.', gainLine('You mark the Sandbar on your chart.'));
+    }
+    G.done('brTop', text, null, 'On the Bird Rock, the Salem crew cut their last words into the stone: their mate took the heathen god away in the longboat, and never came back.');
   }
 
   /* ---------------- combing other shores ---------------- */
@@ -381,6 +518,14 @@
         : ['A frigate bird hangs over the shore all morning without once moving its wings.', 'The wind hums in the rigging of the boat on the beach, as if she wants to be off.'])),
     },
   ];
+
+  /** A trip exploring another island that finds no new place: something from its `trail`. */
+  G.awayWander = function () {
+    const trail = G.isle().trail || [[1, 'You walk until your feet are sore, and find nothing you have not seen before.', null]];
+    let roll = Math.random() * trail.reduce((t, [w]) => t + w, 0);
+    const [, text, got, art] = trail.find(([w]) => (roll -= w) < 0);
+    G.wanderCard(text, got, art);
+  };
 
   /** Something happens away from the island, if anything can here. */
   G.awayHappening = () => G.happen(AWAY.filter((e) => !e.isles || e.isles.includes(S.isle)));

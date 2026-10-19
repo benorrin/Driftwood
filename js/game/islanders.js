@@ -309,10 +309,44 @@
     'All one night on the beach, Tavake names the stars as they come up out of the sea, one after another, each over its own island, and makes you say them back to her, again and again, until you do not get one wrong.',
   ];
 
+  /** A lesson with Tavake, one a day; the last makes the castaway a wayfinder. */
+  function lesson() {
+    S.n.lessonDay = S.day;
+    S.n.lessons = (S.n.lessons || 0) + 1;
+    const text = [LESSONS[S.n.lessons - 1]];
+    let line = 'Tavake is teaching you to read the sea, one lesson a day.';
+    if (S.n.lessons >= LESSONS.length) {
+      S.flags.wayfinder = 1;
+      text.push(quote('"Now you will not get lost," Tupa says, for her. "Not easily."'), gainLine('The longer passages are a day shorter for you now, and you can find your own way back to the Island of Fires.'));
+      line = 'Tavake has taught you to read the sea. You can find your own way to the Island of Fires.';
+    }
+    modal({ art: ART.scene('night'), title: 'Tavake', text, choices: [leave('go back to camp', line, 'lore')] });
+  }
+
+  /** Tupa on the whalers: the Perseverance, which calls once a year, and goes on to Valparaíso. */
+  function whalers() {
+    S.flags.whalerKnown = 1;
+    modal({
+      art: ART.scene('rescue'),
+      title: 'The Anchorage',
+      text: [
+        'Round the eastern point is a deep bay, still as a pond, where a ship could lie safe in any weather. On the beach above it stand rotted water casks, and a whaleboat\'s broken oar, and on a flat rock a dozen ships\' names have been cut by bored men waiting for a boat.',
+        quote('"Once a year, when the trades blow hardest, a whale-ship comes here for water and wood," Tupa says. "Always the same one. The <i>Perseverance</i>. The captain says \'thee\' and does not drink. He pays in nails."'),
+        quote('"When she comes again, she goes on to your Valparaíso." He looks at you. "When she goes, I go with her. And you, I think. To bring back the <i>etua</i>."'),
+      ],
+      choices: [leave('go back to camp', 'The whaler Perseverance calls at the Island of Fires once a year for water, and goes on to Valparaíso. Tupa means to sail in her, and so do you.', 'lore')],
+    });
+  }
+
+  /** The Night Reef can only be fished after dark. */
+  const byNight = () => (isNight() ? null : 'they fish the reef by night');
+
   Object.assign(ISLES.smoke, {
+    camp: [300, 262],
     land() {
       AU.sfx('page');
       G.hollisAtFires();
+      S.mapped.ifVillage = 1;
       modal({
         art: ART.scene('landfall'),
         title: 'The Island of Fires',
@@ -321,8 +355,9 @@
           'The whole beach is people. Children wade out to grab at your gunwale. Tupa jumps out of the lead canoe into the shallows and shouts something that makes everyone laugh, and you suspect it was about you.',
           'He tells you the island\'s name, and laughs at the way you say it, and after that you call it what the whalers call it: the Island of Fires. You see why the first night, when the torches of the fishing canoes go out along the reef, as many as the stars, and stay there till dawn.',
           ...(G.withHollis() ? ['An old man comes down the beach and stands in front of Hollis, and looks at him for a long time, and then puts his nose to Hollis\'s nose and his hands on his shoulders, and does not let go.'] : []),
+          gainLine('You mark the village on your map.'),
         ],
-        choices: [leave('go up the beach', 'You have come to the Island of Fires, behind Tavake\'s canoes. Its people trade for iron, and Tavake can teach you to read the sea.', 'lore')],
+        choices: [leave('go up the beach', 'You have come to the Island of Fires, behind Tavake\'s canoes. Its village is on your map.', 'lore')],
       });
     },
     again() {
@@ -338,54 +373,81 @@
         choices: [leave('go up the beach')],
       });
     },
+    locs: {
+      ifVillage: {
+        name: 'The Village', x: 268, y: 226, cost: {}, time: 3, art: 'landfall',
+        findable: () => true,
+        sees: [
+          ['ifSheds', 1, 'Along the beach to the west, long open sheds, and canoes drawn up under them.'],
+          ['ifTavake', 1, 'Tupa points out Tavake\'s house, set a little apart under a breadfruit tree.'],
+        ],
+        first() {
+          done('ifVillage', [
+            'The houses stand along the top of the beach under the palms: long and low, thatched to the ground, open at the sides for the breeze. There are gardens behind them, taro in wet beds and breadfruit and plantains, and pigs, and children, and dogs, and smoke.',
+            'Everybody wants to see your nails. Everybody wants to touch your hair. Tupa\'s mother feeds you until you cannot move.',
+            'There is a marae here too, somewhere up in the trees. Nobody takes you to it, and you do not ask.',
+          ], { food: 3 }, 'The village on the Island of Fires will trade food and water for iron nails.');
+        },
+        repeat: () => done('ifVillage', pick([
+          'Somebody\'s grandmother gives you breadfruit baked in the ashes, and watches you eat it.',
+          'The children have made a raft of sticks, and are sailing it on a puddle, and wrecking it, over and over, and laughing.',
+          'Tupa\'s mother asks, through Tupa, whether you have a wife. You say no. She looks at you with deep pity.',
+        ]), { food: 2 }),
+      },
+      ifSheds: {
+        name: 'The Canoe Sheds', x: 196, y: 252, cost: {}, time: 3, art: 'lagoon',
+        findable: () => !!S.visits.ifVillage,
+        sighted: 'Along the beach to the west, long open sheds, and canoes drawn up under them.',
+        first: () => canoeSheds(true),
+        repeat: () => canoeSheds(false),
+      },
+      ifTavake: {
+        name: 'Tavake\'s House', x: 336, y: 206, cost: {}, time: 3, art: 'grove',
+        findable: () => !!S.visits.ifVillage,
+        sighted: 'Set a little apart under a breadfruit tree, Tavake\'s house.',
+        first: () => tavakesHouse(),
+        repeat: () => tavakesHouse(),
+      },
+      ifReef: {
+        name: 'The Night Reef', x: 420, y: 296, cost: {}, time: 4, art: 'glow',
+        blocked: byNight,
+        findable: () => !!S.visits.ifVillage,
+        clue: 'At dusk the canoes go out to the reef with torches. You will have to be here after dark to go with them.',
+        sighted: 'Every night the torches go out along the reef to the south, as many as the stars.',
+        first: () => done('ifReef', 'They take you out with them in a canoe, a torch in the bow, and the fish come up to the light like moths, and Tupa spears them, and laughs at you when you miss. You miss a great deal. It is the best night you have had in a year.', { food: rand(4, 6) }, 'The people of the Island of Fires fish the reef by torchlight, and will take you with them.'),
+        repeat: () => done('ifReef', pick(['You fish the reef by torchlight with Tupa and his cousins, and spear a fish of your own, at last.', 'The torches go out along the reef, and you go with them, and come back with more than you can carry.']), { food: rand(3, 5) }),
+      },
+      ifAnchorage: {
+        name: 'The Anchorage', x: 478, y: 214, cost: { food: 1 }, time: 4, art: 'rescue',
+        findable: () => !!S.visits.ifVillage,
+        clue: 'Tupa says there is a bay round the eastern point where the whale-ships come. It is a long walk, and the day is already hot.',
+        sighted: 'Round the eastern point, a deep, still bay where a ship could anchor.',
+        first: whalers,
+        repeat() {
+          if (G.whalerIn()) {
+            G.goAboard();
+            return;
+          }
+          done('ifAnchorage', 'The bay is empty and still. You read the ships\' names cut into the rock, and wonder which of them are still afloat.');
+        },
+      },
+    },
+    trail: [
+      [2, 'A crowd of children follows you along the shore, copying the way you walk.', null, 'landfall'],
+      [2, 'You walk up into the gardens, and come back with your arms full of breadfruit somebody insisted you take.', { food: 3 }, 'grove'],
+      [1, 'Up a valley you are not meant to go up, an old man stops you, kindly and firmly, and turns you round.', null, 'grove'],
+    ],
+    lead: () => 'You have seen what the Island of Fires has to show a stranger. The rest is theirs.',
     places: [
       {
         id: 'food', label: 'trade nails for food', cd: 15, cost: { iron: 2 },
+        show: () => !!S.visits.ifVillage,
         run: () => log(`Two nails buy ${gain({ food: 6 })}: breadfruit, fish baked in leaves, and a bunch of plantains as long as your arm.`),
       },
       {
         id: 'water', label: 'trade a nail for water', cd: 15, cost: { iron: 1 },
+        show: () => !!S.visits.ifVillage,
         run: () => log(`A nail buys ${gain({ water: 6 })}, in gourds, from the stream above the village.`),
-      },
-      {
-        id: 'outrigger', label: 'go to the canoe-builders', cd: 20, cost: { iron: 6 },
-        show: () => !S.boat.outrigger,
-        run() {
-          S.boat.outrigger = 1;
-          AU.sfx('craft');
-          log(`For six nails the canoe-builders fit your ${G.boatName()} with a float and booms, lashed the way they lash their own, and laugh at her the whole time they are doing it. She will not roll now.`);
-        },
-      },
-      {
-        id: 'tavake', label: 'sit with Tavake', cd: 30,
-        show: () => !S.flags.wayfinder,
-        enabled: () => S.n.lessonDay !== S.day,
-        note: () => (S.n.lessonDay === S.day ? 'tomorrow' : ''),
-        run() {
-          S.n.lessonDay = S.day;
-          S.n.lessons = (S.n.lessons || 0) + 1;
-          log(LESSONS[S.n.lessons - 1], 'lore');
-          if (S.n.lessons >= LESSONS.length) {
-            S.flags.wayfinder = 1;
-            log('"Now you will not get lost," Tupa says, for her. "Not easily." The longer passages are a day shorter for you now, and you can find your own way back to the Island of Fires.', 'lore');
-          }
-        },
-      },
-      {
-        id: 'whalers', label: 'ask Tupa about the whalers', cd: 20,
-        show: () => !S.flags.whalerKnown,
-        run() {
-          S.flags.whalerKnown = 1;
-          modal({
-            art: ART.scene('rescue'),
-            title: 'Tupa',
-            text: [
-              quote('"Once a year, when the trades blow hardest, a whale-ship comes here for water and wood," Tupa says. "Always the same one. The <i>Perseverance</i>. The captain says \'thee\' and does not drink. He pays in nails."'),
-              quote('"When she comes again, she goes on to your Valparaíso." He looks at you. "When she goes, I go with her. And you, I think. To bring back the <i>etua</i>."'),
-            ],
-            choices: [leave('go on', 'The whaler Perseverance calls at the Island of Fires once a year for water, and goes on to Valparaíso. Tupa means to sail in her, and so do you.', 'lore')],
-          });
-        },
       },
     ],
     finds: [
@@ -394,4 +456,51 @@
       [1, () => log(`On the reef at low water: ${gain({ food: 1 })}.`)],
     ],
   });
+
+  /** The canoe sheds: the builders, and an outrigger for six nails. */
+  function canoeSheds(first) {
+    const text = [first
+      ? 'The canoes lie under long open sheds, on rollers: the big double voyaging canoes, and the little outriggers for the lagoon. The builders are old men with adzes of stone and of iron, and they stop work to look at your boat, and then they laugh at her for a long time.'
+      : 'The builders are at work on a new hull, and do not stop for you.'];
+    if (S.boat.outrigger) {
+      text.push(`Your ${G.boatName()} has her float and booms already. The builders look at them, and say something, and laugh again.`);
+      done('ifSheds', text);
+      return;
+    }
+    text.push(`For six nails, Tupa says, they will give your ${G.boatName()} a float and booms, lashed the way they lash their own. She would not roll then.`);
+    modal({
+      art: ART.scene('lagoon'),
+      title: 'The Canoe Sheds',
+      text,
+      choices: [
+        {
+          label: 'trade six nails for an outrigger', cost: { iron: 6 },
+          fn: () => {
+            S.boat.outrigger = 1;
+            AU.sfx('craft');
+            done('ifSheds', `The builders fit your ${G.boatName()} with a float and booms, and laugh at her the whole time they are doing it. She will not roll now.`, null, `Your ${G.boatName()} has an outrigger now, from the canoe-builders of the Island of Fires.`);
+          },
+        },
+        leave('go back to camp'),
+      ],
+    });
+  }
+
+  /** Tavake's house: a lesson in reading the sea, once a day, until there is nothing more she will teach. */
+  function tavakesHouse() {
+    if (S.flags.wayfinder) {
+      done('ifTavake', 'Tavake gives you a fish baked in leaves, and asks you, through Tupa, which star rises over the Bird Rock. You tell her. She nods, and does not say well done.');
+      return;
+    }
+    if (S.n.lessonDay === S.day) {
+      done('ifTavake', 'Tavake is asleep in the shade. One lesson a day, Tupa says. The sea is not in a hurry.');
+      return;
+    }
+    modal({
+      art: ART.scene('grove'),
+      title: 'Tavake\'s House',
+      text: [S.n.lessons ? 'Tavake is waiting for you under the breadfruit tree.' : 'Tavake sits in the shade under her breadfruit tree, mending a net. She looks at you for a long time, and then says something to Tupa, who grins. "She says you sail like a pig swims," he says. "She says, sit down."'],
+      choices: [{ label: 'sit with her', fn: lesson }, leave('go back to camp')],
+    });
+  }
 })();

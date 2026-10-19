@@ -20,11 +20,11 @@
     [386, 260], [340, 274], [300, 276], [254, 266], [206, 258], [168, 244], [134, 222],
   ];
 
-  /** Path data for the coast: the outline with a wobbling midpoint added along every edge. */
-  function coastline(r) {
+  /** Path data for the coast of outline `outline`: the outline with a wobbling midpoint added along every edge. */
+  function coastline(r, outline) {
     const pts = [];
-    ISLAND.forEach((p, i) => {
-      const q = ISLAND[(i + 1) % ISLAND.length];
+    outline.forEach((p, i) => {
+      const q = outline[(i + 1) % outline.length];
       pts.push(p);
       const mx = (p[0] + q[0]) / 2;
       const my = (p[1] + q[1]) / 2;
@@ -54,11 +54,10 @@
   /**
    * The island itself: the coast drawn as a stack of ever-larger echoes
    * (as old charts show the shallows), filled with paper and stippled
-   * along the beaches. `cid` is the id the coast path is defined under.
+   * along the beaches. `cid` is the id the coast path is defined under,
+   * and the echoes spread from the island's centre (`cx`, `cy`).
    */
-  function island(coast, cid) {
-    const cx = 310;
-    const cy = 165;
+  function island(coast, cid, cx, cy) {
     let s = `<defs><path id="${cid}" d="${coast}"/></defs>`;
     for (let k = 7; k >= 1; k--) {
       const scale = 1 + k * 0.028;
@@ -134,21 +133,87 @@
       `<text x="${lx}" y="-11" text-anchor="${anchor}" font-size="13" font-style="italic" ${font} stroke="${pal.paper}" stroke-width="3" paint-order="stroke">${l.name}</text></g>`;
   }
 
-  /** Draws the chart, with a marker for each of `locs` and the camp at `camp` ([x, y]). */
-  DW.art.chart = function (locs, camp) {
+  /** Little round trees in a clump about (x, y), `w` wide and `h` deep. */
+  function trees(r, x, y, w, h, n) {
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      const tx = x + (r() - 0.5) * w;
+      const ty = y + (r() - 0.5) * h;
+      const size = 4 + r() * 3;
+      s += P(`M${f(tx)} ${f(ty + size * 0.6)}v4`, null, 0.9) +
+        circle(f(tx), f(ty), f(size * 0.85), pal.paper, 0.8) +
+        P(`M${f(tx)} ${f(ty - size * 0.8)}a${f(size * 0.85)} ${f(size * 0.85)} 0 0 1 0 ${f(size * 1.7)}Z`, 'url(#h2)', 0);
+    }
+    return s;
+  }
+
+  /** A peak at (x, y) of `size`, its eastern face hatched. */
+  const peak = (x, y, size) => P(`M${x - size} ${y + size * 0.5}L${x} ${y - size * 0.5}L${x + size} ${y + size * 0.5}`, pal.paper, 1.1) +
+    P(`M${x} ${y - size * 0.5}L${x + size} ${y + size * 0.5}L${x + 2} ${y + size * 0.5}Z`, 'url(#h2)', 0);
+
+  /** A dotted line of reef. */
+  const reef = (d) => P(d, null, 1, 'stroke-dasharray="2 4"');
+
+  /**
+   * The islands that have charts: each an outline (clockwise from the
+   * west), the centre its shallows spread from, a title, and its features.
+   */
+  const SHAPES = {
+    home: {
+      outline: ISLAND, cx: 310, cy: 165, title: 'A CHART of the ISLAND',
+      features(r) {
+        let b = hills() + jungle(r);
+        // palms by the grove
+        for (let i = 0; i < 5; i++) b += palm(r, 192 + i * 9, 246 - (i % 2) * 8, 16, 3, 0.18);
+        return b + reef('M492 262 q14 -6 26 2 t28 4 t26 -6') + reef('M500 280 q16 6 32 -2 t30 2');
+      },
+    },
+    high: {
+      outline: [[140, 200], [150, 150], [190, 110], [240, 82], [300, 70], [360, 80], [410, 110], [450, 150], [462, 200], [440, 240], [400, 268], [340, 282], [280, 284], [220, 272], [170, 245]],
+      cx: 300, cy: 178, title: 'A CHART of the HIGH ISLAND',
+      features(r) {
+        let b = peak(296, 112, 30) + peak(256, 124, 18) + peak(336, 122, 20);
+        b += trees(r, 250, 205, 120, 70, 28) + trees(r, 380, 190, 60, 50, 10);
+        // the stream, from the falls down to the beach
+        b += P('M330 150 q20 20 40 24 t50 30 t22 14', null, 1.1);
+        return b + P('M24 60 q14 -8 30 0 q14 -8 30 0', null, 0.9);
+      },
+    },
+    rock: {
+      outline: [[200, 200], [215, 150], [250, 120], [300, 104], [350, 112], [390, 140], [405, 185], [385, 225], [340, 250], [280, 256], [230, 240]],
+      cx: 300, cy: 180, title: 'A CHART of the BIRD ROCK',
+      features(r) {
+        let b = P('M240 200 L270 140 L300 120 L340 132 L370 176 L350 220 L290 236Z', 'url(#h1)', 0.8);
+        for (let i = 0; i < 9; i++) b += P(`M${f(150 + r() * 320)} ${f(60 + r() * 50)}q4 -4 8 0q4 -4 8 0`, null, 0.9);
+        return b;
+      },
+    },
+    smoke: {
+      outline: [[90, 190], [110, 140], [160, 100], [230, 80], [310, 70], [390, 82], [460, 105], [510, 145], [520, 195], [490, 240], [430, 268], [350, 282], [260, 282], [180, 265], [120, 235]],
+      cx: 305, cy: 180, title: 'A CHART of the ISLAND of FIRES',
+      features(r) {
+        let b = peak(300, 120, 34) + peak(250, 132, 22) + peak(360, 128, 24) + peak(420, 140, 16);
+        b += trees(r, 200, 190, 110, 60, 22) + trees(r, 400, 190, 90, 50, 14);
+        // houses above the beach
+        for (let i = 0; i < 6; i++) b += P(`M${236 + i * 14} 238 l6 -8 l6 8Z`, 'url(#h2)', 0.8);
+        return b + reef('M150 300 q40 -8 80 0 t80 2 t80 -4 t80 2') + reef('M480 270 q20 10 40 4');
+      },
+    },
+  };
+
+  /**
+   * Draws the chart of island `isle` (by default the castaway's own), with
+   * a marker for each of `locs` and the camp at `camp` ([x, y]).
+   */
+  DW.art.chart = function (locs, camp, isle) {
+    const shape = SHAPES[isle] || SHAPES.home;
     const r = rng(11);
-    const coast = coastline(r);
+    const coast = coastline(r, shape.outline);
     const cid = uid('coast');
 
     let b = seaLines(r);
-    b += island(coast, cid);
-    b += hills();
-    b += jungle(r);
-    // palms by the grove
-    for (let i = 0; i < 5; i++) b += palm(r, 192 + i * 9, 246 - (i % 2) * 8, 16, 3, 0.18);
-    // the reef
-    b += P('M492 262 q14 -6 26 2 t28 4 t26 -6', null, 1, 'stroke-dasharray="2 4"') +
-      P('M500 280 q16 6 32 -2 t30 2', null, 1, 'stroke-dasharray="2 4"');
+    b += island(coast, cid, shape.cx, shape.cy);
+    b += shape.features(r);
     const rx = 72;
     const ry = 282;
     b += compassRose(rx, ry);
@@ -158,7 +223,7 @@
     // labels and markers sit above the roughening filter so they stay crisp
     const font = `font-family="'IM Fell English', Georgia, serif" fill="${pal.ink}"`;
     let top = `<g ${font}><text x="${rx}" y="${ry - 38}" text-anchor="middle" font-size="12">N</text>` +
-      '<text x="18" y="30" font-size="20" letter-spacing="2">A CHART of the ISLAND</text>' +
+      `<text x="18" y="30" font-size="20" letter-spacing="2">${shape.title}</text>` +
       '<text x="18" y="48" font-size="12" font-style="italic">as observed by a Castaway, 1846</text>' +
       '<text x="510" y="78" font-size="10" font-style="italic">here be monsters</text></g>';
     top += at(camp[0], camp[1], 1, 1, P('M-7 4 L0 -8 L7 4 Z', pal.paper, 1.2) + P('M0 -8 V4', null, 0.8)) +

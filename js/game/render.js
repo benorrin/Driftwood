@@ -9,10 +9,10 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, JEM_JOBS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX, WINDS, PATCH, ISLES, HOME_POS,
+    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, JEM_JOBS, FIRE_NAMES, NIGHT_AT, LAUNCH_COST, LOG_MAX, WINDS, PATCH, ISLES, HOME_POS,
     has, costText, builtCount, maxHealth, isNight, atHome, withHollis, bumps, session, view,
     workBoat, boatMended, upgradesLeft, destinations, sailBlocked, passageCost, passageDays, setSail,
-    button, section, fill, ACTIONS, RECIPES, RAFT, LOCS,
+    button, section, fill, ACTIONS, RECIPES, RAFT,
     doAction, make, buildRaft, launch, expedition, knownLocs, blockedReason, scout, SCOUT_COST, darkness, tripCost,
   } = G;
 
@@ -86,16 +86,16 @@
 
   /** The map tab's section: a button to go exploring, and a journey button for every known place. */
   function chartSections() {
-    const sec = section('chart', 'The Island', 'Explore to find new places, or choose a destination on your map. Every trip costs supplies, and at night a torch as well.');
+    const sec = section('chart', atHome() ? 'The Island' : G.isle().name, 'Explore to find new places, or choose a destination on your map. Every trip costs supplies, and at night a torch as well.');
     const dark = darkness();
     const scoutCost = tripCost(SCOUT_COST);
     const sub = dark || costText(scoutCost) + (G.somethingToFind() ? '' : ' · nothing new to find yet');
     const explore = button('scout', 'explore the island', sub, !dark && has(scoutCost), scout, dark || 'Search for places not yet on your map');
     fill(sec.querySelector('.btn-row'), [explore].concat(knownLocs().map((l) => {
-      const L = LOCS[l.id];
+      const L = G.places()[l.id];
       const why = blockedReason(L);
       const cost = tripCost(L.cost);
-      const sub = why || costText(cost) + (S.visits[l.id] ? ` · visited ${S.visits[l.id]}×` : '');
+      const sub = why || [costText(cost), S.visits[l.id] ? `visited ${S.visits[l.id]}×` : ''].filter(Boolean).join(' · ');
       return button(`loc:${l.id}`, L.name, sub, !why && has(cost), () => expedition(l.id), why || '');
     })));
     return [sec];
@@ -182,7 +182,7 @@
   /** Draws the tab bar, once there is more than one tab; unvisited tabs are marked new. */
   function renderTabs() {
     const tabs = [['beach', shoreName()]];
-    if (S.flags.chart && atHome()) tabs.push(['chart', 'The Map']);
+    if (G.hasMap()) tabs.push(['chart', 'The Map']);
     if (S.flags.raftPlans || S.chapter >= 2) tabs.push(['raft', S.boat.kind === 'canoe' ? 'The Canoe' : 'The Raft']);
     if (S.chapter >= 2) tabs.push(['sea', 'The Sea']);
     const nav = $('#tabs');
@@ -240,10 +240,10 @@
     const chart = view.tab === 'chart';
     const kind = chart ? 'chart' : view.tab === 'sea' ? 'sea' : atHome() ? 'camp' : 'islet';
     const data = chart ? knownLocs() : { sea: seaState, camp: campState, islet: isletState }[kind]();
-    const key = kind + JSON.stringify(data);
+    const key = kind + S.isle + JSON.stringify(data);
     if (key === view.sceneKey) return;
     view.sceneKey = key;
-    $('#scene').innerHTML = chart ? ART.chart(data, CAMP_POS) : ART[kind](data);
+    $('#scene').innerHTML = chart ? ART.chart(data, G.campPos(), S.isle) : ART[kind](data);
   }
 
   /* ---------------- the side columns ---------------- */

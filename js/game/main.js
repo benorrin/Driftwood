@@ -170,7 +170,7 @@
       items: [
         ['Chapter Two', 'The raft was never going to get you home. Where she does get you is the beginning of a second chapter: an archipelago of islands nobody could see from the summit, a chart of them, and a patched boat that only runs before the wind.'],
         ['The wind', 'The trades, a westerly, or a flat calm, shifting every dawn. Fit your boat with leeboards, casks and an outrigger to go further, and in more weathers.'],
-        ['Five islands', 'An islet, a high island with a stream and an old camp on it, a rock of ten thousand birds, a sandbar, and, far to the south, an island where fires burn at night.'],
+        ['Five islands', 'An islet, a high island with a stream and an old camp on it, a rock of ten thousand birds, a sandbar, and, far to the south, an island where fires burn at night. The three biggest have charts of their own, and places to find on them, just as your own island does.'],
         ['Who keeps the fire', 'Leave the camp, and Hollis can come with you or keep it. A camp nobody keeps is a camp the gulls have.'],
         ['A deserter', 'Somebody is hiding out among the islands. If you can coax him out, he has a story to tell, one evening at a time.'],
         ['The canoe people', 'They still come back, once a moon, to the old stone platform. How they receive you depends on what you have done.'],

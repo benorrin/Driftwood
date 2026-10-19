@@ -832,5 +832,7 @@
   ];
 
   /** Something turns up on a trip that found no new place. */
-  G.wander = () => happen(EXPLORING);
+  G.wander = () => (G.atHome() ? happen(EXPLORING) : G.awayWander());
+
+  G.wanderCard = wanderCard;
 })();
