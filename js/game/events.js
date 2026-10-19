@@ -648,7 +648,8 @@
       run() {
         AU.sfx('hurt');
         damage(1, 'fall');
-        wanderCard('You put your foot in a hole hidden by the grass and wrench your ankle. You limp home empty-handed.');
+        G.afflict('ankle');
+        wanderCard('You put your foot in a hole hidden by the grass and wrench your ankle. You limp home empty-handed, and it will be a day or two before it bears your weight.');
       },
     },
     {
@@ -776,7 +777,8 @@
       when: () => S.health > 4,
       run() {
         damage(2, 'fever');
-        wanderCard('Something in the low, wet ground disagrees with you. By evening you are shaking with fever, and you crawl home the last mile.');
+        G.afflict('fever');
+        wanderCard('Something in the low, wet ground disagrees with you. By evening you are shaking with fever, and you crawl home the last mile. Rest, and drink, and wait for it to break.');
       },
     },
     {

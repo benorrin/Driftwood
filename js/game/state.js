@@ -39,6 +39,7 @@
       built: {},
       raft: {},
       flags: {},
+      ail: {},
       visits: {},
       mapped: {},
       events: {},
@@ -107,6 +108,24 @@
     G.save();
   };
 
+  /** Afflicts the castaway with ailment `kind` for its full course, starting again if they have it already. */
+  G.afflict = function (kind) {
+    S.ail[kind] = G.AILMENTS[kind][1];
+  };
+
+  /** Whether the castaway has any ailment. */
+  G.ailing = () => Object.keys(S.ail).length > 0;
+
+  /** Takes a day off every ailment, logging those that pass. */
+  G.mend = function () {
+    Object.keys(S.ail).forEach((k) => {
+      if (--S.ail[k] <= 0) {
+        delete S.ail[k];
+        G.log(G.AILMENTS[k][2]);
+      }
+    });
+  };
+
   /** Whether it is night on the clock. */
   G.isNight = () => S.t >= NIGHT_AT;
 
@@ -162,6 +181,7 @@
       if (f.chart) s.items.map = 1;
     }
     s.events = s.events || {};
+    s.ail = s.ail || {};
     // the ball from the cask was once called Wilson
     if (s.items.wilson) s.items.bristow = 1;
     if (s.events.wilson) s.events.bristow = s.events.wilson;

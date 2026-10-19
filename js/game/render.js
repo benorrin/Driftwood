@@ -165,13 +165,17 @@
   /** A meter bar filled to `pct` percent; `low` hatches it as a warning. */
   const meter = (pct, low) => `<div class="meter${low ? ' low' : ''}"><i style="width:${pct}%"></i></div>`;
 
+  /** The castaway's ailments, each with the days it has left to run. */
+  const ailments = () => Object.keys(S.ail).map((k) =>
+    `<div class="ail">${G.AILMENTS[k][0]} <i>${S.ail[k]} day${S.ail[k] === 1 ? '' : 's'}</i></div>`).join('');
+
   /** Draws the clock, the castaway's health, and the fire. */
   function renderStatus() {
     $('#clock').textContent = `Day ${S.day}, ${phase()}`;
     const hp = Math.max(0, S.health);
     const mh = maxHealth();
     $('#status').innerHTML =
-      `<div class="stat"><h3>Condition</h3>health ${hp} / ${mh}${meter((hp / mh) * 100, hp <= 3)}</div>` +
+      `<div class="stat"><h3>Condition</h3>health ${hp} / ${mh}${meter((hp / mh) * 100, hp <= 3)}${ailments()}</div>` +
       (S.flags.fireLit ? `<div class="stat">the fire is ${FIRE_NAMES[S.fire]}${meter(S.fire * 25)}</div>` : '');
   }
 

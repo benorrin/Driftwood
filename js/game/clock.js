@@ -27,8 +27,12 @@
     ['food', 'Hunger gnaws at you. There is nothing left to eat.'],
   ];
 
+  /** The chance, each dawn of a fever, that it does the castaway harm. */
+  const FEVER_HARM = 0.3;
+
   /**
-   * Daybreak: eat and drink (or suffer for the lack), heal a little, and,
+   * Daybreak: eat and drink (or suffer for the lack), heal a little unless
+   * fevered, mend ailments, and,
    * with the pyre built and the trade winds turned, watch for a sail; the
    * longer the wait, the likelier.
    */
@@ -37,10 +41,14 @@
     let hurt = 0;
     const lack = [];
     let short = '';
+    const fevered = !!S.ail.fever;
     NEEDS.forEach(([k, msg]) => {
-      if (S.res[k] > 0) {
-        S.res[k]--;
+      // a fever doubles the thirst
+      const need = k === 'water' && fevered ? 2 : 1;
+      if (S.res[k] >= need) {
+        S.res[k] -= need;
       } else {
+        S.res[k] = 0;
         hurt += 2;
         lack.push(msg);
         short = k;
@@ -55,8 +63,15 @@
       log(pick(DAWNS));
     }
     if (hurt) damage(hurt, 'thirst');
-    else heal(S.built.leanto ? 2 : 1);
+    else if (!fevered) heal(S.built.leanto ? 2 : 1);
     if (S.ended) return;
+    if (fevered && chance(FEVER_HARM)) {
+      damage(1, 'fever');
+      if (S.ended) return;
+      notice('Fever', ['You burn all night and shiver all morning, and wake not knowing where you are.', gainLine('You lose 1 health. Rest, and drink, and wait for it to break.')],
+        'The fever burned all night.', ART.scene('night'));
+    }
+    G.mend();
     if (hurt) {
       const title = lack.length > 1 ? 'Hunger and Thirst' : short === 'water' ? 'Thirst' : 'Hunger';
       notice(title, lack.concat(gainLine(`You lose ${hurt} health. Find food and water before another dawn.`)),

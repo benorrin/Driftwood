@@ -21,6 +21,17 @@
    */
   G.ACTIONS = [
     {
+      id: 'rest', label: 'rest', cd: 20,
+      show: () => G.ailing(),
+      enabled: () => S.n.rested !== S.day,
+      run() {
+        S.n.rested = S.day;
+        heal(1);
+        log('You lie in the shade all morning and let the island go on without you. It does you good.');
+        G.mend();
+      },
+    },
+    {
       id: 'gather', label: 'gather driftwood', cd: 5,
       show: () => true,
       run() {
@@ -65,6 +76,7 @@
     {
       id: 'climb', label: 'climb a palm', cd: 12,
       show: () => S.flags.climb,
+      enabled: () => !S.ail.ankle,
       run() {
         AU.sfx('gather');
         if (chance(0.08)) {

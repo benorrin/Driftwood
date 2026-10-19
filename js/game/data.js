@@ -80,6 +80,17 @@
     watch: ['keep watch', 'keeping watch', 'Hollis sits down by the stores with his spear across his knees, and feeds the fire, and watches.'],
   };
 
+  /**
+   * Ailments that linger: [name in the condition panel, how many dawns
+   * they last, the line logged when they pass]. A turned ankle keeps you
+   * out of the palms and makes every trip thirstier; a fever stops you
+   * healing, doubles your thirst, and may do worse.
+   */
+  G.AILMENTS = {
+    ankle: ['a turned ankle', 2, 'Your ankle will bear your weight again.'],
+    fever: ['a fever', 3, 'The fever breaks in the night. You wake weak, clear-headed, and ravenous.'],
+  };
+
   /** Where the camp sits on the chart. */
   G.CAMP_POS = [310, 258];
 

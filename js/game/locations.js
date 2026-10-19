@@ -461,7 +461,13 @@
   G.darkness = () => (isNight() && !S.res.torch ? 'too dark to go without a torch' : null);
 
   /** What a trip costing `cost` costs just now: at night, a torch as well, unless one is needed anyway. */
-  G.tripCost = (cost) => (isNight() && !cost.torch ? Object.assign({}, cost, { torch: 1 }) : cost);
+  G.tripCost = function (cost) {
+    const c = Object.assign({}, cost);
+    if (isNight() && !c.torch) c.torch = 1;
+    // a turned ankle makes a slow, thirsty walk of every trip
+    if (S.ail.ankle) c.water = (c.water || 0) + 1;
+    return c;
+  };
 
   /** The reason location `L` can't be reached right now, or null. */
   G.blockedReason = (L) => (L.blocked && L.blocked()) || G.darkness();
