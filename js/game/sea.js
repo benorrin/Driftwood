@@ -17,8 +17,8 @@
   const WESTERLY_CHANCE = 0.18;
   const CALM_CHANCE = 0.1;
 
-  /** Days on the islet before the first westerly comes, whatever the odds. */
-  const SURE_WESTERLY = 5;
+  /** Dawns after the wreck is patched before a westerly comes to the islet, whatever the odds. */
+  const SURE_WESTERLY = 2;
 
   /** The longest passage the boat can make without water casks, in days. */
   const CASK_DAYS = 2;
@@ -31,10 +31,14 @@
 
   /* ---------------- the wind ---------------- */
 
+  /** Whether the castaway is still cast away on the islet, with the wreck patched and ready to sail home. */
+  const readyOnIslet = () => S.isle === 'islet' && !S.flags.homeAgain && G.boatMended();
+
   /**
    * At dawn the wind may shift: the trades mostly, now and then a westerly
-   * for a day or two, or a calm. The first westerly never keeps a castaway
-   * on the islet longer than SURE_WESTERLY days.
+   * for a day or two, or a calm. Once the wreck is patched, a westerly
+   * never keeps the castaway waiting on the islet longer than SURE_WESTERLY
+   * dawns, and when it comes they are told so, and may sail at once.
    */
   G.shiftWind = function () {
     const was = S.wind;
@@ -43,10 +47,22 @@
     if (was === 'westerly') next = roll < 0.5 ? 'westerly' : 'trades';
     else if (was === 'calm') next = roll < 0.4 ? 'calm' : roll < 0.8 ? 'trades' : 'westerly';
     else next = roll < WESTERLY_CHANCE ? 'westerly' : roll < WESTERLY_CHANCE + CALM_CHANCE ? 'calm' : 'trades';
-    if (S.isle === 'islet' && !S.flags.homeAgain && !S.n.westerlies && S.day - S.n.wreckDay >= SURE_WESTERLY) next = 'westerly';
-    if (next === 'westerly' && was !== 'westerly') S.n.westerlies = (S.n.westerlies || 0) + 1;
+    // saves from before the patching was dated count from the wreck
+    if (readyOnIslet() && S.day - (S.n.mendedDay || S.n.wreckDay) >= SURE_WESTERLY) next = 'westerly';
     S.wind = next;
-    if (next !== was) log(WINDS[next][1], 'lore');
+    if (next === was) return;
+    log(WINDS[next][1], 'lore');
+    if (next === 'westerly' && readyOnIslet()) {
+      G.queueModal({
+        art: ART.scene('islet'),
+        title: 'A Westerly',
+        text: [WINDS.westerly[1], `The ${G.boatName()} is patched and waiting on the sand. This is the wind that will carry her home.`],
+        choices: [
+          { label: 'sail for home', cost: G.passageCost('home'), fn: () => G.setSail('home') },
+          leave('not yet', 'A westerly is blowing. Sail for home from the sea chart before it dies.', 'lore'),
+        ],
+      });
+    }
   };
 
   /* ---------------- the boat ---------------- */
@@ -61,6 +77,10 @@
     AU.sfx('craft');
     S.boat[p.id] = 1;
     log(p.msg);
+    if (S.isle === 'islet' && !S.flags.homeAgain && PATCH.includes(p) && G.boatMended()) {
+      S.n.mendedDay = S.day;
+      log(`The ${G.boatName()} will float, and sail, after a fashion. Now you need a westerly to carry her home. Watch the wind, and when it backs into the west, sail for home from the sea chart.`, 'lore');
+    }
     save();
   };
 

@@ -304,12 +304,12 @@
     finds.find(([w]) => (roll -= w) < 0)[1]();
   };
 
-  /** Combs the islet: the boat's remains first, then fibre, shellfish, eggs and driftwood. */
+  /** Combs the islet: the boat's remains first (enough canvas to patch her sail), then fibre, shellfish, eggs, driftwood and now and then canvas. */
   function combIslet() {
     S.n.combIslet = (S.n.combIslet || 0) + 1;
     const c = S.n.combIslet;
     if (c === 1) {
-      log(`Along the edge of the reef, what the sea spat back out of the ${G.boatName()}: ${gain({ rope: 2, cloth: 2, wood: 2 })}.`);
+      log(`Along the edge of the reef, what the sea spat back out of the ${G.boatName()}, her torn sail among it: ${gain({ rope: 2, cloth: 3, wood: 2 })}.`);
     } else if (c === 2) {
       log(`The islet's few palms have shed their dead fronds into the sand: ${gain({ fibre: 3 })}.`);
     } else if (c === 3) {
@@ -318,7 +318,8 @@
       // something turned up
     } else {
       const roll = Math.random();
-      if (roll < 0.35) log(`You gather ${gain({ fibre: rand(1, 2) })} from under the palms.`);
+      if (roll < 0.08) log(`A rag of canvas tangled in the weed at the tide line, from your own sail or somebody else's: ${gain({ cloth: 1 })}.`);
+      else if (roll < 0.35) log(`You gather ${gain({ fibre: rand(1, 2) })} from under the palms.`);
       else if (roll < 0.55) log(`Shellfish, prised off the rocks: ${gain({ food: 1 })}.`);
       else if (roll < 0.7) log(`From the nests of the birds that are too tame to flee you: ${gain({ food: 2 })}. You do not enjoy it.`);
       else if (roll < 0.88) log(`${cap(gain({ wood: rand(1, 3) }))}, bleached and light, from the windward shore.`);
