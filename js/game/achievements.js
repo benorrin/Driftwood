@@ -64,6 +64,7 @@
     { id: 'shark', kind: 'deed', name: 'A Bigger Raft', desc: 'Fight off the shark at sea.' },
     { id: 'reef', kind: 'deed', name: 'The Reef', desc: 'Reach the second chapter.', test: () => S.chapter >= 2 },
     { id: 'homeAgain', kind: 'deed', name: 'Home Waters', desc: 'Sail the patched boat home from the islet.', test: () => S.flags.homeAgain },
+    { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
     { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },
     { id: 'pitcairn', kind: 'deed', name: 'Another Mutiny', desc: 'Paddle the old canoe to Pitcairn\'s Island.' },
@@ -77,6 +78,7 @@
     { id: 'boars', kind: 'feat', name: 'Swineherd', desc: `Kill ${BOARS} boar, over all your tales.` },
     { id: 'parcel', kind: 'feat', name: 'Special Delivery', desc: 'Carry the sealed parcel to Valparaíso.' },
     { id: 'stay', kind: 'feat', name: 'Monarch of All I Survey', desc: 'Make the island your home.' },
+    { id: 'isles', kind: 'feat', name: 'Before the Wind', desc: 'Land on every island your boat can reach.', test: () => ['islet', 'high', 'rock', 'sandbar'].every((id) => S.landed && S.landed[id]) },
     { id: 'endings', kind: 'feat', name: 'Every Way Home', desc: 'Find every ending.' },
     { id: 'all', kind: 'feat', name: 'The Whole Log', desc: 'Earn every other achievement.' },
 

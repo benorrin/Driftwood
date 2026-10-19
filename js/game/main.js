@@ -279,6 +279,9 @@
   /** The chart location a click or keypress landed on, if any. */
   const locationOf = (e) => e.target.closest('.loc');
 
+  /** Acts on a chart marker: a journey to a place on the island, or a passage to an island on the sea chart. */
+  const go = (loc) => (loc.dataset.isle ? G.setSail(loc.dataset.isle) : expedition(loc.dataset.loc));
+
   /** Draws the title screen, wires up every control, and starts the clock. */
   function boot() {
     ART.install($('#defs'));
@@ -309,13 +312,13 @@
     // the chart's location markers act as buttons
     $('#scene').addEventListener('click', (e) => {
       const loc = locationOf(e);
-      if (loc) expedition(loc.dataset.loc);
+      if (loc) go(loc);
     });
     $('#scene').addEventListener('keydown', (e) => {
       const loc = locationOf(e);
       if (loc && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
-        expedition(loc.dataset.loc);
+        go(loc);
       }
     });
 

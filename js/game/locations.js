@@ -256,7 +256,6 @@
 
     hut: {
       name: "The Wild Man's Hut", x: 420, y: 124, cost: { water: 1, food: 1 }, time: 6, art: 'hut',
-      gone: () => S.flags.hollisDone,
       first: hut,
       repeat: hut,
     },
@@ -519,8 +518,8 @@
   /** The reason location `L` can't be reached right now, or null. */
   G.blockedReason = (L) => (L.blocked && L.blocked()) || G.darkness();
 
-  /** Whether location `id` is on the map: drawn there, and not since gone. */
-  const onMap = (id) => !!S.mapped[id] && !(LOCS[id].gone && LOCS[id].gone());
+  /** Whether location `id` is on the map. */
+  const onMap = (id) => !!S.mapped[id];
 
   /** The locations on the map, with what the map needs to draw their markers. */
   G.knownLocs = function () {

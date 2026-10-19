@@ -147,8 +147,15 @@
     { id: 'sail', label: 'patch the sail', cost: { cloth: 3, fibre: 4 }, needs: 'mast', note: 'canvas eked out with woven fibre', msg: 'Rags of canvas stitched to a mat of woven fibre. It is more hole than sail, but it will catch a wind.' },
   ];
 
-  /** Supplies for the passage home from the islet, before a westerly. */
-  G.SAIL_HOME = { water: 3, food: 3 };
+  /**
+   * Fitting out the patched boat at home, for passages she could not make
+   * as she is: crossing the wind, longer than two days, or in foul weather.
+   */
+  G.UPGRADES = [
+    { id: 'leeboards', label: 'hang leeboards', cost: { timber: 6, rope: 4, iron: 2 }, note: 'so she will sail across the wind', msg: 'Two broad boards on iron pins, one over each side, to be let down into the sea. With one down she will hold a course across the wind, crabwise and complaining, but she will hold it.' },
+    { id: 'casks', label: 'build water casks', cost: { timber: 5, iron: 6 }, note: 'water for passages of more than two days', msg: 'Two casks again, tight enough, lashed down amidships. You can go further now.' },
+    { id: 'outrigger', label: 'rig an outrigger', cost: { timber: 8, rope: 6, gum: 2 }, note: 'so she will not roll so easily in a blow', msg: 'A float on two booms, the way the old canoe had it. She sits up in the water now like a duck, and a squall that would have rolled her only shoves.' },
+  ];
 
   /**
    * The island's creatures: hp, damage per hit, chance to hit, the verbs

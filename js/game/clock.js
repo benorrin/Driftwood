@@ -245,7 +245,7 @@
   function tendFire() {
     if (S.fire === 0 || ++S.fireT < FIRE_DECAY) return;
     const hold = G.hollisJob() === 'watch' ? 3 : 2;
-    if (S.flags.ally && S.fire <= hold) {
+    if (G.withHollis() && S.fire <= hold) {
       S.fireT = 0;
       if (S.res.wood > 0 && S.fire < hold) {
         S.res.wood--;
@@ -268,7 +268,7 @@
       if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));
       if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
     }
-    if (S.flags.ally) {
+    if (G.withHollis()) {
       every('ally', 30, () => {
         const job = G.hollisJob();
         if (job === 'gather') {

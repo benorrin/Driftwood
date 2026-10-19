@@ -1,7 +1,8 @@
-/* Driftwood — the chart.
+/* Driftwood — the charts.
  * A hand-drawn map of the island in the old style: echoing coastlines,
  * hachured hills, a compass rose, a sea serpent, and a clickable marker for
- * each place the castaway knows of. */
+ * each place the castaway knows of. And in the second chapter, a chart of
+ * the archipelago, with the wind. */
 (function () {
   'use strict';
 
@@ -116,9 +117,10 @@
 
   /**
    * A clickable marker for a known location `l` (id, name, x, y, visited,
-   * blocked): filled once visited, a question mark until then.
+   * blocked): filled once visited, a question mark until then. `data` is
+   * the attribute naming it for the click handler (by default, `data-loc`).
    */
-  function marker(l, font) {
+  function marker(l, font, data) {
     const blocked = l.blocked ? ' blocked' : '';
     const mark = l.visited
       ? `<circle class="marker" cx="0" cy="0" r="5.5" fill="${pal.ink}" stroke="${pal.ink}"/>`
@@ -127,7 +129,7 @@
     // labels near the edges are aligned inward so they stay on the chart
     const anchor = l.x > 440 ? 'end' : l.x < 170 ? 'start' : 'middle';
     const lx = anchor === 'end' ? 8 : anchor === 'start' ? -8 : 0;
-    return `<g class="loc${blocked}" data-loc="${l.id}" tabindex="0" role="button" aria-label="${l.name}" transform="translate(${l.x} ${l.y})">` +
+    return `<g class="loc${blocked}" ${data || `data-loc="${l.id}"`} tabindex="0" role="button" aria-label="${l.name}" transform="translate(${l.x} ${l.y})">` +
       `<circle r="16" fill="transparent"/>${mark}` +
       `<text x="${lx}" y="-11" text-anchor="${anchor}" font-size="13" font-style="italic" ${font} stroke="${pal.paper}" stroke-width="3" paint-order="stroke">${l.name}</text></g>`;
   }
@@ -166,5 +168,96 @@
     });
     top += frame(W, H);
     return svg(W, H, b, top, 'A hand-drawn chart of the island');
+  };
+
+  /* ---------------- the archipelago ---------------- */
+
+  /** A small island at (x, y), `w` wide, as an outline with an echo or two of shallows around it. */
+  function islet(r, x, y, w, h, fill) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * Math.PI * 2;
+      const k = 0.8 + r() * 0.35;
+      pts.push([x + Math.cos(a) * w * k, y + Math.sin(a) * h * k]);
+    }
+    const d = smooth(pts, true);
+    const echo = (s) => `<path d="${d}" transform="translate(${x} ${y}) scale(${s}) translate(${-x} ${-y})" fill="none" stroke="${pal.ink}" stroke-width="${f(1 / s * 0.5)}"/>`;
+    return echo(1.5) + echo(1.25) + P(d, fill || pal.paper, 1.3);
+  }
+
+  /** How each island of the archipelago is drawn on the sea chart, by id. */
+  const ISLE_ART = {
+    islet: (r, x, y) => islet(r, x, y, 9, 6, 'url(#dots2)'),
+    high: (r, x, y) => islet(r, x, y, 26, 17) +
+      P(`M${x - 16} ${y + 6}L${x} ${y - 12}L${x + 16} ${y + 6}`, pal.paper, 1.1) + P(`M${x} ${y - 12}L${x + 16} ${y + 6}L${x + 2} ${y + 6}Z`, 'url(#h2)', 0) +
+      P(`M${x - 22} ${y - 22}q8 -8 18 -2q10 -8 20 0q8 -2 10 6`, null, 0.9),
+    rock: (r, x, y) => islet(r, x, y, 7, 6, 'url(#h1)'),
+    sandbar: (r, x, y) => islet(r, x, y, 18, 4, 'url(#dots2)'),
+    smoke: (r, x, y) => islet(r, x, y, 30, 14) + P(`M${x - 8} ${y - 8}c-4 -8 4 -12 0 -20M${x + 10} ${y - 6}c-4 -8 4 -12 0 -20`, null, 0.9),
+  };
+
+  /** Feathered arrows across the open sea, flying the way the wind blows, or a note of the calm. */
+  function windArrows(wind, font) {
+    if (wind === 'calm') return `<text x="300" y="104" text-anchor="middle" font-size="13" font-style="italic" ${font}>a flat calm</text>`;
+    const dir = wind === 'westerly' ? 1 : -1;
+    let s = '';
+    [[250, 96], [310, 112], [370, 96]].forEach(([x, y]) => {
+      const tip = x + dir * 26;
+      const tail = x - dir * 26;
+      s += P(`M${tail} ${y}H${tip}M${tip - dir * 7} ${y - 4}L${tip} ${y}L${tip - dir * 7} ${y + 4}`, null, 1.1) +
+        P(`M${tail} ${y}l${-dir * 4} -5M${tail + dir * 5} ${y}l${-dir * 4} -5`, null, 0.9);
+    });
+    return s + `<text x="310" y="132" text-anchor="middle" font-size="11" font-style="italic" ${font}>${wind === 'westerly' ? 'a westerly' : 'the trades'}</text>`;
+  }
+
+  /**
+   * Draws the chart of the archipelago: the castaway's island at `home`,
+   * each charted island in `isles` (id, name, x, y, visited, blocked) with
+   * a marker that sails there, a little boat where the castaway is
+   * (`here`), and the `wind`. Away from home, the island itself is the
+   * marker to sail for.
+   */
+  DW.art.sea = function (st) {
+    const r = rng(29);
+    const font = `font-family="'IM Fell English', Georgia, serif" fill="${pal.ink}"`;
+    const [hx, hy] = st.home;
+    let b = seaLines(r);
+
+    // the castaway's island, the same coast as the island chart in little
+    const pts = ISLAND.map(([x, y]) => [hx + (x - 310) * 0.26, hy + (y - 165) * 0.26]);
+    const coast = smooth(pts, true);
+    b += P(coast, 'none', 0.5, `transform="translate(${hx} ${hy}) scale(1.3) translate(${-hx} ${-hy})"`) + P(coast, pal.paper, 1.4);
+    b += P(`M${hx - 8} ${hy - 14}L${hx} ${hy - 24}L${hx + 8} ${hy - 14}`, pal.paper, 1);
+
+    // dashed tracks to the islands already landed on
+    st.isles.filter((l) => l.visited).forEach((l) => {
+      b += P(`M${hx} ${hy}L${l.x} ${l.y}`, null, 0.7, 'stroke-dasharray="3 5"');
+    });
+    st.isles.forEach((l) => {
+      b += ISLE_ART[l.id](rng(l.x * 7 + l.y), l.x, l.y);
+    });
+    b += compassRose(548, 286);
+
+    let top = `<g ${font}><text x="548" y="248" text-anchor="middle" font-size="12">N</text>` +
+      '<text x="18" y="30" font-size="20" letter-spacing="2">A CHART of the ISLANDS</text>' +
+      '<text x="18" y="48" font-size="12" font-style="italic">and of the Winds that govern them</text></g>';
+    top += windArrows(st.wind, font);
+
+    // the boat, off the west shore of home or beside whichever island the castaway is on
+    const here = st.isles.find((i) => i.id === st.here);
+    const boat = here ? [here.x + 18, here.y + 16] : [hx - 66, hy + 6];
+    top += at(boat[0], boat[1], 1, 1, P('M-8 0h16l-3 4h-10Z', pal.ink, 0.8) + P('M0 0V-12', null, 1) + P('M1 -11l6 9h-6Z', pal.paper, 0.8));
+
+    const homeMarker = { id: 'home', name: 'Your Island', x: hx, y: hy, visited: true, blocked: st.here === 'home' || st.homeBlocked };
+    top += st.here === 'home'
+      ? `<text x="${hx}" y="${hy + 46}" text-anchor="middle" font-size="12" font-style="italic" ${font}>Your Island</text>`
+      : marker(homeMarker, font, 'data-isle="home"');
+    st.isles.forEach((l) => {
+      top += st.here === 'home'
+        ? marker(l, font, `data-isle="${l.id}"`)
+        : `<text x="${l.x}" y="${l.y - 14}" text-anchor="middle" font-size="12" font-style="italic" ${font} stroke="${pal.paper}" stroke-width="3" paint-order="stroke">${l.name}</text>`;
+    });
+    top += frame(W, H);
+    return svg(W, H, b, top, 'A hand-drawn chart of the archipelago');
   };
 })();

@@ -51,6 +51,8 @@
       isle: 'home',
       wind: null,
       boat: {},
+      charted: {},
+      landed: {},
       ended: false,
     };
   };
@@ -107,7 +109,10 @@
   G.maxHealth = () => 10 + (S.built.leanto ? 2 : 0);
 
   /** What Hollis is doing, once he has joined you: a HOLLIS_JOBS key. */
-  G.hollisJob = () => (S.flags.ally ? S.n.hollisJob || 'gather' : null);
+  G.hollisJob = () => (G.withHollis() ? S.n.hollisJob || 'gather' : null);
+
+  /** Whether Hollis, once befriended, is where the castaway is, and not left keeping the camp. */
+  G.withHollis = () => !!S.flags.ally && (G.atHome() || !S.flags.hollisHome);
 
   /** Sets Hollis to `job`. */
   G.setHollisJob = function (job) {
@@ -208,6 +213,8 @@
     s.chapter = s.chapter || 1;
     s.isle = s.isle || 'home';
     s.boat = s.boat || {};
+    s.landed = s.landed || (s.chapter > 1 ? { islet: 1 } : {});
+    s.charted = s.charted || (s.chapter > 1 ? { islet: 1, high: 1, rock: s.flags.homeAgain ? 1 : 0 } : {});
     return s;
   }
 

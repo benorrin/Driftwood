@@ -72,11 +72,11 @@
     {
       id: 'comb', label: 'comb the beach', cd: 8,
       show: () => S.flags.fireLit,
-      run: () => (G.atHome() ? comb() : G.combIslet()),
+      run: () => (G.atHome() ? comb() : G.combAway()),
     },
     {
       id: 'climb', label: 'climb a palm', cd: 12,
-      show: () => S.flags.climb || !G.atHome(),
+      show: () => (G.atHome() ? S.flags.climb : G.isle().palms),
       enabled: () => !S.ail.ankle,
       note: () => (S.ail.ankle ? 'not on that ankle' : ''),
       run() {
@@ -96,10 +96,10 @@
     },
     {
       id: 'water', label: 'fetch water', cd: 15,
-      show: () => S.flags.spring && G.atHome(),
+      show: () => (G.atHome() ? S.flags.spring : G.isle().stream),
       run() {
         AU.sfx('water');
-        log(`You carry ${gain({ water: rand(3, 5) + (S.items.waterskin ? 2 : 0) })} back from the spring.`);
+        log(`You carry ${gain({ water: rand(3, 5) + (S.items.waterskin ? 2 : 0) })} back from the ${G.atHome() ? 'spring' : 'stream'}.`);
       },
     },
     {
@@ -126,7 +126,7 @@
     },
     {
       id: 'fell', label: 'fell timber', cd: 10,
-      show: () => S.items.axe && G.atHome(),
+      show: () => S.items.axe && (G.atHome() || G.isle().timber),
       run() {
         AU.sfx('chop');
         log(`The stone axe bites slowly. ${cap(gain({ timber: rand(2, 3) }))}.`);

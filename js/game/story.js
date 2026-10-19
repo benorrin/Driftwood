@@ -7,7 +7,7 @@
   const G = window.DW.game;
   const AU = window.DW.audio;
   const ART = window.DW.art;
-  const { S, quote, gainLine, gain, log, heal, modal, leave, fight } = G;
+  const { S, rand, pick, quote, gainLine, gain, log, heal, modal, leave, fight } = G;
 
   /**
    * The end of a visit to `id`: a card of `text`, the resources `got` (if
@@ -122,8 +122,12 @@
 
   /* ---------------- the wild man ---------------- */
 
-  /** The wild man's hut: feed him, fight him, or leave him be. */
+  /** The wild man's hut: feed him, fight him, or leave him be; once that is settled, the empty hut. */
   function hut() {
+    if (S.flags.hollisDone) {
+      emptyHut();
+      return;
+    }
     const first = !S.flags.metHollis;
     S.flags.metHollis = 1;
     modal({
@@ -176,6 +180,18 @@
       ],
       choices: [leave('return to camp', 'You do not sleep well that night.', 'lore')],
     });
+  }
+
+  /** The hut after Hollis has joined the castaway, or died: his old snares still catch, if he lives. */
+  function emptyHut() {
+    if (S.flags.killedHollis) {
+      done('hut', 'The hut is as you left it. The skulls grin from their stakes, and the notches run down the doorpost, row upon row. You do not stay long.');
+      return;
+    }
+    done('hut', pick([
+      'The clearing is quiet. The skulls still grin from their stakes, but the cookfire is cold and the hut is empty: Hollis lives on the beach now. His old snares at the edge of the clearing are still set, and one has caught.',
+      'Thousands of notches run down the doorpost. The last of them was cut on the day you came. Hollis\'s snares are still set, and you empty them for him.',
+    ]), { food: rand(1, 2) });
   }
 
   Object.assign(G, { done, wreck, journal, hut });

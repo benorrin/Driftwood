@@ -7,7 +7,7 @@
   const DW = window.DW;
   const draw = DW.draw;
   const {
-    rng, svg, frame, P, ground, darkness,
+    pal, rng, svg, frame, P, ground, darkness,
     sky, sea, sun, moon, stars, birds, palm, rock, tufts, headland,
     fire, sitter, leanto, catcher, weir, rack, raft,
   } = draw;
@@ -57,10 +57,12 @@
   };
 
   /**
-   * Draws the islet of the second chapter in place of the camp: a hump of
-   * sand in the open sea, the castaway's own island far off to the east,
-   * and the wreck being patched on the sand. `st` has night, fire, boat
-   * (the parts patched) and ally.
+   * Draws the shore of an island of the second chapter in place of the
+   * camp: a hump of sand in the open sea, the castaway's own island far off,
+   * and the boat on the sand. `st` has night, fire, boat (the parts
+   * patched), ally, and `isle`, which shapes the shore: the High Island
+   * rises steep and green behind it, the Bird Rock is bare black rock, and
+   * the Sandbar is barely above the sea.
    */
   DW.art.islet = function (st) {
     const r = rng(17);
@@ -71,15 +73,30 @@
     let b = sky(r, W, 0, hz, st.night);
     b += st.night ? moon(120, 46, 15) + stars(r, W, hz - 20) : sun(130, 58, 16, true) + birds(r, 260, 50, 9, 160);
     b += sea(r, W, hz, H, st.night);
-    // home, far to the east, and lower islands to the west
-    b += headland(r, 370, hz, 200, 26, 2) + headland(r, 24, hz, 56, 6, 1) + headland(r, 110, hz, 28, 4, 0);
+    const isle = st.isle || 'islet';
+    if (isle === 'high') {
+      // the island's own heights, and the cloud that sits on them
+      b += headland(r, 300, hz + 80, 320, 170, 6);
+      b += P('M380 40 q20 -16 46 -6 q24 -14 50 0 q22 0 26 14 q-60 8 -122 -8Z', pal.paper, 1);
+    } else {
+      // other islands far off on the horizon
+      b += headland(r, 370, hz, 200, 26, 2) + headland(r, 24, hz, 56, 6, 1) + headland(r, 110, hz, 28, 4, 0);
+    }
 
-    // the islet, with the surf on its reef
-    const sand = 'M-10 300 C40 262 140 222 300 218 S540 244 610 300Z';
-    b += P(sand, 'url(#dots)', 1.2);
+    // the shore, with the surf on its reef
+    const shore = {
+      islet: ['M-10 300 C40 262 140 222 300 218 S540 244 610 300Z', 'url(#dots)'],
+      high: ['M-10 300 C40 256 160 226 300 222 S540 232 610 262 V300Z', 'url(#dots)'],
+      rock: ['M-10 300 C30 250 120 214 240 206 C330 196 420 214 500 236 S590 270 610 300Z', 'url(#h1)'],
+      sandbar: ['M-10 300 C60 274 180 252 300 250 S540 262 610 300Z', 'url(#dots)'],
+    }[isle];
+    b += P(shore[0], shore[1], 1.2);
     b += P('M0 262 q40 -14 70 -26 M540 238 q36 10 60 24', null, 0.7, 'stroke-dasharray="5 6"');
-    b += tufts(r, 380, 560, 262, 4);
-    b += palm(r, 470, 262, 130, -22, 0.85) + palm(r, 528, 266, 96, 16, 0.7);
+    if (isle === 'islet' || isle === 'high') {
+      b += tufts(r, 380, 560, 262, 4);
+      b += palm(r, 470, 262, 130, -22, 0.85) + palm(r, 528, 266, 96, 16, 0.7);
+    }
+    if (isle === 'rock') b += birds(r, 300, 150, 14, 260);
 
     // the wreck, patched as far as it has been
     b += raft(70, 286, { hull: 1, mast: st.boat.mast, sail: st.boat.sail }, 0.85);
