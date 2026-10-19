@@ -23,9 +23,10 @@
     window.scrollTo(0, 0);
   }
 
-  /** Offers "continue" on the title screen only when there is a saved game. */
+  /** Offers "continue" only when there is a saved game, and the ship's log once a tale has ended. */
   function refreshContinue() {
     $('#btn-continue').classList.toggle('hidden', !load());
+    $('#btn-records').classList.toggle('hidden', !G.records().tales);
   }
 
   /** Stops the game and returns to the title screen. */
@@ -167,7 +168,7 @@
    * Things stored only once someone has played, which mark a returning
    * player. The visual style is stored on every visit, so it can't.
    */
-  const VISITED_KEYS = [G.SAVE_KEY, G.REMAINS_KEY, 'driftwood-audio'];
+  const VISITED_KEYS = [G.SAVE_KEY, G.REMAINS_KEY, G.RECORDS_KEY, 'driftwood-audio'];
 
   /** What changed in each release, newest first, as headed paragraphs. */
   const NEWS = [
@@ -178,6 +179,7 @@
         ['The last castaway', 'Die on the island, and the next castaway may find your bones, with what you kept and the notches you cut. Take what they had, or bury them. Those lost at sea come back another way.'],
         ['Not every sail', 'Once, a sail from the summit may be the <i>Meridian</i> come back, with Mr Crane aboard. Study a ship before you light the pyre, if you dare to let a whaler slip away while you look.'],
         ['A new ending', 'There is a third way off the island now, though not a happy one.'],
+        ['The ship\'s log', 'Every tale you finish is written into a log on the title screen: how long each castaway lasted, how they ended, and how many endings are still to find.'],
       ],
     },
     {
@@ -215,6 +217,31 @@
       return;
     }
     openNews();
+  }
+
+  /* ---------------- the ship's log ---------------- */
+
+  /** A tale in the ship's log, e.g. "Day 14: killed by the boar". */
+  function taleLine(t) {
+    const how = t.end === 'death'
+      ? G.DEATH_NOTES[t.cause] || `killed by ${t.cause}`
+      : G.ENDINGS[t.end][1];
+    return `<p><b class="sc">Day ${t.day}.</b> ${G.cap(how)}.</p>`;
+  }
+
+  /** Opens the record of every tale told in this browser, with the endings still to find hidden. */
+  function openRecords() {
+    AU.sfx('page');
+    const r = G.records();
+    const ends = Object.keys(G.ENDINGS);
+    const found = ends.filter((id) => r.found[id]);
+    const text = [
+      `${r.tales} castaway${r.tales === 1 ? '' : 's'} put ashore. The longest lasted ${r.best} day${r.best === 1 ? '' : 's'}.`,
+      `<p class="dateline">Endings found: ${found.length} of ${ends.length}</p>`,
+      `<p class="endings">${ends.map((id) => (r.found[id] ? G.ENDINGS[id][0] : '? ? ?')).join(' &middot; ')}</p>`,
+      '<p class="dateline">Lately</p>',
+    ].concat(r.recent.map(taleLine));
+    modal({ art: ART.scene('summit'), title: "The Ship's Log", text, choices: [leave('back')] });
   }
 
   /* ---------------- visual styles ---------------- */
@@ -276,6 +303,7 @@
     $('#btn-style-title').onclick = openStyles;
     $('#btn-help').onclick = openHelp;
     $('#btn-news').onclick = openNews;
+    $('#btn-records').onclick = openRecords;
     $('#btn-restart').onclick = restart;
     $('#tgl-music').onclick = $('#tgl-music-title').onclick = () => {
       AU.init();

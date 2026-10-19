@@ -8,7 +8,7 @@
 
   const G = window.DW.game;
   const AU = window.DW.audio;
-  const { RES, FIRE_NAMES, NIGHT_AT, LOG_MAX, SAVE_KEY, REMAINS_KEY } = G;
+  const { RES, FIRE_NAMES, NIGHT_AT, LOG_MAX, SAVE_KEY, REMAINS_KEY, RECORDS_KEY } = G;
   const storage = window.DW.storage;
 
   /** The current game. Empty until a game is started or loaded. */
@@ -169,6 +169,28 @@
 
   /** Deletes the saved game. */
   G.clearSave = () => storage.remove(SAVE_KEY);
+
+  /* ---------------- the ship's log ---------------- */
+
+  /** How many of the latest tales the ship's log keeps in full. */
+  const RECENT = 6;
+
+  /**
+   * Every tale told in this browser: how many, the longest on the island,
+   * which endings have been reached, and the latest few in full.
+   */
+  G.records = () => storage.getJSON(RECORDS_KEY, null) || { tales: 0, best: 0, found: {}, recent: [] };
+
+  /** Writes the tale just ended into the ship's log: `end` is an ENDINGS key, or 'death' by `cause`. */
+  G.recordTale = function (end, cause) {
+    const r = G.records();
+    r.tales++;
+    r.best = Math.max(r.best, S.day);
+    if (end !== 'death') r.found[end] = 1;
+    r.recent.unshift(cause ? { end, day: S.day, cause } : { end, day: S.day });
+    r.recent.length = Math.min(r.recent.length, RECENT);
+    storage.setJSON(RECORDS_KEY, r);
+  };
 
   /* ---------------- the last castaway ---------------- */
 

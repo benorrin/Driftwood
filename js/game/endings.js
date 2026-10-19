@@ -57,8 +57,10 @@
     return lines;
   }
 
-  /** Ends the game happily: a final card of `text`, followed by the epilogue. */
-  function finish(art, title, text) {
+  /** Ends the game by ENDINGS `id`: a final card of `text`, followed by the epilogue. */
+  function finish(id, art, text) {
+    G.recordTale(id);
+    const title = G.ENDINGS[id][0];
     endGame('ending');
     modal({
       art,
@@ -73,6 +75,7 @@
     if (S.ended) return;
     S.health = 0;
     G.leaveRemains(cause);
+    G.recordTale('death', cause);
     endGame('silent');
     AU.sfx('death');
     const why = DEATHS[cause] || `You fell to ${cause}. The island is patient; it was always going to win.`;
@@ -98,7 +101,7 @@
       ],
       choices: [{
         label: 'go down to the beach',
-        fn: () => finish(ART.scene('rescue'), 'Rescue', [
+        fn: () => finish('rescue', ART.scene('rescue'), [
           'She is the whaler <i>Perseverance</i>, of New Bedford, three years out. Her captain, a lean Nantucket Quaker named Eli Swain, hears your story without a word, and then says only: "Thee had better come aboard."',
         ]),
       }],
@@ -147,6 +150,7 @@
 
   /** The castaway signs on with the mutineers, and shares their fate. */
   function signOn() {
+    G.recordTale('articles');
     endGame('ending');
     const text = [
       'You sign the articles with the rest of them, under a name that is not yours, and pull an oar out to the ship, and do not look back at the island.',
@@ -155,7 +159,7 @@
     ];
     if (S.flags.ally) text.splice(1, 0, 'Hollis would not come. The last you see of him he is standing in the surf with his spear, watching the boat go.');
     text.push(gainLine(`${S.day} days upon the island.`), '<p class="dateline">THE END</p>');
-    modal({ art: ART.scene('rescue'), title: 'The Articles', text, choices: [BEGIN_AGAIN] });
+    modal({ art: ART.scene('rescue'), title: G.ENDINGS.articles[0], text, choices: [BEGIN_AGAIN] });
   }
 
   /**
@@ -265,7 +269,7 @@
 
   /** Landfall in the Society Islands, and the end of the voyage. */
   function landfall() {
-    finish(ART.scene('landfall'), 'Landfall', [
+    finish('landfall', ART.scene('landfall'), [
       'On the eleventh day, gulls. Then a smudge on the horizon that does not move as clouds move.',
       'The people of the island wade out to meet you, laughing, and haul the raft up through the surf. You are in the Society Islands, they tell you, in a mixture of French, English and signs. A mission schooner calls at Papeete within the month.',
     ]);

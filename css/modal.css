@@ -84,6 +84,12 @@
   margin-top: 1.2em;
 }
 
+/* the endings found, in the ship's log */
+#modal-body p.endings {
+  text-align: center;
+  font-style: italic;
+}
+
 #modal-choices {
   margin-top: 12px;
 }

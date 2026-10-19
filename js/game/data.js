@@ -12,6 +12,9 @@
   /** Where the last castaway to die on the island is remembered, for the next to find. */
   G.REMAINS_KEY = 'driftwood-remains-v1';
 
+  /** Where the ship's log of every tale told is kept. */
+  G.RECORDS_KEY = 'driftwood-records-v1';
+
   /** Length of a day, in clock ticks (seconds). */
   G.DAY_LEN = 120;
 
@@ -193,6 +196,22 @@
     'The sun drops into the sea. Darkness.',
     'Night. The stars are strange here.',
   ];
+
+  /** The ways a tale can end well, or at least end: [title, a line for the ship's log]. */
+  G.ENDINGS = {
+    rescue: ['Rescue', 'taken off by the whaler <i>Perseverance</i>'],
+    landfall: ['Landfall', 'sailed the raft to the Society Islands'],
+    articles: ['The Articles', 'signed on with the mutineers'],
+  };
+
+  /** How each way of dying that isn't a creature reads in the ship's log. */
+  G.DEATH_NOTES = {
+    thirst: 'died of hunger and thirst',
+    cold: 'died of the cold',
+    fall: 'died of a fall',
+    fever: 'died of a fever',
+    storm: 'lost in a storm',
+  };
 
   /** Epitaphs for each way of dying that isn't a creature. */
   G.DEATHS = {
