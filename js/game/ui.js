@@ -144,12 +144,26 @@
     return b;
   };
 
-  /** Returns the persistent panel section for `key`: a heading, an optional note, and a row for buttons. */
+  /**
+   * Returns the persistent panel section for `key`: a heading, an optional
+   * note, and a row for buttons. The heading and note follow the latest
+   * call, as a section can change with where the castaway is.
+   */
   G.section = function (key, title, note) {
     let s = G.BTNS.get(`sec:${key}`);
     if (!s) {
-      s = el('div', 'section', `<h3>${title}</h3>${note ? `<p class="note">${note}</p>` : ''}<div class="btn-row"></div>`);
+      s = el('div', 'section', '<h3></h3><p class="note"></p><div class="btn-row"></div>');
       G.BTNS.set(`sec:${key}`, s);
+    }
+    if (s._title !== title) {
+      s._title = title;
+      s.querySelector('h3').innerHTML = title;
+    }
+    if (s._note !== (note || '')) {
+      s._note = note || '';
+      const p = s.querySelector('.note');
+      p.innerHTML = s._note;
+      p.style.display = s._note ? '' : 'none';
     }
     return s;
   };

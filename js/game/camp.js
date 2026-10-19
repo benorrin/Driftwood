@@ -72,11 +72,11 @@
     {
       id: 'comb', label: 'comb the beach', cd: 8,
       show: () => S.flags.fireLit,
-      run: comb,
+      run: () => (G.atHome() ? comb() : G.combIslet()),
     },
     {
       id: 'climb', label: 'climb a palm', cd: 12,
-      show: () => S.flags.climb,
+      show: () => S.flags.climb || !G.atHome(),
       enabled: () => !S.ail.ankle,
       note: () => (S.ail.ankle ? 'not on that ankle' : ''),
       run() {
@@ -96,7 +96,7 @@
     },
     {
       id: 'water', label: 'fetch water', cd: 15,
-      show: () => S.flags.spring,
+      show: () => S.flags.spring && G.atHome(),
       run() {
         AU.sfx('water');
         log(`You carry ${gain({ water: rand(3, 5) + (S.items.waterskin ? 2 : 0) })} back from the spring.`);
@@ -126,7 +126,7 @@
     },
     {
       id: 'fell', label: 'fell timber', cd: 10,
-      show: () => S.items.axe,
+      show: () => S.items.axe && G.atHome(),
       run() {
         AU.sfx('chop');
         log(`The stone axe bites slowly. ${cap(gain({ timber: rand(2, 3) }))}.`);
@@ -134,7 +134,7 @@
     },
     {
       id: 'salvage', label: 'salvage the wreck', cd: 25,
-      show: () => S.flags.wreckHold,
+      show: () => S.flags.wreckHold && G.atHome(),
       enabled: () => G.lowTide(),
       note: () => (G.lowTide() ? '' : 'wait for low water'),
       run() {
@@ -250,11 +250,12 @@
 
   /**
    * Things to make. Each gives resources (`gives`), a possession (`item`)
-   * or else a structure, of which at most `max` may be built.
+   * or else a structure, of which at most `max` may be built. Only those
+   * marked `anywhere` can be made away from the island.
    */
   G.RECIPES = [
     {
-      id: 'rope', label: 'twist rope', cost: { fibre: 3 }, gives: { rope: 1 },
+      id: 'rope', label: 'twist rope', cost: { fibre: 3 }, gives: { rope: 1 }, anywhere: true,
       show: () => S.seen.fibre,
       msg: 'You roll palm fibre against your thigh until it becomes rope.',
     },
@@ -294,7 +295,7 @@
       msg: 'Fish split and hung over a smoky fire will keep for weeks. The fish traps now feed you twice over.',
     },
     {
-      id: 'torch', label: 'torch', cost: { wood: 1, fibre: 2 }, gives: { torch: 1 },
+      id: 'torch', label: 'torch', cost: { wood: 1, fibre: 2 }, gives: { torch: 1 }, anywhere: true,
       show: () => S.flags.chart,
       msg: 'Fibre bound tight about a stick. It will burn an hour, perhaps.',
     },

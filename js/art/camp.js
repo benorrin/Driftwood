@@ -55,4 +55,40 @@
     top += `<g>${fire(305, 266, st.fire, 1)}</g>` + frame(W, H);
     return svg(W, H, b, top, 'The castaway\'s camp on the beach');
   };
+
+  /**
+   * Draws the islet of the second chapter in place of the camp: a hump of
+   * sand in the open sea, the castaway's own island far off to the east,
+   * and the wreck being patched on the sand. `st` has night, fire, boat
+   * (the parts patched) and ally.
+   */
+  DW.art.islet = function (st) {
+    const r = rng(17);
+    const W = 600;
+    const H = 300;
+    const hz = 140;
+
+    let b = sky(r, W, 0, hz, st.night);
+    b += st.night ? moon(120, 46, 15) + stars(r, W, hz - 20) : sun(130, 58, 16, true) + birds(r, 260, 50, 9, 160);
+    b += sea(r, W, hz, H, st.night);
+    // home, far to the east, and lower islands to the west
+    b += headland(r, 370, hz, 200, 26, 2) + headland(r, 24, hz, 56, 6, 1) + headland(r, 110, hz, 28, 4, 0);
+
+    // the islet, with the surf on its reef
+    const sand = 'M-10 300 C40 262 140 222 300 218 S540 244 610 300Z';
+    b += P(sand, 'url(#dots)', 1.2);
+    b += P('M0 262 q40 -14 70 -26 M540 238 q36 10 60 24', null, 0.7, 'stroke-dasharray="5 6"');
+    b += tufts(r, 380, 560, 262, 4);
+    b += palm(r, 470, 262, 130, -22, 0.85) + palm(r, 528, 266, 96, 16, 0.7);
+
+    // the wreck, patched as far as it has been
+    b += raft(70, 286, { hull: 1, mast: st.boat.mast, sail: st.boat.sail }, 0.85);
+    if (st.ally) b += sitter(372, 270, 1.05, -1, true);
+    b += sitter(292, 270, 1.1, 1);
+
+    let top = '';
+    if (st.night) top += darkness(W, H, 332, 256, st.fire ? 50 + st.fire * 32 : 0, 0.75);
+    top += `<g>${fire(332, 272, st.fire, 1)}</g>` + frame(W, H);
+    return svg(W, H, b, top, 'The castaway on a small islet, their island far off on the horizon');
+  };
 })();

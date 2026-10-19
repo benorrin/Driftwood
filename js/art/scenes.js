@@ -425,6 +425,27 @@
       return framed(b, 'A glowing light in the sea at night');
     },
 
+    /**
+     * The islet of the second chapter: a hump of sand and palms in the open
+     * sea, the castaway's island far off to the east. `opts.wreck` puts the
+     * broken raft on the reef in the foreground.
+     */
+    islet(opts) {
+      opts = opts || {};
+      const r = rng(171);
+      const hz = 112;
+      let b = seascape(r, hz) + headland(r, 430, hz, 150, 20, 2) + birds(r, 250, 40, 9, 150);
+      b += P('M170 196 C220 176 280 166 340 166 S470 178 520 196Z', 'url(#dots)', 1.2);
+      b += palm(r, 318, 170, 80, -14, 0.56) + palm(r, 364, 170, 64, 18, 0.46);
+      if (opts.wreck) {
+        // the reef's breakers, and the raft hung up on them with her mast snapped
+        b += P('M0 206 q40 -12 80 -4 q40 8 90 -4', null, 0.9, 'stroke-dasharray="6 5"');
+        b += `<g transform="rotate(-10 90 214)">${raft(30, 224, { hull: 1 }, 0.8)}</g>`;
+        b += P('M86 206 l8 -30 M94 176 l-22 -10', null, 2.4);
+      }
+      return framed(b, opts.wreck ? 'A broken raft on the reef of a small islet' : 'A small islet in the open sea, another island far off');
+    },
+
     /** The finished raft under sail on the open sea. */
     raft() {
       const r = rng(111);

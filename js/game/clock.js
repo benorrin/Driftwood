@@ -79,7 +79,7 @@
       log(pick(DAWNS));
     }
     if (hurt) damage(hurt, 'thirst');
-    else if (!fevered) heal(S.built.leanto ? 2 : 1);
+    else if (!fevered) heal(S.built.leanto && G.atHome() ? 2 : 1);
     if (S.ended) return;
     if (fevered && chance(FEVER_HARM)) {
       damage(1, 'fever');
@@ -111,8 +111,9 @@
         log(line, 'lore');
       }
     }
+    if (S.chapter >= 2) G.shiftWind();
     G.offerStay();
-    if (S.built.pyre && S.flags.trades && !S.flags.sailing) {
+    if (S.built.pyre && S.flags.trades && !S.flags.sailing && G.atHome()) {
       S.n.pyreDays++;
       if (chance(0.1 + S.n.pyreDays * 0.06)) G.sailSighted();
     }
@@ -128,17 +129,18 @@
     const text = [];
     const lines = [];
     if (S.fire === 0) {
-      if (!S.built.leanto) {
+      if (!S.built.leanto || !G.atHome()) {
         damage(1, 'cold');
         if (S.ended) return;
-        text.push('There is no fire, and no shelter. The cold finds you in the dark, and you lie shaking until dawn.', gainLine('You lose 1 health. Keep a fire burning at night, or build a lean-to.'));
+        text.push('There is no fire, and no shelter. The cold finds you in the dark, and you lie shaking until dawn.',
+          gainLine(`You lose 1 health. Keep a fire burning at night${G.atHome() ? ', or build a lean-to' : ''}.`));
         lines.push('The cold found you in the dark.');
       } else {
         log('You huddle under the lean-to. The night is long without a fire.');
       }
     }
 
-    if (S.flags.footprints && !S.flags.hollisDone) {
+    if (S.flags.footprints && !S.flags.hollisDone && G.atHome()) {
       if (S.fire >= 3) {
         log('Beyond the firelight, two eyes catch the glow — and are gone.', 'lore');
       } else if (S.res.food > 0) {
@@ -262,8 +264,10 @@
     if (!session.running || S.ended || modalOpen()) return;
     S.t++;
     tendFire();
-    if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));
-    if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
+    if (G.atHome()) {
+      if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));
+      if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
+    }
     if (S.flags.ally) {
       every('ally', 30, () => {
         const job = G.hollisJob();
@@ -276,7 +280,7 @@
       });
     }
     if (S.day > 1) every('event', EVENT_EVERY, () => chance(EVENT_CHANCE) && G.happening());
-    if (S.t === STORM_AT) G.stormCheck();
+    if (S.t === STORM_AT && G.atHome()) G.stormCheck();
     if (S.t === NIGHT_AT) nightfall();
     if (S.t >= DAY_LEN) {
       S.t = 0;

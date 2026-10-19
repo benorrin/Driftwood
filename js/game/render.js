@@ -9,21 +9,22 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX,
-    has, costText, builtCount, maxHealth, isNight, bumps, session, view,
+    S, $, el, RES, RES_ORDER, ITEMS, HOLLIS_JOBS, FIRE_NAMES, NIGHT_AT, CAMP_POS, LAUNCH_COST, LOG_MAX, WINDS, PATCH, SAIL_HOME,
+    has, costText, builtCount, maxHealth, isNight, atHome, bumps, session, view,
+    patchBoat, sailHome, boatMended, homewardBlocked,
     button, section, fill, ACTIONS, RECIPES, RAFT, LOCS,
     doAction, make, buildRaft, launch, expedition, knownLocs, blockedReason, scout, SCOUT_COST, darkness, tripCost,
   } = G;
 
   /* ---------------- the action panel ---------------- */
 
-  /** Whether recipe `rc` should be offered: shown, and not already owned or built to its limit. */
+  /** Whether recipe `rc` should be offered: shown, makeable here, and not already owned or built to its limit. */
   const recipeAvailable = (rc) =>
-    rc.show() && !(rc.item && S.items[rc.item]) && !(rc.max && builtCount(rc.id) >= rc.max);
+    rc.show() && (atHome() || rc.anywhere) && !(rc.item && S.items[rc.item]) && !(rc.max && builtCount(rc.id) >= rc.max);
 
   /** The beach tab's sections: the camp actions, and things to make. */
   function beachSections() {
-    const camp = section('camp', 'The Beach');
+    const camp = section('camp', atHome() ? 'The Beach' : 'The Islet');
     fill(camp.querySelector('.btn-row'), ACTIONS.filter((a) => a.show()).map((a) => {
       const enabled = (!a.cost || has(a.cost)) && (!a.enabled || a.enabled());
       const note = a.cost ? costText(a.cost) : (a.note && a.note()) || '';
@@ -74,8 +75,34 @@
     return [sec];
   }
 
+  /** The raft tab's section in the second chapter: patching the wreck, and the passage home. */
+  function boatSections() {
+    const name = S.boat.kind === 'canoe' ? 'The Canoe' : 'The Raft';
+    if (atHome()) {
+      const sec = section('raft', name, 'Patched, and drawn up above the tide line. With the wind behind her, she might reach the islands to the west.');
+      fill(sec.querySelector('.btn-row'), []);
+      return [sec];
+    }
+    const sec = section('raft', name, 'Broken on the reef. She will only ever run before the wind, so you must wait for a westerly to carry you home.');
+    const nodes = PATCH.filter((p) => !S.boat[p.id]).map((p) => {
+      const ready = !p.needs || S.boat[p.needs];
+      const sub = ready ? costText(p.cost) : `first: ${PATCH.find((q) => q.id === p.needs).label}`;
+      return button(`patch:${p.id}`, p.label, sub, ready && has(p.cost), () => {
+        patchBoat(p);
+        G.render();
+      }, p.note);
+    });
+    if (boatMended()) {
+      const why = homewardBlocked();
+      nodes.push(button('home', 'sail for home', why || costText(SAIL_HOME), !why && has(SAIL_HOME), sailHome));
+    }
+    fill(sec.querySelector('.btn-row'), nodes);
+    return [sec];
+  }
+
   /** The raft tab's section: the unbuilt parts and, once all are done, the launch. */
   function raftSections() {
+    if (S.chapter >= 2) return boatSections();
     const sec = section('raft', 'The Raft', 'Built from the Calliope\'s bones, to carry you over the horizon.');
     const nodes = RAFT.filter((p) => !S.raft[p.id]).map((p) => {
       const ready = !p.needs || S.raft[p.needs];
@@ -103,9 +130,9 @@
 
   /** Draws the tab bar, once there is more than one tab; unvisited tabs are marked new. */
   function renderTabs() {
-    const tabs = [['beach', 'The Beach']];
-    if (S.flags.chart) tabs.push(['chart', 'The Map']);
-    if (S.flags.raftPlans) tabs.push(['raft', 'The Raft']);
+    const tabs = [['beach', atHome() ? 'The Beach' : 'The Islet']];
+    if (S.flags.chart && atHome()) tabs.push(['chart', 'The Map']);
+    if (S.flags.raftPlans || S.chapter >= 2) tabs.push(['raft', S.boat.kind === 'canoe' ? 'The Canoe' : 'The Raft']);
     const nav = $('#tabs');
     if (tabs.length < 2) {
       nav.innerHTML = '';
@@ -142,14 +169,20 @@
     };
   }
 
-  /** Draws the map (on the map tab) or the camp, if it has changed since last drawn. */
+  /** What the islet picture depends on. */
+  function isletState() {
+    return { night: isNight(), fire: S.fire, boat: S.boat, ally: S.flags.ally };
+  }
+
+  /** Draws the map (on the map tab), the camp or the islet, if it has changed since last drawn. */
   function renderScene() {
     const chart = view.tab === 'chart';
-    const data = chart ? knownLocs() : campState();
-    const key = (chart ? 'chart' : 'camp') + JSON.stringify(data);
+    const kind = chart ? 'chart' : atHome() ? 'camp' : 'islet';
+    const data = chart ? knownLocs() : kind === 'camp' ? campState() : isletState();
+    const key = kind + JSON.stringify(data);
     if (key === view.sceneKey) return;
     view.sceneKey = key;
-    $('#scene').innerHTML = chart ? ART.chart(data, CAMP_POS) : ART.camp(data);
+    $('#scene').innerHTML = chart ? ART.chart(data, CAMP_POS) : ART[kind](data);
   }
 
   /* ---------------- the side columns ---------------- */
@@ -172,7 +205,8 @@
 
   /** Draws the clock, the castaway's health, and the fire. */
   function renderStatus() {
-    $('#clock').textContent = `Day ${S.day}, ${phase()}${G.tideKnown() ? `, ${G.lowTide() ? 'low' : 'high'} tide` : ''}`;
+    const wind = S.chapter >= 2 && S.wind ? `, ${WINDS[S.wind][0]}` : '';
+    $('#clock').textContent = `Day ${S.day}, ${phase()}${G.tideKnown() ? `, ${G.lowTide() ? 'low' : 'high'} tide` : ''}${wind}`;
     const hp = Math.max(0, S.health);
     const mh = maxHealth();
     $('#status').innerHTML =
@@ -200,6 +234,13 @@
     const items = Object.keys(ITEMS).filter((k) => S.items[k]).map((k) => row(ITEMS[k][0], null, ITEMS[k][1]));
 
     const built = [];
+    if (!atHome()) {
+      const patched = PATCH.filter((p) => S.boat[p.id]).length;
+      built.push(row(S.boat.kind === 'canoe' ? 'the canoe' : 'the raft', null, patched < PATCH.length ? `${patched} of ${PATCH.length} patched` : 'ready to sail'));
+      if (S.flags.ally) built.push(row('Tom Hollis', null, HOLLIS_JOBS[G.hollisJob()][1]));
+      $('#stores').innerHTML = list('Stores', res) + list('Possessions', items) + list('The Islet', built);
+      return;
+    }
     if (S.built.leanto) built.push(row('lean-to'));
     if (S.built.catcher) built.push(row('rain catchers', S.built.catcher));
     if (S.built.trap) built.push(row('fish traps', S.built.trap));

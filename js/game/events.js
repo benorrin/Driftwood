@@ -587,8 +587,10 @@
     },
   ];
 
-  /** Something happens around the camp, if anything can. */
-  G.happening = () => happen(AT_CAMP);
+  /** Something happens around the camp (or wherever the castaway is cast away), if anything can. */
+  G.happening = () => (G.atHome() ? happen(AT_CAMP) : G.awayHappening());
+
+  G.happen = happen;
 
   /** Things the tide brings in, found while combing the beach. Returns whether one turned up. */
   G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'lastRaft', 'parcel', 'crusoe', 'boot', 'turtle'].includes(e.id)));

@@ -47,9 +47,16 @@
       log: [],
       n: { comb: 0, salvage: 0, pyreDays: 0 },
       ticks: { catcher: 0, trap: 0, ally: 0, event: 0 },
+      chapter: 1,
+      isle: 'home',
+      wind: null,
+      boat: {},
       ended: false,
     };
   };
+
+  /** Whether the castaway is on their own island, where the camp is, rather than cast away from it. */
+  G.atHome = () => S.isle === 'home';
 
   /** Replaces the contents of the state with `next`, starting a new generation. */
   G.replaceState = function (next) {
@@ -197,6 +204,10 @@
     delete s.items.wilson;
     delete s.events.wilson;
     s.ticks.event = s.ticks.event || 0;
+    // saved before there were chapters
+    s.chapter = s.chapter || 1;
+    s.isle = s.isle || 'home';
+    s.boat = s.boat || {};
     return s;
   }
 
@@ -226,7 +237,9 @@
     r.tales++;
     r.best = Math.max(r.best, S.day);
     if (end !== 'death') r.found[end] = 1;
-    r.recent.unshift(cause ? { end, day: S.day, cause } : { end, day: S.day });
+    const t = cause ? { end, day: S.day, cause } : { end, day: S.day };
+    if (S.chapter > 1) t.chapter = S.chapter;
+    r.recent.unshift(t);
     r.recent.length = Math.min(r.recent.length, RECENT);
     storage.setJSON(RECORDS_KEY, r);
     G.taleAchievements(end, cause);
@@ -249,7 +262,8 @@
       if (n > 0) keep[k] = n;
     }
     storage.setJSON(REMAINS_KEY, {
-      day: S.day, cause, sea: !!S.flags.sailing, keep, bristow: !!S.items.bristow,
+      // dying away from the island, they can only come back to it on the tide
+      day: S.day, cause, sea: !!S.flags.sailing || !G.atHome(), keep, bristow: !!S.items.bristow,
     });
   };
 

@@ -262,7 +262,7 @@
       text: [text, 'Dawn comes up pale and still. Something grey moves beneath the logs.'],
       choices: [{
         label: 'take up your weapon',
-        fn: () => fight('shark', { canFlee: false, ally: S.flags.ally, onWin: landfall }),
+        fn: () => fight('shark', { canFlee: false, ally: S.flags.ally, onWin: () => G.wrecked('raft') }),
       }],
     });
   }
@@ -278,7 +278,7 @@
    * ashore, a roof overhead, the Calliope's dead buried, and the carved
    * figure not in their keeping.
    */
-  const atPeace = () => S.day >= STAY_DAY && S.built.leanto && S.flags.buried && !S.items.idol &&
+  const atPeace = () => G.atHome() && S.day >= STAY_DAY && S.built.leanto && S.flags.buried && !S.items.idol &&
     !S.flags.sailing && (!S.n.stayOffered || S.day - S.n.stayOffered >= STAY_AGAIN);
 
   /** The castaway stays, and grows old on the island. */
@@ -386,28 +386,33 @@
     if (short) damage(3, 'thirst');
     if (S.ended) return;
     modal({
-      art: ART.scene('landfall', { canoe: 1 }),
+      art: ART.scene('tempest'),
       title: 'Calm',
       text: [text, short
-        ? 'The last days are the worst of your life: no food, then no water, and the sun like a hammer. On the ninth morning you see land, and do not believe it.'
-        : 'Six more days of steady wind. On the ninth morning there is land ahead: a high green island, sheer-sided, with the surf breaking white at its foot.'],
-      choices: [{ label: 'make for the land', fn: pitcairn }],
+        ? 'The days after are the worst of your life: no food, then no water, and the sun like a hammer. On the fifth night you hear surf ahead in the dark, and do not believe it.'
+        : 'Two more days of steady wind. On the fifth night, running blind under a sky without stars, you hear surf ahead: close, and much too close.'],
+      choices: [{ label: 'put the helm over', fn: () => G.wrecked('canoe') }],
     });
   }
 
+  /*
+   * The voyages now end on the reef of the second chapter, and these
+   * landfalls wait for the ways off the archipelago.
+   */
+
   /** Landfall on Pitcairn's Island, among the children of another mutiny. */
-  function pitcairn() {
+  G.pitcairn = function () {
     finish('pitcairn', ART.scene('landfall', { canoe: 1 }), [
       'The people who come down the cliff path to meet you speak English, of a sort, and quote scripture, and their names are Christian, Young, Quintal and McCoy. Their grandfathers took the <i>Bounty</i>, they tell you, and burned her in the bay below.',
       'You laugh until you weep, and cannot explain why. They take you in all the same. In the spring a whaler calls for water, and carries you on to Valparaíso.',
     ]);
-  }
+  };
 
   /** Landfall in the Society Islands, and the end of the voyage. */
-  function landfall() {
+  G.landfall = function () {
     finish('landfall', ART.scene('landfall'), [
       'On the eleventh day, gulls. Then a smudge on the horizon that does not move as clouds move.',
       'The people of the island wade out to meet you, laughing, and haul the raft up through the surf. You are in the Society Islands, they tell you, in a mixture of French, English and signs. A mission schooner calls at Papeete within the month.',
     ]);
-  }
+  };
 })();

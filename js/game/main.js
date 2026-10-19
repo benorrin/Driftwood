@@ -75,7 +75,7 @@
     if (!saved) return;
     replaceState(saved);
     enterGame();
-    log('You return to the island. It has not forgotten you.');
+    log(G.atHome() ? 'You return to the island. It has not forgotten you.' : 'You return to the islet. The wind has not changed its mind.');
   }
 
   /** Shows the game screen for the current state, with fresh buttons and sounds to match. */
@@ -207,12 +207,13 @@
 
   /* ---------------- the ship's log ---------------- */
 
-  /** A tale in the ship's log, e.g. "Day 14: killed by the boar". */
+  /** A tale in the ship's log, e.g. "Day 14: killed by the boar", noting the chapter it reached past the first. */
   function taleLine(t) {
     const how = t.end === 'death'
       ? G.DEATH_NOTES[t.cause] || `killed by ${t.cause}`
       : G.ENDINGS[t.end][1];
-    return `<p><b class="sc">Day ${t.day}.</b> ${G.cap(how)}.</p>`;
+    const chapter = t.chapter ? `, ${G.CHAPTERS[t.chapter].toLowerCase()}` : '';
+    return `<p><b class="sc">Day ${t.day}${chapter}.</b> ${G.cap(how)}.</p>`;
   }
 
   /** Opens the record of every tale told in this browser, with the endings still to find hidden. */

@@ -62,6 +62,8 @@
     { id: 'pyre', kind: 'deed', name: 'A Great Fire', desc: 'Build the signal pyre on the summit.', test: () => S.built.pyre },
     { id: 'raft', kind: 'deed', name: 'Shipwright', desc: 'Finish the raft.', test: () => G.RAFT.every((p) => S.raft[p.id]) },
     { id: 'shark', kind: 'deed', name: 'A Bigger Raft', desc: 'Fight off the shark at sea.' },
+    { id: 'reef', kind: 'deed', name: 'The Reef', desc: 'Reach the second chapter.', test: () => S.chapter >= 2 },
+    { id: 'homeAgain', kind: 'deed', name: 'Home Waters', desc: 'Sail the patched boat home from the islet.', test: () => S.flags.homeAgain },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
     { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },
     { id: 'pitcairn', kind: 'deed', name: 'Another Mutiny', desc: 'Paddle the old canoe to Pitcairn\'s Island.' },

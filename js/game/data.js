@@ -126,6 +126,30 @@
    */
   G.TRADE_WINDS_DAY = 12;
 
+  /** The chapters of the tale, by number. */
+  G.CHAPTERS = { 1: 'The Island', 2: 'The Archipelago' };
+
+  /**
+   * The winds of the second chapter: [name in the clock, the line logged
+   * when it sets in]. A crude raft can only run before the wind, so the
+   * trades carry it west and only a westerly brings it back.
+   */
+  G.WINDS = {
+    trades: ['the trades', 'The wind is back in the south-east: the trades, steady and warm, blowing away from home.'],
+    westerly: ['a westerly', 'The wind has backed into the west in the night: a soft, gusty wind, blowing east. It will not last.'],
+    calm: ['a flat calm', 'There is no wind at all. The sea lies flat as oil under a white sky.'],
+  };
+
+  /** Patching the boat the reef broke, in order: like the raft, each part may need another first. */
+  G.PATCH = [
+    { id: 'lash', label: 're-lash the hull', cost: { wood: 8, rope: 4 }, note: 'what the reef left of her', msg: 'You drag the wreck up the sand and lash her together again with fresh rope, and stuff the gaps with weed. She is uglier than she was. She floats.' },
+    { id: 'mast', label: 'step a jury mast', cost: { wood: 8, rope: 2 }, needs: 'lash', note: 'a spar from the tide line', msg: 'The straightest spar on the islet, stepped and stayed. It will carry a sail if you do not ask too much of it.' },
+    { id: 'sail', label: 'patch the sail', cost: { cloth: 3, fibre: 4 }, needs: 'mast', note: 'canvas eked out with woven fibre', msg: 'Rags of canvas stitched to a mat of woven fibre. It is more hole than sail, but it will catch a wind.' },
+  ];
+
+  /** Supplies for the passage home from the islet, before a westerly. */
+  G.SAIL_HOME = { water: 3, food: 3 };
+
   /**
    * The island's creatures: hp, damage per hit, chance to hit, the verbs
    * of their attacks, the `tell` that warns of a heavy blow and the `heavy`
