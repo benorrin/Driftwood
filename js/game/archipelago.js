@@ -147,7 +147,7 @@
     },
     high: {
       name: 'The High Island', x: 120, y: 250, bearing: 'west', days: 3, stream: 1, palms: 1, timber: 1,
-      camp: [440, 212],
+      camp: [418, 198],
       land() {
         isleCard('spring', 'The High Island', [
           'She is the cloud-capped island you saw from the islet: steep, green, loud with water. A stream comes down out of the forest and spreads across the beach in a fan of little channels, and you lie down in it, all of you, and drink like a horse.',

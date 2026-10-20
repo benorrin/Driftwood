@@ -13,6 +13,9 @@
   const W = 600;
   const H = 340;
 
+  /** A paper halo behind lettering, so a name stays legible where it crosses a coast, a stream or the trees. */
+  const halo = () => `stroke="${pal.paper}" stroke-width="5" stroke-linejoin="round" paint-order="stroke"`;
+
   /** The island's outline, clockwise from the west. */
   const ISLAND = [
     [118, 192], [132, 150], [168, 128], [196, 98], [232, 72], [270, 58], [306, 52], [338, 66],
@@ -130,7 +133,7 @@
     const lx = anchor === 'end' ? 8 : anchor === 'start' ? -8 : 0;
     return `<g class="loc${blocked}" ${data || `data-loc="${l.id}"`} tabindex="0" role="button" aria-label="${l.name}" transform="translate(${l.x} ${l.y})">` +
       `<circle r="16" fill="transparent"/>${mark}` +
-      `<text x="${lx}" y="-11" text-anchor="${anchor}" font-size="13" font-style="italic" ${font} stroke="${pal.paper}" stroke-width="3" paint-order="stroke">${l.name}</text></g>`;
+      `<text x="${lx}" y="-11" text-anchor="${anchor}" font-size="13" font-style="italic" ${font} ${halo()}>${l.name}</text></g>`;
   }
 
   /** Little round trees in a clump about (x, y), `w` wide and `h` deep. */
@@ -227,7 +230,7 @@
       '<text x="18" y="48" font-size="12" font-style="italic">as observed by a Castaway, 1846</text>' +
       '<text x="510" y="78" font-size="10" font-style="italic">here be monsters</text></g>';
     top += at(camp[0], camp[1], 1, 1, P('M-7 4 L0 -8 L7 4 Z', pal.paper, 1.2) + P('M0 -8 V4', null, 0.8)) +
-      `<text x="${camp[0]}" y="${camp[1] + 18}" text-anchor="middle" font-size="12" font-style="italic" ${font}>Camp</text>`;
+      `<text x="${camp[0]}" y="${camp[1] + 18}" text-anchor="middle" font-size="12" font-style="italic" ${font} ${halo()}>Camp</text>`;
     locs.forEach((l) => {
       top += marker(l, font);
     });
@@ -315,12 +318,12 @@
 
     const homeMarker = { id: 'home', name: 'Your Island', x: hx, y: hy, visited: true, blocked: st.here === 'home' || st.homeBlocked };
     top += st.here === 'home'
-      ? `<text x="${hx}" y="${hy + 46}" text-anchor="middle" font-size="12" font-style="italic" ${font}>Your Island</text>`
+      ? `<text x="${hx}" y="${hy + 46}" text-anchor="middle" font-size="12" font-style="italic" ${font} ${halo()}>Your Island</text>`
       : marker(homeMarker, font, 'data-isle="home"');
     st.isles.forEach((l) => {
       top += st.here === 'home'
         ? marker(l, font, `data-isle="${l.id}"`)
-        : `<text x="${l.x}" y="${l.y - 14}" text-anchor="middle" font-size="12" font-style="italic" ${font} stroke="${pal.paper}" stroke-width="3" paint-order="stroke">${l.name}</text>`;
+        : `<text x="${l.x}" y="${l.y - 14}" text-anchor="middle" font-size="12" font-style="italic" ${font} ${halo()}>${l.name}</text>`;
     });
     top += frame(W, H);
     return svg(W, H, b, top, 'A hand-drawn chart of the archipelago');

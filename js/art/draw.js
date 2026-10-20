@@ -90,21 +90,28 @@
     return svg(SW, SH, body, (top || '') + frame(SW, SH), label);
   }
 
+  /** Whether `fill` is one of the hatch or stipple patterns, which are clear between their lines. */
+  const patterned = (fill) => !!fill && fill.startsWith('url(#') && fill !== 'url(#glow)';
+
   /**
    * A path in ink. `fill` defaults to none and `sw` (stroke width) to 1;
    * a width of 0 means no stroke. `extra` is appended as raw attributes and
    * may override the stroke colour, e.g. `stroke="…paper…"` for a highlight.
+   * A hatched or stippled fill is laid on paper, so the shape hides what is
+   * drawn behind it, as it would in an engraving.
    */
   function P(d, fill, sw, extra) {
     extra = extra || '';
     const stroke = /(^|\s)stroke="/.test(extra) ? '' : `stroke="${sw === 0 ? 'none' : pal.ink}" `;
-    return `<path d="${d}" fill="${fill || 'none'}" ${stroke}stroke-width="${sw == null ? 1 : sw}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
+    const under = patterned(fill) ? `<path d="${d}" fill="${pal.paper}" stroke="none"/>` : '';
+    return `${under}<path d="${d}" fill="${fill || 'none'}" ${stroke}stroke-width="${sw == null ? 1 : sw}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
   }
 
-  /** A circle filled with `fill`; given a stroke width `sw`, it is also outlined in ink. */
+  /** A circle filled with `fill` (on paper, if patterned); given a stroke width `sw`, it is also outlined in ink. */
   function circle(cx, cy, r, fill, sw) {
     const stroke = sw == null ? '' : ` stroke="${pal.ink}" stroke-width="${sw}"`;
-    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"${stroke}/>`;
+    const under = patterned(fill) ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${pal.paper}"/>` : '';
+    return `${under}<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"${stroke}/>`;
   }
 
   /** Places `body` in a group translated to (x, y) and scaled by (sx, sy). */

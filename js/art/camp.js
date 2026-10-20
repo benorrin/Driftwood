@@ -43,9 +43,10 @@
 
     // whatever has been built
     if (st.leanto) b += leanto(150, 272);
-    for (let i = 0; i < (st.catcher || 0); i++) b += catcher(372 + i * 44, 252 + (i % 2) * 6);
-    if (st.rack) b += rack(470, 290);
-    if (st.raftStarted) b += raft(176, 296, st.raft, 0.9);
+    for (let i = 0; i < (st.catcher || 0); i++) b += catcher(372 + i * 38, 252 + (i % 2) * 6);
+    // the rack stands in front of the catchers, and the raft is drawn up in front of the rocks, clear of the lean-to
+    if (st.rack) b += rack(380, 296);
+    if (st.raftStarted) b += raft(470, 298, st.raft, 0.9);
     if (st.ally) b += sitter(343, 266, 1.05, -1, true);
     if (st.jem) b += sitter(224, 270, 1.05, 1);
     b += sitter(266, 266, 1.1, 1);
@@ -116,7 +117,7 @@
         b += P(`M${hx - 14} 228 L${hx} 208 L${hx + 14} 228Z`, 'url(#h2)', 1) + P(`M${hx - 10} 228 V236 M${hx + 10} 228 V236`, null, 1);
         if (i % 2 === 0) b += P(`M${hx} 206 c-4 -10 4 -16 0 -28`, null, 0.8);
       }
-      b += P('M150 268 q50 10 100 0 l4 -6 q-54 8 -108 0Z', 'url(#h3)', 1) + P('M160 252 h80', null, 2);
+      b += P('M430 292 q50 10 100 0 l4 -6 q-54 8 -108 0Z', 'url(#h3)', 1) + P('M440 276 h80', null, 2);
     }
 
     // the wreck, patched as far as it has been

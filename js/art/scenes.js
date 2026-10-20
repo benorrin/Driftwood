@@ -150,6 +150,7 @@
       let b = seascape(r, 100, 150) + birds(r, 420, 40, 3, 60);
       b += rock(r, 120, 190, 280, 70) + rock(r, 470, 200, 300, 80) + rock(r, 300, 250, 420, 70);
       [[180, 205, 50], [400, 215, 64], [300, 230, 40]].forEach(([x, y, w]) => {
+        b += `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="${w * 0.22}" fill="${pal.paper}"/>`;
         b += `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="${w * 0.22}" fill="url(#hh)" stroke="${pal.ink}" stroke-width="1.2"/>`;
         b += `<ellipse cx="${x - w * 0.2}" cy="${y}" rx="${w * 0.3}" ry="${w * 0.06}" fill="none" stroke="${pal.paper}" stroke-width="1.5"/>`;
       });
