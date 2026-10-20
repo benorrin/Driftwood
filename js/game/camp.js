@@ -152,7 +152,11 @@
       run() {
         AU.sfx('page');
         S.n.read = (S.n.read || 0) + 1;
-        if (S.items.crusoe && chance(0.5)) log(`From Crusoe: "${pick(CRUSOE)}"`, 'lore');
+        // the first night's reading finds whose Bible it was
+        if (!S.flags.inscription) {
+          S.flags.inscription = 1;
+          log('On the front flyleaf, in faded brown ink: <i>To Josiah, from his loving Hannah. Bristol, 1821.</i> And under it: <i>They that go down to the sea in ships, that do business in great waters.</i> It is Captain Ashby\'s own Bible. You wonder how Mr Crane came to have it to give.', 'lore');
+        } else if (S.items.crusoe && chance(0.5)) log(`From Crusoe: "${pick(CRUSOE)}"`, 'lore');
         else log(`"${pick(VERSES)}"`, 'lore');
         heal(1);
       },

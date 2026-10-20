@@ -47,7 +47,8 @@
         ? 'With the journal goes his locket, the one from the drowned longboat. Months later a letter finds you, in a careful old hand: <i>Thank you. — M.H.</i>'
         : 'Hale\'s locket you send to Liverpool, to M.H., whoever she was. Months later a letter finds you, in a careful old hand: <i>Thank you.</i>');
     }
-    lines.push('In Valparaíso, months later, you give your testimony before the British consul. The <i>Meridian</i> was captured off Callao, and Mr Crane was hanged. You are asked if you have anything to add. You think of the surf, the fire, the long nights. "No," you say. "Nothing."');
+    lines.push('In Valparaíso, months later, you give your testimony before the British consul. The <i>Meridian</i> was taken off Callao, and her men are to be sent home to England in irons, and they say Mr Crane will hang. You are asked if you have anything to add. You think of the surf, the fire, the long nights. "No," you say. "Nothing."');
+    if (S.flags.drowned === 'buried') lines.push('You tell the consul about the drowned man in the steward\'s jacket, and where you buried him. He writes it down, and asks you the man\'s name, and you find that you know it.');
     if (S.items.parcel) lines.push('Then you walk up to the Calle de la Aduana with an oilcloth parcel under your arm, its seal of wings unbroken, and leave it on Mrs Morrow\'s doorstep. It was the one promise you made on the island, and you have kept it.');
     if (S.items.idol) lines.push('You never did take the little carved figure home. It sits on your mantel in Bristol, facing the wall. Every morning, it is facing the room.');
     lines.push(gainLine(`${S.day} days upon the island.`));

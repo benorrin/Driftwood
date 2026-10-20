@@ -176,6 +176,7 @@
         ['A deserter', 'Somebody is hiding out among the islands. If you can coax him out, he has a story to tell, one evening at a time.'],
         ['The canoe people', 'They still come back, once a moon, to the old stone platform. How they receive you depends on what you have done.'],
         ['The Meridian', 'She still comes back. But she no longer stops.'],
+        ['What the tide brings', 'In the first days on the island, the sea may give back something of the <i>Meridian</i>\'s that you would rather it had kept. And the captain\'s Bible has an inscription you may not have read.'],
         ['Pause', 'Press P, or pause at the top of the screen, and time on the island stands still until you come back.'],
         ['Bound for Valparaíso', 'The second chapter ends aboard a whaler. A castaway who sails in her is kept for the third chapter, which is still to be written.'],
       ],

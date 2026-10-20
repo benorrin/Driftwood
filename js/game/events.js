@@ -539,6 +539,39 @@
       run: () => log('Dolphins in the bay, leaping and blowing. For a while you forget where you are.'),
     },
     {
+      id: 'drowned', limit: 1, weight: 2,
+      when: () => S.chapter < 2 && S.day >= 2 && S.day <= 9 && !isNight(),
+      run() {
+        beachCard('The Drowned Man', [
+          'Something rolls in the shallows at the edge of the surf, and rolls again, and the tide leaves it on the sand: a man, face down, in a white jacket such as a captain\'s steward wears.',
+          'The sea and the fish have been at him for some days, and there is not much of his face left to know him by. Inside the collar, in marking ink, someone has written <i>MERIDIAN</i>. Round his neck is a black cord, such as a short-sighted man hangs his spectacles from. The spectacles are gone. The back of his head is broken, as if by the rocks.',
+          'He was alive when they rowed you ashore. You are almost sure of it.',
+        ], [
+          {
+            label: 'bury him above the tide line',
+            fn: () => {
+              S.flags.drowned = 'buried';
+              G.heal(1);
+              modal({
+                art: ART.scene('grave'),
+                title: 'The Drowned Man',
+                text: ['You drag him up above the wrack and bury him in the dry sand, deep, where the crabs will not come, and mark the place with a stone. You leave the cord round his neck. It seems to belong to him.'],
+                choices: [leave('return to camp', 'A drowned man of the Meridian came ashore in a steward\'s jacket, a spectacle cord round his neck. You buried him above the tide line.', 'lore')],
+              });
+            },
+          },
+          {
+            label: 'give him back to the sea',
+            fn: () => {
+              S.flags.drowned = 'sea';
+              beachCard('The Drowned Man', ['At the turn of the tide you wade out with him to the edge of the reef, and let the ebb take him. He goes out as quietly as he came in.'],
+                [leave('return to camp', 'A drowned man of the Meridian came ashore in a steward\'s jacket, a spectacle cord round his neck. You gave him back to the sea.', 'lore')]);
+            },
+          },
+        ]);
+      },
+    },
+    {
       id: 'boot', limit: 1,
       run: () => log('The tide brings in a sea-boot, cracked and empty. You do not like to think whose it was.'),
     },
@@ -558,6 +591,11 @@
       id: 'dream', limit: 2,
       when: () => isNight() && S.fire > 0,
       run: () => log('You doze by the fire and dream of Bristol: rain on slate roofs, the bakers in Broad Street, your mother at the door. You wake with wet cheeks.', 'lore'),
+    },
+    {
+      id: 'dreamBoat', limit: 1,
+      when: () => S.chapter < 2 && S.day >= 3 && isNight() && S.fire > 0,
+      run: () => log('You dream of the boat that brought you ashore: grey light, the knock of the oars, and the man at the bow oar weeping as he pulls, singing under his breath in a tongue that is not English. In the dream his hand goes to your jacket pocket. You wake with your own hand there.', 'lore'),
     },
     {
       id: 'groan', limit: 2,
@@ -608,7 +646,7 @@
   G.happen = happen;
 
   /** Things the tide brings in, found while combing the beach. Returns whether one turned up. */
-  G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'lastRaft', 'parcel', 'crusoe', 'boot', 'turtle'].includes(e.id)));
+  G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'lastRaft', 'parcel', 'drowned', 'crusoe', 'boot', 'turtle'].includes(e.id)));
 
   /* ---------------- while exploring ---------------- */
 

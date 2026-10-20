@@ -227,7 +227,7 @@
             G.done('hiLookout', [
               'It is a lookout: a cairn of stones with a spar lashed upright in it for a flagstaff, and a bed of fern in its lee. Somebody kept watch here, day and night, while the <i>Meridian</i> lay at the watering. Watching for what, you wonder. A sail coming after them?',
               'The spar is carved all over, the way bored men carve things on a long watch: initials, a dozen sets of them. <i>J.R.</i> <i>T.A.</i> Others you half know.',
-              'And below them, cut deeper than the rest, a circle with a dozen little round marks inside it. Every one of them has been gouged out black.',
+              'And below them, cut deeper than the rest, a circle with a dozen little round marks inside it. Every one of them has been gouged out black. Under the circle, smaller, is a word you cannot read: <i>MADDEUANT</i>.',
             ], null, 'At the Meridian\'s old lookout on the High Island, someone carved a circle of beans into the flagstaff, every one of them black.');
           },
           repeat: () => G.done('hiLookout', 'The spar still stands in its cairn. You do not look at the circle of beans for long.'),

@@ -35,7 +35,7 @@ The tale is told in chapters:
 
 1. **The Island.** Survive, learn the island's history, and get off it.
 2. **The Archipelago.** Your raft won't carry you home, but it will carry you between the islands nobody could see from the summit. Sail on the wind, meet the deserter who knows what really happened aboard the *Meridian*, and the people who tend the old stone platform, and make them a promise.
-3. **Valparaíso.** Still to be written. A castaway who sails for it is kept, ready for when it is.
+3. **The Whaler**, 4. **Valparaíso** and 5. **The Inquiry**, with a prologue and an epilogue. Still to be written. A castaway who sails for Valparaíso is kept, ready for when they are.
 
 <p align="center">
   <img src="docs/screenshot.png" alt="The game: a hand-engraved beach camp above a list of actions, with the log on the left and stores on the right" width="900">

@@ -94,7 +94,7 @@
       text: [
         'He is crouched by the stone, eating with both hands. When he sees you he does not run. He stares at you the way a man stares at a ghost.',
         quote('"You\'re dead," he says. "We put you ashore. You\'re meant to be dead."'),
-        'You know him, under the beard and the dirt: Jem Rudd, ordinary seaman, nineteen years old, off the Bristol docks, who could never keep his hat on in a blow.',
+        'You know him, under the beard and the dirt: Jem Rudd, ordinary seaman, nineteen years old, off the Bristol docks, who bit his nails to the quick and could never keep his hat on in a blow.',
       ],
       choices: [
         { label: 'sit down, slowly', fn: trusted },
@@ -157,14 +157,14 @@
     [[
       'Tonight, by the fire, Jem talks. He starts in the middle, the way frightened men do.',
       quote('"The <i>Ellen Grey</i>," he says. "You remember her."'),
-      'You do, now he says the name: a brig off the Horn, drifting under all plain sail with not a soul aboard, and the boat pulling across to her. After that, the weeks before the island run together like wet ink.',
-      quote('"Table laid in her cabin," Jem says. "Galley stove still warm. The boat came back with a crate."'),
+      'You do, now he says the name: a brig off the Horn, drifting under all plain sail with not a soul aboard, and the boat pulling across to her, with you at the tiller. After that, the weeks before the island run together like wet ink.',
+      quote('"You saw her cabin," Jem says. "Table laid. Galley stove still warm. And you brought the crate back across yourself."'),
       quote('"Lead-sealed, it was, and heavy as sin. <i>MORROW</i> painted on it. The old man had it swung across and stowed under his own cabin. He reckoned it was treasure. Lima gold, he said. He\'d heard the stories."'),
     ], 'Off the Horn the Meridian found the brig Ellen Grey adrift with no one aboard, and Ashby took a crate from her hold, marked MORROW.'],
     [[
       quote('"After that, there wasn\'t a breath of wind for nineteen days," Jem says. "Not a breath. The water went green in the casks. Then Will Abel went over the side on a clear night with the sea like glass, and nobody heard him go."'),
-      quote('"And then the corposants. Blue fire, on every yard, all night, and not a cloud. The men said there was a Jonah aboard. The men said it was the crate. They went aft to the old man and asked him to put it over the side, and he said he\'d hang the first man who touched it."'),
-    ], 'After the crate came aboard: nineteen days of calm, Will Abel lost overboard, and St Elmo\'s fire on the yards. Ashby would not give the crate up.'],
+      quote('"And then the corposants. Blue fire, on every yard, all night, and not a cloud. The men said there was a Jonah aboard. The men said it was the crate. You went aft with them, and you did the asking: over the side with it, sir, or we\'ll put it there ourselves. And he said he\'d hang the first man who touched it."'),
+    ], 'After the crate came aboard: nineteen days of calm, Will Abel lost overboard, and St Elmo\'s fire on the yards. You asked Ashby to put the crate over the side, and he would not.'],
     [[
       'Jem is a long while starting tonight. He keeps his eyes on the fire.',
       quote('"Me and Tom Abel opened it. Will\'s brother. Tom said if it was gold we\'d have a fistful each and nobody the wiser, and if it wasn\'t, we\'d know. So we went down in the middle watch with a bar, and we got the lid off."'),
@@ -176,6 +176,7 @@
       quote('"The night they took the ship, they cast lots for the Jonah. The old man had forbidden it, so they took the ship first. I held the hat. Beans in it, white for clear and one black for the Jonah. And you drew first."'),
       'He is quiet a while.',
       ...(S.items.bean ? ['Without meaning to, you put your hand to your jacket pocket, and feel the bean in the lining, small and hard.'] : []),
+      'Something comes back to you, just for a moment: a hand on your shoulder, and a voice close to your ear, saying something kind. Then it is gone, and the back of your head aches where it has always ached.',
       quote('"Every bean in that hat was black. I know, because I put them in. I was told to. You were always going to draw it." He will not say who told him. "Not here," he says, and looks out at the dark water. "He\'d know."'),
     ], 'The night of the mutiny the crew cast lots for a Jonah, and the lot fell to you. Jem held the hat: every bean was black. Someone made sure of it.'],
     [[
