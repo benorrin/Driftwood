@@ -98,10 +98,11 @@
 
   G.enterGame = enterGame;
 
-  /** Plays the opening, after the prologue if this browser has never seen it. */
+  /** Plays the opening. The prologue is switched off for now. */
   function opening() {
-    if (G.prologueSeen()) playIntro();
-    else G.playPrologue(playIntro);
+    // if (G.prologueSeen()) playIntro();
+    // else G.playPrologue(playIntro);
+    playIntro();
   }
 
   /** Starts a new game, first asking before overwriting a saved one. */
@@ -176,7 +177,8 @@
     {
       date: '21 October 2026',
       items: [
-        ['A prologue', 'Twenty years before you, a Liverpool brig struck the same reef. Before your first tale you hear how, from her cabin boy.'],
+        // the prologue is switched off for now
+        // ['A prologue', 'Twenty years before you, a Liverpool brig struck the same reef. Before your first tale you hear how, from her cabin boy.'],
         ['Chapter Two', 'The raft was never going to get you home. Where she does get you is the beginning of a second chapter: an archipelago of islands nobody could see from the summit, a chart of them, and a patched boat that only runs before the wind.'],
         ['The wind', 'The trades, a westerly, or a flat calm, shifting every dawn. Fit your boat with leeboards, casks and an outrigger to go further, and in more weathers.'],
         ['Loading', 'Before you put to sea, choose what to take aboard, up to what your boat will carry. Everything else stays at the camp, and will be there when you get back, less what the gulls have had.'],
