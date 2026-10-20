@@ -84,6 +84,7 @@ html[data-mono] #tabs button {
 }
 
 html[data-mono] #modal-body p.quote,
+html[data-mono] #intro-text p.quote,
 html[data-mono] #log p.lore {
   font-style: normal;
 }

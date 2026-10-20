@@ -90,8 +90,23 @@
 .intro-buttons {
   margin-top: 1em;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+}
+
+.intro-choices {
+  display: contents;
+}
+
+/* the prologue's pictures */
+.intro-art {
+  width: 100%;
+  margin: 0 0 1.4em;
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+  animation: fadein 2.2s ease both;
 }
 
 /* ---------- credit ---------- */

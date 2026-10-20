@@ -31,11 +31,13 @@ You were bosun's mate aboard the barque *Meridian*, out of Bristol and bound for
 
 Gather driftwood. Keep the fire alive. Explore the island and learn what happened to the brig *Calliope*, wrecked on the same reef twenty years before you. Then find a way home.
 
-The tale is told in chapters:
+The tale is told in chapters, after a prologue:
+
+- **Prologue: the *Calliope*.** 1826, the night a Liverpool brig strikes the reef, told by her fourteen-year-old cabin boy. A short telling before your first tale, and from the title screen after.
 
 1. **The Island.** Survive, learn the island's history, and get off it.
 2. **The Archipelago.** Your raft won't carry you home, but it will carry you between the islands nobody could see from the summit. Sail on the wind, meet the deserter who knows what really happened aboard the *Meridian*, and the people who tend the old stone platform, and make them a promise.
-3. **The Whaler**, 4. **Valparaíso** and 5. **The Inquiry**, with a prologue and an epilogue. Still to be written. A castaway who sails for Valparaíso is kept, ready for when they are.
+3. **The Whaler**, 4. **Valparaíso** and 5. **The Inquiry**, and an epilogue. Still to be written. A castaway who sails for Valparaíso is kept, ready for when they are.
 
 <p align="center">
   <img src="docs/screenshot.png" alt="The game: a hand-engraved beach camp above a list of actions, with the log on the left and stores on the right" width="900">
@@ -104,7 +106,7 @@ The game has **no asset files at all.** Everything you see and hear is generated
 |---|---|
 | [`js/art/`](js/art) | Draws every illustration as SVG in code, in the manner of a 19th-century wood engraving: hatching, stipple and ink line, roughened with an SVG displacement filter so nothing is quite ruler-straight. `draw.js` holds the palette and SVG helpers; `nature.js` and `objects.js` draw the parts; `camp.js`, `chart.js`, `scenes.js` and `foes.js` compose the pictures. |
 | [`js/audio/`](js/audio) | Synthesises all the sound with the Web Audio API: breaking surf, a crackling fire (`ambience.js`), an original fiddle lament in D dorian and a heartbeat drum for fights (`music.js`), ship's bells at dawn and every sound effect (`effects.js`), all built on the engine in `synth.js`. |
-| [`js/game/`](js/game) | The game itself: state, saving and the ship's log (`state.js`), achievements (`achievements.js`), camp actions and crafting (`camp.js`), the clock (`clock.js`), exploration (`locations.js`, `story.js`), random happenings (`events.js`), combat (`combat.js`), endings (`endings.js`), and drawing the screen (`ui.js`, `render.js`). The second chapter: the islands (`archipelago.js`), sailing and the wind (`sea.js`), the deserter (`jem.js`), the people of the Island of Fires (`islanders.js`), and the chapter's end (`perseverance.js`). `main.js` starts it all. |
+| [`js/game/`](js/game) | The game itself: state, saving and the ship's log (`state.js`), achievements (`achievements.js`), camp actions and crafting (`camp.js`), the clock (`clock.js`), exploration (`locations.js`, `story.js`), random happenings (`events.js`), combat (`combat.js`), endings (`endings.js`), and drawing the screen (`ui.js`, `render.js`). The second chapter: the islands (`archipelago.js`), sailing and the wind (`sea.js`), the deserter (`jem.js`), the people of the Island of Fires (`islanders.js`), and the chapter's end (`perseverance.js`). The prologue, aboard the *Calliope* in 1826, is `prologue.js`. `main.js` starts it all. |
 | [`js/styles.js`](js/styles.js) | The visual style palettes. |
 | [`js/core.js`](js/core.js) | The shared `DW` namespace and safe `localStorage` helpers. |
 | [`css/`](css) | Layout (`base.css`, `screens.css`, `game.css`, `modal.css`) and the screen effects of the visual styles (`themes.css`). |

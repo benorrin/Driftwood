@@ -60,7 +60,8 @@
   margin: 0 0 0.8em;
 }
 
-#modal-body p.quote {
+#modal-body p.quote,
+#intro-text p.quote {
   font-style: italic;
   padding-left: 1em;
   border-left: 2px solid var(--rule);
