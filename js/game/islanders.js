@@ -90,13 +90,14 @@
 
   /**
    * How well they think of the castaway, from what the castaway has done:
-   * the carved figure given back or still carried; the dead buried; Hollis,
+   * the carved figure given back, left in its cleft, or still carried; the dead buried; Hollis,
    * whose fires they have watched for twenty years; and goodwill earned by
    * gifts and patience.
    */
   function standing() {
     let n = S.n.goodwill || 0;
     if (S.flags.idolReturned || S.flags.idolGiven) n += 2;
+    else if (S.flags.idolLeft) n += 1;
     if (S.items.idol) n -= 2;
     if (S.flags.buried) n += 1;
     if (S.flags.buriedStranger) n += 1;
@@ -207,6 +208,7 @@
       'The old woman on the top step is Tavake. She does not come down. You are called up, and she speaks, and Tupa puts it into English as he goes, leaving out what he cannot.',
     );
     if (S.flags.idolGiven) text.push('She is still holding the little figure you gave her. She sets it on the step beside the empty plinth, facing the sea.');
+    else if (S.flags.idolLeft && !S.items.idol) text.push('Tupa tells you, as if it were nothing, that they know of a small figure in a cleft of the rock below the platform. Somebody found it, and left it where it was. Tavake nods at you once.');
     modal({ art: marae(), title: 'Tupa and Tavake', text, choices: [{ label: 'listen', fn: etua }] });
   }
 

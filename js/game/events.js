@@ -728,7 +728,14 @@
                 closeModal();
               },
             },
-            leave('leave it where it is', 'You leave the figure in its cleft, and feel its eyes on your back all the way home.'),
+            {
+              label: 'leave it where it is',
+              fn: () => {
+                S.flags.idolLeft = 1;
+                log('You leave the figure in its cleft, and feel its eyes on your back all the way home.');
+                closeModal();
+              },
+            },
           ],
         });
       },

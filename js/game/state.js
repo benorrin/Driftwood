@@ -230,6 +230,8 @@
     if (s.landed && s.landed.rock) been(['brCleft', 'brLedges']);
     if (s.landed && s.landed.smoke) been(['ifVillage', 'ifSheds', 'ifTavake']);
     if (s.flags.whalerKnown) been(['ifAnchorage']);
+    // saved before leaving the carved figure in its cleft was remembered: found, and neither kept, returned, given nor thrown
+    if (s.events.idol && !s.items.idol && !s.flags.idolReturned && !s.flags.idolGiven && !s.flags.idolThrown) s.flags.idolLeft = 1;
     return s;
   }
 
