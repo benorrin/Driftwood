@@ -31,12 +31,15 @@
 
   /* ---------------- building a tale at a point in the story ---------------- */
 
-  /** Every place on island `isle`'s map (the home island's by default), found and visited once. */
+  /**
+   * Every place on island `isle`'s map (the home island's by default),
+   * found but not yet visited, so that each first visit still does what it
+   * does in play: charts the next island, sets the flags the story reads.
+   */
   function mapAll(s, isle) {
     const locs = isle && isle !== 'home' ? G.ISLES[isle].locs || {} : G.LOCS;
     Object.keys(locs).forEach((id) => {
       s.mapped[id] = 1;
-      s.visits[id] = s.visits[id] || 1;
     });
   }
 

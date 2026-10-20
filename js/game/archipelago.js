@@ -216,7 +216,13 @@
           sighted: 'Above the forest, a ridge of bare rock runs along the island\'s spine. From up there you could see everything.',
           sees: [['hiLookout', 1, 'Out on the western headland, below you, a heap of stones too regular to be natural, and a pole standing up from it.']],
           first: highRidge,
-          repeat: () => G.done('hiRidge', 'You can see the whole archipelago from here: your island, the islet, the Bird Rock, and far to the south, the smoke of the Island of Fires.'),
+          repeat: () => {
+            // whatever was seen from here is on the chart, however the castaway first came up
+            const charting = !S.charted.smoke;
+            S.charted.smoke = 1;
+            G.done('hiRidge', ['You can see the whole archipelago from here: your island, the islet, the Bird Rock, and far to the south, the smoke of the Island of Fires.']
+              .concat(charting ? [gainLine('You mark the Island of Fires on your chart.')] : []));
+          },
         },
         hiLookout: {
           name: 'The Old Lookout', x: 172, y: 170, cost: { water: 1, food: 1 }, time: 6, art: 'lookout',
@@ -303,7 +309,12 @@
           clue: 'Behind the old wreck, steps go up the rock: cut by hand. They are slick with droppings, and you do not trust them yet.',
           sighted: 'Behind the wreck, steps cut by hand go up to the top of the rock.',
           first: salemMessage,
-          repeat: () => G.done('brTop', 'The wind is never still up here. The words in the rock are wearing away.'),
+          repeat: () => {
+            const charting = !S.charted.sandbar;
+            S.charted.sandbar = 1;
+            G.done('brTop', ['The wind is never still up here. The words in the rock are wearing away.']
+              .concat(charting ? ['To the north, a line of white water where there should be nothing: a sandbar.', gainLine('You mark the Sandbar on your chart.')] : []));
+          },
         },
       },
       trail: [
