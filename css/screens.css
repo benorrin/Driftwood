@@ -87,6 +87,33 @@
   letter-spacing: 0.08em;
 }
 
+/* the card that announces each chapter */
+.chapter-card {
+  text-align: center;
+  margin: 0 0 2em;
+}
+
+#intro-text .chapter-card p {
+  margin: 0;
+}
+
+#intro-text .chapter-card .chapter-no {
+  font-family: var(--font-sc);
+  font-size: 1em;
+  letter-spacing: 0.3em;
+  color: var(--faint);
+}
+
+#intro-text .chapter-card .chapter-name {
+  font-size: 2.4em;
+  margin-top: 0.2em;
+  animation-delay: 0.8s;
+}
+
+#intro:has(.chapter-card) .intro-buttons {
+  justify-content: center;
+}
+
 .intro-buttons {
   margin-top: 1em;
   display: flex;

@@ -50,6 +50,35 @@
     if (first) first.focus({ preventScroll: true });
   };
 
+  /* ---------------- the chapter card ---------------- */
+
+  /** Chapter numbers in words, for the chapter cards. */
+  const CHAPTER_WORDS = { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five' };
+
+  /**
+   * Announces chapter `n` on the intro screen, its number and its name
+   * alone, then calls `done`. The clock stands still while it shows.
+   */
+  G.chapterCard = function (n, done) {
+    const box = $('#intro-text');
+    const next = $('#btn-intro-next');
+    const skip = $('#btn-intro-skip');
+    G.session.running = false;
+    ['#title-screen', '#game'].forEach((s) => $(s).classList.add('hidden'));
+    $('#intro').classList.remove('hidden');
+    window.scrollTo(0, 0);
+    box.innerHTML = `<div class="chapter-card"><p class="chapter-no">Chapter ${CHAPTER_WORDS[n]}</p><p class="chapter-name">${G.CHAPTERS[n]}</p></div>`;
+    skip.classList.add('hidden');
+    next.querySelector('span').textContent = 'begin';
+    AU.sfx('page');
+    next.onclick = () => {
+      skip.classList.remove('hidden');
+      box.innerHTML = '';
+      done();
+    };
+    next.focus({ preventScroll: true });
+  };
+
   /** Whether a notice (the modal card) is open. The clock stands still while one is. */
   G.modalOpen = () => !$('#modal').classList.contains('hidden');
 

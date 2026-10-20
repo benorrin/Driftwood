@@ -47,8 +47,6 @@
       {
         art: 'rescue', mood: 'calm',
         text: [
-          '<p class="dateline">Chapter Three</p>',
-          '<p class="dateline">The Whaler</p>',
           'The <i>Perseverance</i>, of New Bedford, is three years out and deep with oil. She is bound for Valparaíso to ship it home, two thousand four hundred miles to the east and south, and she will lower for whales on the way if whales are offered.',
           'Your island goes down astern on the first evening. You watch it from the taffrail until it is a cloud, and then until it is nothing.',
         ],
@@ -616,13 +614,13 @@
     if (!carry || carry.chapter !== 3) return;
     G.clearSave();
     G.replaceState(G.whalerState(carry));
-    G.playPages(G.whalerOpening(), () => {
+    G.chapterCard(3, () => G.playPages(G.whalerOpening(), () => {
       G.enterGame();
       log(`Day ${S.day}`, 'day');
       log('You wake in a hammock, in a fo\'c\'sle that stinks of oil and tobacco and men, and for a moment you do not know where you are.');
       log('The <i>Perseverance</i> is two thousand four hundred miles from Valparaíso.', 'lore');
       log('The forenoon watch is called. Your watch on deck.');
       save();
-    });
+    }));
   };
 })();

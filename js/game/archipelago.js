@@ -10,7 +10,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, rand, chance, pick, cap, gainLine, quote, RES, RES_ORDER, view,
+    S, $, rand, chance, pick, cap, gainLine, quote, RES, RES_ORDER, view, session,
     add, gain, log, save, isNight, modal, closeModal, leave,
   } = G;
 
@@ -80,7 +80,18 @@
       art: ART.scene('islet', { wreck: 1 }),
       title: 'The Reef',
       text,
-      choices: [{ label: 'climb the islet', fn: chapterTwo }],
+      choices: [{
+        label: 'climb the islet',
+        fn: () => {
+          closeModal();
+          G.chapterCard(2, () => {
+            $('#intro').classList.add('hidden');
+            $('#game').classList.remove('hidden');
+            session.running = true;
+            chapterTwo();
+          });
+        },
+      }],
     });
     save();
   };
@@ -91,9 +102,8 @@
     S.charted.high = 1;
     modal({
       art: ART.scene('islet'),
-      title: 'Chapter Two',
+      title: 'The Islet',
       text: [
-        '<p class="dateline">The Archipelago</p>',
         'You climb to the highest point of the islet, which is not high, and turn slowly about.',
         'To the east, low and blue on the horizon, lies a long hump of land with a peak at its northern end. You would know it anywhere. It is your island, and the wind is blowing the wrong way.',
         'And to the south and west, where you had thought there was only sea, there are more: low smudges of palms on the horizon, too low ever to show from the summit, and one high island to the south-west with a cloud sitting on its peak that never moves away. A cloud like that means rain, and rain means water. You were never alone out here. You only could not see.',
