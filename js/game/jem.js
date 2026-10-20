@@ -169,7 +169,7 @@
       'Jem is a long while starting tonight. He keeps his eyes on the fire.',
       quote('"Me and Tom Abel opened it. Will\'s brother. Tom said if it was gold we\'d have a fistful each and nobody the wiser, and if it wasn\'t, we\'d know. So we went down in the middle watch with a bar, and we got the lid off."'),
       quote('"It wasn\'t gold. There was straw, and in the straw, a face. Black stone, with eyes of shell. Looking up. Not at us. Past us. Like it was waiting for somebody."'),
-      quote('"Tom was took sick the next night. Four days, and he was dead. We buried him at the watering. I ran."'),
+      quote('"Tom was took sick the next night. Four days, and he was dead. Old Marsh sewed him into his hammock, deaf as a post and crying like a child, and we buried him at the watering. I ran."'),
     ], 'Jem and Tom Abel opened the crate. Inside was a figure of black stone with eyes of shell. Tom sickened and died; he lies on the High Island.'],
     [() => [
       quote('"You don\'t remember the lots," Jem says. It is not a question.'),

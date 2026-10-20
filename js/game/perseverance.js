@@ -130,7 +130,7 @@
         ]
         : [
           'You ask Hollis if he will come. He looks at the ship a long time.',
-          quote('"Twenty years," he says. "I\'d like to see a city before I die. And I\'d like to see what\'s become of England. And I\'d like," he says, "to see Mr Crane\'s face."'),
+          quote('"Twenty years," he says. "I\'d like to see a city before I die. And Liverpool, if it\'s still there. There was a house in Paradise Street." He does not say who was in it.'),
         ]),
       choices: [{ label: 'go on', fn: farewellJem }],
     });

@@ -392,6 +392,8 @@
           'Somebody\'s grandmother gives you breadfruit baked in the ashes, and watches you eat it.',
           'The children have made a raft of sticks, and are sailing it on a puddle, and wrecking it, over and over, and laughing.',
           'Tupa\'s mother asks, through Tupa, whether you have a wife. You say no. She looks at you with deep pity.',
+          'Two old men argue on the beach half the afternoon. About the whalers, Tupa says: whether water and wood are worth the young men the ships take away for years. Tupa, who went, says nothing, and mends a net.',
+          'There is a man who will not sit near you at the fire. His brother went away on a whaler and did not come back. Tupa says it is nothing to do with you. You are not sure he is right.',
         ]), { food: 2 }),
       },
       ifSheds: {

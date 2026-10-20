@@ -228,9 +228,9 @@
               'It is a lookout: a cairn of stones with a spar lashed upright in it for a flagstaff, and a bed of fern in its lee. Somebody kept watch here, day and night, while the <i>Meridian</i> lay at the watering. Watching for what, you wonder. A sail coming after them?',
               'The spar is carved all over, the way bored men carve things on a long watch: initials, a dozen sets of them. <i>J.R.</i> <i>T.A.</i> Others you half know.',
               'And below them, cut deeper than the rest, a circle with a dozen little round marks inside it. Every one of them has been gouged out black. Under the circle, smaller, is a word you cannot read: <i>MADDEUANT</i>.',
-            ], null, 'At the Meridian\'s old lookout on the High Island, someone carved a circle of beans into the flagstaff, every one of them black.');
+            ].concat(lookoutJem()), null, 'At the Meridian\'s old lookout on the High Island, someone carved a circle of beans into the flagstaff, every one of them black.');
           },
-          repeat: () => G.done('hiLookout', 'The spar still stands in its cairn. You do not look at the circle of beans for long.'),
+          repeat: () => G.done('hiLookout', ['The spar still stands in its cairn. You do not look at the circle of beans for long.'].concat(lookoutJem())),
         },
       },
       trail: [
@@ -381,6 +381,16 @@
 
   /** The island the castaway is on, or null at home. */
   G.isle = () => ISLES[S.isle] || null;
+
+  /** What Jem says at the lookout, the first time he is there with the castaway: as little as he can. */
+  function lookoutJem() {
+    if (!G.withJem() || S.flags.lookoutJem) return [];
+    S.flags.lookoutJem = 1;
+    return [
+      'Jem will not come up to the cairn. He stands off in the grass, looking at the word under the beans, and looking away.',
+      quote('"Whose watch was it?" you ask him. "Everybody\'s," he says. "Mine, some nights." That is all he will say, and he says it too quickly.'),
+    ];
+  }
 
   /** The Meridian's old watering camp on the High Island, and the wreck of a letter. */
   function meridianCamp() {
