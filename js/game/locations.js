@@ -8,7 +8,7 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, $, el, rand, chance, pick, gainLine, CAMP_POS, CANOE, CANOE_LAUNCH,
+    S, $, el, rand, chance, pick, gainLine, CAMP_POS, CANOE,
     has, pay, costText, gain, log, damage, heal, save, session, isNight,
     modal, leave, fight, armed, done, wreck, journal, hut,
   } = G;
@@ -256,7 +256,6 @@
 
     hut: {
       name: "The Wild Man's Hut", x: 420, y: 124, cost: { water: 1, food: 1 }, time: 6, art: 'hut',
-      gone: () => S.flags.hollisDone,
       first: hut,
       repeat: hut,
     },
@@ -322,7 +321,8 @@
           choices.push({ label: 'work on the canoe', fn: canoeWork });
         } else {
           text.push('The canoe sits at the water\'s edge, mended and rigged, nodding at the swell as if impatient to be off.');
-          choices.push({ label: 'put to sea in the canoe', cost: CANOE_LAUNCH, fn: G.launchCanoe });
+          if (has(G.CANOE_LAUNCH)) choices.push({ label: 'load the canoe', fn: G.launchCanoe });
+          else text.push(`For the voyage she will want ${costText(G.CANOE_LAUNCH)} at the least.`);
         }
         choices.push(leave('return to camp'));
         modal({ art: ART.scene('lagoon'), title: 'The Lagoon', text: text.concat(G.sightings('lagoon')), choices });
@@ -403,10 +403,12 @@
       sighted: 'North of the jungle, swallowed by vines, the ground rises in steps: a great platform of fitted black stones, with upright slabs along its top.',
       blocked: requires('axe', 'the vines are too thick without an axe'),
       first() {
-        done('platform', 'It is a temple platform, of the kind the missionaries call a <i>marae</i>: the work of the people whose canoe lies by the lagoon, perhaps. Long abandoned, its upright stones still face the sea. You take nothing, and leave as quietly as you came.',
-          null, 'Long before any European ship, this island had its own people, and its own gods.');
+        if (G.maraeVisited()) return;
+        done('platform', 'It is a temple platform, of the kind the missionaries call a <i>marae</i>: the work of the people whose canoe lies by the lagoon, perhaps. Long abandoned, its upright stones still face the sea, each standing on a plinth of its own. In the middle of the row one plinth stands empty, its top worn smooth where something rested for a very long time. You take nothing, and leave as quietly as you came.',
+          null, 'Long before any European ship, this island had its own people, and its own gods. One of them is missing from the marae.');
       },
       repeat() {
+        if (G.maraeVisited()) return;
         if (S.items.idol) {
           modal({
             art: ART.scene('platform'),
@@ -425,7 +427,16 @@
           return;
         }
         heal(1);
-        done('platform', pick(['You sit a while on the lowest step. It is the most peaceful place on the island.', 'Someone has laid a ring of white shells on the top step. Hollis, you suppose.']), null);
+        if (!S.flags.shells && S.visits.platform > 2) {
+          // the islanders still tend the marae, unseen
+          S.flags.shells = 1;
+          done('platform', S.flags.ally
+            ? 'Someone has laid a ring of white shells around the empty plinth, fresh from the sea. You ask Hollis about it that night. "Not me," he says. "They come every year, about this time. I\'ve never seen who." He will not go up the steps.'
+            : 'Someone has laid a ring of white shells around the empty plinth. They are fresh from the sea, still wet, and they were not there before.', null,
+          'Someone has laid fresh shells around the empty plinth on the marae. Not you, and not Hollis.');
+          return;
+        }
+        done('platform', 'You sit a while on the lowest step, below the empty plinth. It is the most peaceful place on the island.', null);
       },
     },
   });
@@ -504,13 +515,16 @@
   const CLUE_CHANCE = 0.6;
   const CLUE_BONUS = 0.25;
 
+  /** Whether night trips here need a torch of the castaway's own: on the Island of Fires, there are always torches. */
+  const ownTorch = () => isNight() && S.isle !== 'smoke';
+
   /** Why no trip can be made just now, or null: at night, there must be a torch to light the way. */
-  G.darkness = () => (isNight() && !S.res.torch ? 'too dark to go without a torch' : null);
+  G.darkness = () => (ownTorch() && !S.res.torch ? 'too dark to go without a torch' : null);
 
   /** What a trip costing `cost` costs just now: at night, a torch as well, unless one is needed anyway. */
   G.tripCost = function (cost) {
     const c = Object.assign({}, cost);
-    if (isNight() && !c.torch) c.torch = 1;
+    if (ownTorch() && !c.torch) c.torch = 1;
     // a turned ankle makes a slow, thirsty walk of every trip
     if (S.ail.ankle) c.water = (c.water || 0) + 1;
     return c;
@@ -519,23 +533,38 @@
   /** The reason location `L` can't be reached right now, or null. */
   G.blockedReason = (L) => (L.blocked && L.blocked()) || G.darkness();
 
-  /** Whether location `id` is on the map: drawn there, and not since gone. */
-  const onMap = (id) => !!S.mapped[id] && !(LOCS[id].gone && LOCS[id].gone());
+  /**
+   * The places of the island the castaway is on: LOCS at home, or the
+   * `locs` of the island they have sailed to (none, on the smallest).
+   * Every place's id is unique across all the islands, so `S.mapped` and
+   * `S.visits` serve them all.
+   */
+  G.places = () => (G.atHome() ? LOCS : G.isle().locs || {});
+
+  /** Whether the island the castaway is on has a map to draw and places to find. */
+  G.hasMap = () => !!S.flags.chart && Object.keys(G.places()).length > 0;
+
+  /** Where the camp is on the map of the island the castaway is on. */
+  G.campPos = () => (G.atHome() ? CAMP_POS : G.isle().camp);
+
+  /** Whether location `id` is on the map. */
+  const onMap = (id) => !!S.mapped[id];
 
   /** The locations on the map, with what the map needs to draw their markers. */
   G.knownLocs = function () {
-    return Object.keys(LOCS).filter(onMap).map((id) => ({
+    const P = G.places();
+    return Object.keys(P).filter(onMap).map((id) => ({
       id,
-      name: LOCS[id].name,
-      x: LOCS[id].x,
-      y: LOCS[id].y,
+      name: P[id].name,
+      x: P[id].x,
+      y: P[id].y,
       visited: !!S.visits[id],
-      blocked: !!G.blockedReason(LOCS[id]),
+      blocked: !!G.blockedReason(P[id]),
     }));
   };
 
   /** The map as it now stands, for a story card. */
-  G.mapArt = () => ART.chart(G.knownLocs(), CAMP_POS);
+  G.mapArt = () => ART.chart(G.knownLocs(), G.campPos(), S.isle);
 
   /**
    * A journey: pays `cost`, shows `text` above a travel bar for `time`
@@ -562,7 +591,7 @@
 
   /** Sets out for location `id`, then plays the first or a repeat visit. */
   G.expedition = function (id) {
-    const L = LOCS[id];
+    const L = G.places()[id];
     if (!L) return;
     const why = G.blockedReason(L);
     if (why) {
@@ -584,16 +613,17 @@
   };
 
   /** Whether place `id` can be found yet, by exploring or by sighting it. */
-  const canFind = (id) => !S.mapped[id] && !!LOCS[id].findable && !!LOCS[id].findable();
+  const canFind = (id) => !S.mapped[id] && !!G.places()[id].findable && !!G.places()[id].findable();
 
   /** The places that exploring could find just now. */
-  const findable = () => Object.keys(LOCS).filter(canFind);
+  const findable = () => Object.keys(G.places()).filter(canFind);
 
   /** Whether there is anything left to find just now. */
   G.somethingToFind = () => findable().length > 0;
 
   /** When there is nothing left to find yet, a nudge toward what will open up the island. */
   function nextLead() {
+    if (!G.atHome()) return (G.isle().lead && G.isle().lead()) || 'You have walked every path on this island that you can find. For now, it has shown you all it will.';
     if (!S.flags.bottle) return 'You have walked every path within reach of camp, and found all there is to find. Perhaps the tide line has more to give: keep combing the beach.';
     if (!S.flags.wreckCabin) return "The wreck of Hale's ship lies out on the reef. Her cabin may tell you more of this island.";
     if (S.mapped.spring && !S.flags.spring) return 'Whatever waits at the spring stands between you and the hills beyond it.';
@@ -603,7 +633,7 @@
   }
 
   /** The chance that a trip exploring finds a new place. */
-  const findChance = () => Math.max(MIN_FIND, FIRST_FIND - FIND_DROP * Object.values(S.mapped).filter(Boolean).length);
+  const findChance = () => Math.max(MIN_FIND, FIRST_FIND - FIND_DROP * Object.keys(G.places()).filter(onMap).length);
 
   /**
    * On a visit to `id`, each place that can be seen from it may be spotted,
@@ -611,17 +641,18 @@
    * that ends the visit.
    */
   function sightings(id) {
-    const seen = (LOCS[id].sees || []).filter(([other, p]) => canFind(other) && chance(p));
+    const P = G.places();
+    const seen = (P[id].sees || []).filter(([other, p]) => canFind(other) && chance(p));
     seen.forEach(([other]) => {
       S.mapped[other] = 1;
     });
-    return seen.flatMap(([other, , text]) => [text, gainLine(`You mark ${LOCS[other].name.toLowerCase()} on your map.`)]);
+    return seen.flatMap(([other, , text]) => [text, gainLine(`You mark ${P[other].name.toLowerCase()} on your map.`)]);
   }
   G.sightings = sightings;
 
   /** Exploring finds place `id`: it is drawn on the map, and shown there. */
   function discover(id) {
-    const L = LOCS[id];
+    const L = G.places()[id];
     S.mapped[id] = 1;
     AU.sfx('page');
     modal({
@@ -637,8 +668,8 @@
     modal({
       art: ART.scene('grove'),
       title: 'Exploring',
-      text: [LOCS[id].clue, gainLine('You find nothing yet, but it is worth another look.')],
-      choices: [leave('return to camp', `${LOCS[id].clue} You mean to look again.`, 'lore')],
+      text: [G.places()[id].clue, gainLine('You find nothing yet, but it is worth another look.')],
+      choices: [leave('return to camp', `${G.places()[id].clue} You mean to look again.`, 'lore')],
     });
   }
 

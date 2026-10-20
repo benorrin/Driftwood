@@ -90,8 +90,23 @@
 .intro-buttons {
   margin-top: 1em;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+}
+
+.intro-choices {
+  display: contents;
+}
+
+/* the prologue's pictures */
+.intro-art {
+  width: 100%;
+  margin: 0 0 1.4em;
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+  animation: fadein 2.2s ease both;
 }
 
 /* ---------- credit ---------- */
@@ -151,8 +166,22 @@
   gap: 28px;
 }
 
+/*
+ * The log never sets the length of the page: beside the main column it is
+ * cut off at that column's height, and below it, at a fixed height; either
+ * way it fades out at the foot. Its newest lines arrive at the top.
+ */
 .col-log {
   grid-area: log;
+  position: relative;
+}
+
+#log {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent);
+  mask-image: linear-gradient(to bottom, #000 75%, transparent);
 }
 
 .col-main {
@@ -168,6 +197,10 @@
   .layout {
     grid-template-columns: minmax(0, 1fr) 220px;
     grid-template-areas: "main side" "log side";
+  }
+
+  .col-log {
+    height: 16em;
   }
 }
 

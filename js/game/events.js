@@ -107,7 +107,7 @@
       art: ART.scene('beach'),
       title: 'After the Storm',
       text,
-      choices: [leave('begin again', 'The storm has passed. You set about putting the camp to rights.', 'lore')],
+      choices: [leave('set the camp to rights', 'The storm has passed. You set about putting the camp to rights.', 'lore')],
     });
   }
 
@@ -539,8 +539,49 @@
       run: () => log('Dolphins in the bay, leaping and blowing. For a while you forget where you are.'),
     },
     {
+      id: 'drowned', limit: 1, weight: 2,
+      when: () => S.chapter < 2 && S.day >= 2 && S.day <= 9 && !isNight(),
+      run() {
+        beachCard('The Drowned Man', [
+          'Something rolls in the shallows at the edge of the surf, and rolls again, and the tide leaves it on the sand: a man, face down, in a white jacket such as a captain\'s steward wears.',
+          'The sea and the fish have been at him for some days, and there is not much of his face left to know him by. Inside the collar, in marking ink, someone has written <i>MERIDIAN</i>. Round his neck is a black cord, such as a short-sighted man hangs his spectacles from. The spectacles are gone. The back of his head is broken, as if by the rocks.',
+          'He was alive when they rowed you ashore. You are almost sure of it.',
+        ], [
+          {
+            label: 'bury him above the tide line',
+            fn: () => {
+              S.flags.drowned = 'buried';
+              G.heal(1);
+              modal({
+                art: ART.scene('grave'),
+                title: 'The Drowned Man',
+                text: ['You drag him up above the wrack and bury him in the dry sand, deep, where the crabs will not come, and mark the place with a stone. You leave the cord round his neck. It seems to belong to him.'],
+                choices: [leave('return to camp', 'A drowned man of the Meridian came ashore in a steward\'s jacket, a spectacle cord round his neck. You buried him above the tide line.', 'lore')],
+              });
+            },
+          },
+          {
+            label: 'give him back to the sea',
+            fn: () => {
+              S.flags.drowned = 'sea';
+              beachCard('The Drowned Man', ['At the turn of the tide you wade out with him to the edge of the reef, and let the ebb take him. He goes out as quietly as he came in.'],
+                [leave('return to camp', 'A drowned man of the Meridian came ashore in a steward\'s jacket, a spectacle cord round his neck. You gave him back to the sea.', 'lore')]);
+            },
+          },
+        ]);
+      },
+    },
+    {
       id: 'boot', limit: 1,
       run: () => log('The tide brings in a sea-boot, cracked and empty. You do not like to think whose it was.'),
+    },
+    {
+      id: 'bean', limit: 1,
+      when: () => S.day >= 6 && !isNight(),
+      run() {
+        S.items.bean = 1;
+        log('Mending a tear in your jacket, you find something hard caught in the lining of the pocket: a single dried black bean. You do not remember putting it there. You turn it over in your fingers for a long time, and then you put it back.', 'lore');
+      },
     },
     {
       id: 'tremor', limit: 1,
@@ -550,6 +591,11 @@
       id: 'dream', limit: 2,
       when: () => isNight() && S.fire > 0,
       run: () => log('You doze by the fire and dream of Bristol: rain on slate roofs, the bakers in Broad Street, your mother at the door. You wake with wet cheeks.', 'lore'),
+    },
+    {
+      id: 'dreamBoat', limit: 1,
+      when: () => S.chapter < 2 && S.day >= 3 && isNight() && S.fire > 0,
+      run: () => log('You dream of the boat that brought you ashore: grey light, the knock of the oars, and the man at the bow oar weeping as he pulls, singing under his breath in a tongue that is not English. In the dream his hand goes to your jacket pocket. You wake with your own hand there.', 'lore'),
     },
     {
       id: 'groan', limit: 2,
@@ -577,6 +623,13 @@
       ])),
     },
     {
+      id: 'jemTalk', weight: 0.5,
+      when: () => G.withJem(),
+      run: () => log(pick(G.withHollis()
+        ? ['Jem and Hollis eat on opposite sides of the fire, and watch each other over it.', 'Hollis shows Jem how to snare a bird. Jem does not say thank you, but he watches.', 'You hear Jem ask Hollis how long he has been here. Hollis tells him. Jem does not ask anything else that day.']
+        : ['Jem keeps looking at the sea, as if he expects to see a sail he does not want to see.', 'Jem whistles while he works, and stops himself, and looks round.', 'Jem asks you whether you believe in Jonahs. You do not answer, and he does not ask again.'])),
+    },
+    {
       id: 'hollisTalk', weight: 0.5,
       when: () => S.flags.ally,
       run: () => log(pick([
@@ -587,11 +640,13 @@
     },
   ];
 
-  /** Something happens around the camp, if anything can. */
-  G.happening = () => happen(AT_CAMP);
+  /** Something happens around the camp (or wherever the castaway is cast away), if anything can. */
+  G.happening = () => (G.atHome() ? happen(AT_CAMP) : G.awayHappening());
+
+  G.happen = happen;
 
   /** Things the tide brings in, found while combing the beach. Returns whether one turned up. */
-  G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'lastRaft', 'parcel', 'crusoe', 'boot', 'turtle'].includes(e.id)));
+  G.washedUp = () => happen(AT_CAMP.filter((e) => ['bristow', 'lastRaft', 'parcel', 'drowned', 'crusoe', 'boot', 'turtle'].includes(e.id)));
 
   /* ---------------- while exploring ---------------- */
 
@@ -673,7 +728,14 @@
                 closeModal();
               },
             },
-            leave('leave it where it is', 'You leave the figure in its cleft, and feel its eyes on your back all the way home.'),
+            {
+              label: 'leave it where it is',
+              fn: () => {
+                S.flags.idolLeft = 1;
+                log('You leave the figure in its cleft, and feel its eyes on your back all the way home.');
+                closeModal();
+              },
+            },
           ],
         });
       },
@@ -815,5 +877,7 @@
   ];
 
   /** Something turns up on a trip that found no new place. */
-  G.wander = () => happen(EXPLORING);
+  G.wander = () => (G.atHome() ? happen(EXPLORING) : G.awayWander());
+
+  G.wanderCard = wanderCard;
 })();

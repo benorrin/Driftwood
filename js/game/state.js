@@ -46,10 +46,20 @@
       events: {},
       log: [],
       n: { comb: 0, salvage: 0, pyreDays: 0 },
-      ticks: { catcher: 0, trap: 0, ally: 0, event: 0 },
+      ticks: { catcher: 0, trap: 0, ally: 0, event: 0, jem: 0 },
+      chapter: 1,
+      isle: 'home',
+      wind: null,
+      boat: {},
+      camp: null,
+      charted: {},
+      landed: {},
       ended: false,
     };
   };
+
+  /** Whether the castaway is on their own island, where the camp is, rather than cast away from it. */
+  G.atHome = () => S.isle === 'home';
 
   /** Replaces the contents of the state with `next`, starting a new generation. */
   G.replaceState = function (next) {
@@ -100,7 +110,10 @@
   G.maxHealth = () => 10 + (S.built.leanto ? 2 : 0);
 
   /** What Hollis is doing, once he has joined you: a HOLLIS_JOBS key. */
-  G.hollisJob = () => (S.flags.ally ? S.n.hollisJob || 'gather' : null);
+  G.hollisJob = () => (G.withHollis() ? S.n.hollisJob || 'gather' : null);
+
+  /** Whether Hollis, once befriended, is where the castaway is, and not left keeping the camp. */
+  G.withHollis = () => !!S.flags.ally && (G.atHome() || !S.flags.hollisHome);
 
   /** Sets Hollis to `job`. */
   G.setHollisJob = function (job) {
@@ -197,6 +210,28 @@
     delete s.items.wilson;
     delete s.events.wilson;
     s.ticks.event = s.ticks.event || 0;
+    s.ticks.jem = s.ticks.jem || 0;
+    // kept from when the log was longer
+    s.log = (s.log || []).slice(0, LOG_MAX);
+    // saved before there were chapters
+    s.chapter = s.chapter || 1;
+    s.isle = s.isle || 'home';
+    s.boat = s.boat || {};
+    s.landed = s.landed || (s.chapter > 1 ? { islet: 1 } : {});
+    s.charted = s.charted || (s.chapter > 1 ? { islet: 1, high: 1, rock: s.flags.homeAgain ? 1 : 0 } : {});
+    // saved before the other islands had places of their own: put on the map what was already found there
+    const been = (ids) => ids.forEach((id) => {
+      s.mapped[id] = 1;
+      s.visits[id] = s.visits[id] || 1;
+    });
+    if (s.flags.meridianCamp) been(['hiCamp', 'hiGrave']);
+    if (s.flags.meridianCamp && s.charted.smoke) been(['hiRidge']);
+    if (s.n.jemFood || s.flags.jem || s.flags.jemDead || s.flags.jemGone) been(['hiPool']);
+    if (s.landed && s.landed.rock) been(['brCleft', 'brLedges']);
+    if (s.landed && s.landed.smoke) been(['ifVillage', 'ifSheds', 'ifTavake']);
+    if (s.flags.whalerKnown) been(['ifAnchorage']);
+    // saved before leaving the carved figure in its cleft was remembered: found, and neither kept, returned, given nor thrown
+    if (s.events.idol && !s.items.idol && !s.flags.idolReturned && !s.flags.idolGiven && !s.flags.idolThrown) s.flags.idolLeft = 1;
     return s;
   }
 
@@ -222,11 +257,15 @@
 
   /** Writes the tale just ended into the ship's log: `end` is an ENDINGS key, or 'death' by `cause`. */
   G.recordTale = function (end, cause) {
+    // a developer's tale is not written in the ship's log
+    if (S.dev) return;
     const r = G.records();
     r.tales++;
     r.best = Math.max(r.best, S.day);
     if (end !== 'death') r.found[end] = 1;
-    r.recent.unshift(cause ? { end, day: S.day, cause } : { end, day: S.day });
+    const t = cause ? { end, day: S.day, cause } : { end, day: S.day };
+    if (S.chapter > 1) t.chapter = S.chapter;
+    r.recent.unshift(t);
     r.recent.length = Math.min(r.recent.length, RECENT);
     storage.setJSON(RECORDS_KEY, r);
     G.taleAchievements(end, cause);
@@ -249,7 +288,8 @@
       if (n > 0) keep[k] = n;
     }
     storage.setJSON(REMAINS_KEY, {
-      day: S.day, cause, sea: !!S.flags.sailing, keep, bristow: !!S.items.bristow,
+      // dying away from the island, they can only come back to it on the tide
+      day: S.day, cause, sea: !!S.flags.sailing || !G.atHome(), keep, bristow: !!S.items.bristow,
     });
   };
 

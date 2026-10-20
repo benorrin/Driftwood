@@ -1,6 +1,6 @@
 /* Driftwood — endings.
- * Rescue by a passing whaler, the voyages by raft and by canoe, the
- * Meridian's return, staying for good, and death. */
+ * Rescue by a passing whaler, the voyages by raft and by canoe, staying
+ * for good, and death. */
 (function () {
   'use strict';
 
@@ -8,8 +8,8 @@
   const AU = window.DW.audio;
   const ART = window.DW.art;
   const {
-    S, chance, gainLine, DEATHS, LAUNCH_COST, RES,
-    has, pay, add, gain, log, damage, clearSave, modal, closeModal, leave, fight,
+    S, chance, gainLine, DEATHS, LAUNCH_COST,
+    has, pay, add, log, damage, clearSave, modal, closeModal, leave, fight,
   } = G;
 
   /** The choice that closes a finished tale and returns to the title screen. */
@@ -30,16 +30,16 @@
     AU.setFire(0);
   }
 
+  Object.assign(G, { endGame, BEGIN_AGAIN });
+
   /** The closing paragraphs, shaped by what the castaway did on the island. */
   function epilogue() {
     const lines = [];
     if (S.flags.ally) lines.push('Tom Hollis stands at the rail long after the island has sunk from sight. You do not disturb him.');
+    if (S.flags.jem) lines.push('Jem Rudd signs on with the whalermen as a hand, and works his passage, and never once looks back at the islands.');
+    if (S.flags.jemDead) lines.push('You do not speak of Jem Rudd. There is a grave by a stream on an island no one will ever find, and that is the end of it.');
     if (S.flags.killedHollis) lines.push('You never speak of the man in the jungle. But you count the notches, some nights, when you cannot sleep.');
-    if (S.items.bristow) {
-      lines.push(S.flags.sailing
-        ? 'Somewhere in the storm, Bristow went over the side. You still say sorry to him, some nights.'
-        : 'Bristow comes aboard with you. The whalermen think you mad, and they are not altogether wrong.');
-    }
+    if (S.items.bristow) lines.push('Bristow comes aboard with you. The whalermen think you mad, and they are not altogether wrong.');
     if (S.flags.buriedStranger) lines.push('Some nights you think of the bones in the scrub, and the boots that fitted you so well. You are glad you buried them.');
     if (S.flags.buried) lines.push('Captain Hale\'s journal you send to his widow in Liverpool, if she still lives. You never learn whether it reaches her.');
     if (S.items.locket) {
@@ -47,10 +47,8 @@
         ? 'With the journal goes his locket, the one from the drowned longboat. Months later a letter finds you, in a careful old hand: <i>Thank you. — M.H.</i>'
         : 'Hale\'s locket you send to Liverpool, to M.H., whoever she was. Months later a letter finds you, in a careful old hand: <i>Thank you.</i>');
     }
-    const crane = S.flags.killedCrane
-      ? 'The <i>Meridian</i> was captured off Callao, short of a first mate: Mr Crane lies on the island where he fell.'
-      : 'The <i>Meridian</i> was captured off Callao, and Mr Crane was hanged.';
-    lines.push(`In Valparaíso, months later, you give your testimony before the British consul. ${crane} You are asked if you have anything to add. You think of the surf, the fire, the long nights. "No," you say. "Nothing."`);
+    lines.push('In Valparaíso, months later, you give your testimony before the British consul. The <i>Meridian</i> was taken off Callao, and her men are to be sent home to England in irons, and they say Mr Crane will hang. You are asked if you have anything to add. You think of the surf, the fire, the long nights. "No," you say. "Nothing."');
+    if (S.flags.drowned === 'buried') lines.push('You tell the consul about the drowned man in the steward\'s jacket, and where you buried him. He writes it down, and asks you the man\'s name, and you find that you know it.');
     if (S.items.parcel) lines.push('Then you walk up to the Calle de la Aduana with an oilcloth parcel under your arm, its seal of wings unbroken, and leave it on Mrs Morrow\'s doorstep. It was the one promise you made on the island, and you have kept it.');
     if (S.items.idol) lines.push('You never did take the little carved figure home. It sits on your mantel in Bristol, facing the wall. Every morning, it is facing the room.');
     lines.push(gainLine(`${S.day} days upon the island.`));
@@ -101,118 +99,27 @@
       ],
       choices: [{
         label: 'go down to the beach',
-        fn: () => finish('rescue', ART.scene('rescue'), [
+        fn: () => (S.chapter >= 2 ? G.rescueChapterTwo() : finish('rescue', ART.scene('rescue'), [
           'She is the whaler <i>Perseverance</i>, of New Bedford, three years out. Her captain, a lean Nantucket Quaker named Eli Swain, hears your story without a word, and then says only: "Thee had better come aboard."',
-        ]),
-      }],
-    });
-  };
-
-  /* ---------------- the Meridian ---------------- */
-
-  /** What the mutineers carry off from an undefended camp: half of each. */
-  const PLUNDER = ['water', 'food', 'rope', 'iron', 'cloth', 'timber', 'shot'];
-
-  /** The mutineers strip the camp and row back to their ship. */
-  function plundered(text) {
-    const lost = [];
-    PLUNDER.forEach((k) => {
-      const n = Math.ceil((S.res[k] || 0) / 2);
-      if (n > 0) {
-        add(k, -n);
-        lost.push(`${n} ${RES[k]}`);
-      }
-    });
-    modal({
-      art: ART.scene('beach', { ship: 1 }),
-      title: 'Plundered',
-      text: [text, 'By evening the boat is pulling back to the ship, low in the water, and the <i>Meridian</i> stands away into the south.',
-        gainLine(lost.length ? `They have taken ${lost.join(', ')}.` : 'There was nothing worth taking.')],
-      choices: [leave('go down to the camp', 'The mutineers stripped the camp. The pyre is ash, and must be built again.', 'warn')],
-    });
-  }
-
-  /** Crane is beaten in the surf, and his men leave without him. */
-  function craneBeaten() {
-    S.flags.killedCrane = 1;
-    const got = gain({ shot: 2, iron: 2 });
-    modal({
-      art: ART.scene('beach', { ship: 1 }),
-      title: 'The Surf',
-      text: [
-        'Crane goes down in the shallows, and does not get up. The men in the boat look at him, and at you, and then they back water, and pull for the ship without a word. Not one of them liked him.',
-        'By evening the <i>Meridian</i> is a sail on the southern horizon, and then nothing.',
-        gainLine(`On the beach where he dropped them: his powder flask and a pouch of nails. You take ${got}.`),
-      ],
-      choices: [leave('go down to the camp', 'Mr Crane lies in the surf. The pyre is ash, and must be built again.', 'lore')],
-    });
-  }
-
-  /** The castaway signs on with the mutineers, and shares their fate. */
-  function signOn() {
-    G.recordTale('articles');
-    endGame('ending');
-    const text = [
-      'You sign the articles with the rest of them, under a name that is not yours, and pull an oar out to the ship, and do not look back at the island.',
-      'Five weeks later the <i>Meridian</i> is taken off Callao by a British sloop of war. At the court in Valparaíso no one speaks for you, and you do not speak for yourself. Mr Crane is hanged. You are transported for life to Van Diemen\'s Land, and the judge says it is a mercy.',
-      'Some nights, in the hulks at Hobart Town, you dream of a fire on a beach, and of the long green island that was yours.',
-    ];
-    if (S.flags.ally) text.splice(1, 0, 'Hollis would not come. The last you see of him he is standing in the surf with his spear, watching the boat go.');
-    text.push(gainLine(`${S.day} days upon the island.`), '<p class="dateline">THE END</p>');
-    modal({ art: ART.scene('rescue'), title: G.ENDINGS.articles[0], text, choices: [BEGIN_AGAIN] });
-  }
-
-  /**
-   * The pyre is lit for the Meridian, come back with the mutineers aboard,
-   * and Crane lands with a boat's crew for water and hands. `known` is
-   * whether the castaway knew her before lighting it. The pyre burns away
-   * either way, and must be built again.
-   */
-  G.meridianLands = function (known) {
-    AU.sfx('fire');
-    S.built.pyre = 0;
-    S.n.pyreDays = 0;
-    const ally = S.flags.ally;
-    modal({
-      art: ART.scene('summit', { ship: 1, pyre: 1, lit: 1 }),
-      title: 'The Pyre',
-      text: known
-        ? ['You know what she is, and you light it all the same. It goes up with a roar you feel in your teeth: a pillar of smoke a mile high.', 'For an hour she holds her course. Then, slowly, she comes about.']
-        : ['You run. Up the loose stones, up the narrow crack, lungs on fire, and put a burning stick to the pyre. It goes up with a roar you feel in your teeth: a pillar of smoke a mile high.',
-          'For an hour the ship holds her course. Then, slowly, she comes about, and as she comes on you see the patch in her fore-topsail, which you sewed yourself off the Horn. She is the <i>Meridian</i>.'],
-      choices: [{
-        label: 'go down to the beach',
-        fn: () => modal({
-          art: ART.scene('rescue'),
-          title: 'The Meridian',
-          text: [
-            'A boat comes in through the surf with six men at the oars, and Mr Crane in the stern with a cutlass across his knees. He steps out into the shallows and looks you up and down.',
-            '"The bosun\'s mate," he says. "Alive. We\'ve had a hard passage, and we\'re short of water and shorter of hands. Sign the articles and you can come aboard. Or don\'t, and we\'ll take the water anyway."',
-            ally ? 'Behind you, in the trees, Hollis is waiting with his spear.' : 'The men at the oars will not meet your eye.',
-          ],
-          choices: [
-            { label: 'sign on with them', fn: signOn },
-            { label: 'run for the trees', fn: () => plundered('You run, and they let you. From the edge of the trees you watch them strip the camp, laughing, and fill their casks at your water.') },
-            {
-              label: 'stand your ground',
-              fn: () => fight('crane', {
-                ally,
-                onWin: craneBeaten,
-                onFlee: () => plundered('You break away and run for the trees, and Crane does not follow. He has what he came for.'),
-              }),
-            },
-          ],
-        }),
+        ])),
       }],
     });
   };
 
   /* ---------------- the voyage ---------------- */
 
-  /** Puts to sea on the finished raft, if the supplies for the voyage are in store. */
+  /** Loads the finished raft and puts to sea, if the supplies for the voyage are in store. */
   G.launch = function () {
     if (!has(LAUNCH_COST)) return;
-    pay(LAUNCH_COST);
+    G.provision(LAUNCH_COST, G.boatRoom('raft', true), (load) => {
+      G.stow(load);
+      pay(LAUNCH_COST);
+      putToSea();
+    });
+  };
+
+  /** The raft goes out over the bar. */
+  function putToSea() {
     S.flags.sailing = 1;
     AU.sfx('splash');
     const companion = S.flags.ally ? ', Hollis pushing beside you, laughing like a boy' : '';
@@ -225,7 +132,7 @@
       ],
       choices: [{ label: 'sail on', fn: storm }],
     });
-  };
+  }
 
   /** A storm on the fourth day: endure it at the mast, or cut the sail away and lose supplies. */
   function storm() {
@@ -262,7 +169,7 @@
       text: [text, 'Dawn comes up pale and still. Something grey moves beneath the logs.'],
       choices: [{
         label: 'take up your weapon',
-        fn: () => fight('shark', { canFlee: false, ally: S.flags.ally, onWin: landfall }),
+        fn: () => fight('shark', { canFlee: false, ally: S.flags.ally, onWin: () => G.wrecked('raft') }),
       }],
     });
   }
@@ -278,7 +185,7 @@
    * ashore, a roof overhead, the Calliope's dead buried, and the carved
    * figure not in their keeping.
    */
-  const atPeace = () => S.day >= STAY_DAY && S.built.leanto && S.flags.buried && !S.items.idol &&
+  const atPeace = () => G.atHome() && S.day >= STAY_DAY && S.built.leanto && S.flags.buried && !S.items.idol &&
     !S.flags.sailing && (!S.n.stayOffered || S.day - S.n.stayOffered >= STAY_AGAIN);
 
   /** The castaway stays, and grows old on the island. */
@@ -310,9 +217,10 @@
       text: [
         'You go to cut the morning\'s notch in the palm by the fire, and find you have lost count. You cannot remember when you last looked for a sail.',
         'The fire is burning. The water is sweet. The dead are in their graves, and no one on this island wishes you harm.',
+        'You could stop waiting for a sail. You could stay here, and let the island be the end of your story.',
       ],
       choices: [
-        { label: 'stay', fn: stay },
+        { label: 'stay here for good', note: 'this ends your tale', fn: stay },
         leave('not yet', 'You cut the notch, and look at the sea for a long while.', 'lore'),
       ],
     });
@@ -329,8 +237,18 @@
     return 0.45 - (S.flags.ally ? 0.2 : 0) - (S.flags.idolReturned ? 0.2 : 0);
   }
 
-  /** Puts to sea in the mended canoe; its supplies are paid by the lagoon card's choice. */
+  /** Loads the mended canoe and puts to sea, if the supplies for the voyage are in store. */
   G.launchCanoe = function () {
+    if (!has(G.CANOE_LAUNCH)) return;
+    G.provision(G.CANOE_LAUNCH, G.boatRoom('canoe'), (load) => {
+      G.stow(load);
+      pay(G.CANOE_LAUNCH);
+      paddleOut();
+    });
+  };
+
+  /** The canoe goes out through the gap in the reef. */
+  function paddleOut() {
     S.flags.sailing = 1;
     AU.sfx('splash');
     const companion = S.flags.ally ? ' Hollis kneels in the bow with a paddle, and sets the stroke without a word, as if he has done this all his life.' : '';
@@ -343,7 +261,7 @@
       ],
       choices: [{ label: 'sail on', fn: squall }],
     });
-  };
+  }
 
   /** A squall on the third day: run before it and risk capsizing, or drop the sail and bail. */
   function squall() {
@@ -386,28 +304,12 @@
     if (short) damage(3, 'thirst');
     if (S.ended) return;
     modal({
-      art: ART.scene('landfall', { canoe: 1 }),
+      art: ART.scene('tempest'),
       title: 'Calm',
       text: [text, short
-        ? 'The last days are the worst of your life: no food, then no water, and the sun like a hammer. On the ninth morning you see land, and do not believe it.'
-        : 'Six more days of steady wind. On the ninth morning there is land ahead: a high green island, sheer-sided, with the surf breaking white at its foot.'],
-      choices: [{ label: 'make for the land', fn: pitcairn }],
+        ? 'The days after are the worst of your life: no food, then no water, and the sun like a hammer. On the fifth night you hear surf ahead in the dark, and do not believe it.'
+        : 'Two more days of steady wind. On the fifth night, running blind under a sky without stars, you hear surf ahead: close, and much too close.'],
+      choices: [{ label: 'put the helm over', fn: () => G.wrecked('canoe') }],
     });
-  }
-
-  /** Landfall on Pitcairn's Island, among the children of another mutiny. */
-  function pitcairn() {
-    finish('pitcairn', ART.scene('landfall', { canoe: 1 }), [
-      'The people who come down the cliff path to meet you speak English, of a sort, and quote scripture, and their names are Christian, Young, Quintal and McCoy. Their grandfathers took the <i>Bounty</i>, they tell you, and burned her in the bay below.',
-      'You laugh until you weep, and cannot explain why. They take you in all the same. In the spring a whaler calls for water, and carries you on to Valparaíso.',
-    ]);
-  }
-
-  /** Landfall in the Society Islands, and the end of the voyage. */
-  function landfall() {
-    finish('landfall', ART.scene('landfall'), [
-      'On the eleventh day, gulls. Then a smudge on the horizon that does not move as clouds move.',
-      'The people of the island wade out to meet you, laughing, and haul the raft up through the surf. You are in the Society Islands, they tell you, in a mixture of French, English and signs. A mission schooner calls at Papeete within the month.',
-    ]);
   }
 })();

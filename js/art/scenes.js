@@ -8,7 +8,7 @@
   const {
     pal, f, rng, SW, SH, framed, P, circle, at, backdrop, ground, darkness,
     sky, sea, seascape, sun, moon, stars, birds, palm, rock, tufts, headland, leaf,
-    fire, sitter, stander, raft, ship, longboat,
+    fire, sitter, stander, raft, ship, longboat, cask,
   } = draw;
 
   /**
@@ -31,6 +31,24 @@
       P('M-4 -37 l-4 11 M-2 -38 l-3 9 M4 -37 l4 11 M2 -38 l3 9', null, 1.2) +
       P('M-4 -26 L-7 -16 L-6 -10 M4 -26 L10 -21', null, 3) +
       P('M11 4 V-52', null, 1.4) + P('M9 -50 L11 -59 L13 -50Z', pal.ink, 0.6));
+  }
+
+  /**
+   * One of the people of the Island of Fires standing at (x, y), facing
+   * right (flip with dir = -1): bareheaded, hair tied up, a cloth wrapped
+   * at the waist; `opts.torch` puts a burning torch in the raised hand.
+   */
+  function islander(x, y, sc, dir, opts) {
+    opts = opts || {};
+    const arm = opts.torch
+      ? P('M4 -26 L10 -34 L12 -42', null, 3) + P('M12 -42 l2 -10', null, 2) + fire(14, -50, 2, 0.18)
+      : P('M4 -26 L8 -16 L7 -10', null, 3);
+    return at(x, y, sc * dir, sc,
+      P('M-5 -29 L5 -29 L5 -16 L-5 -16 Z', pal.ink, 0.6) +
+      P('M-7 -16 L7 -16 L6 -8 L-6 -8 Z', 'url(#h2)', 0.8) +
+      P('M-3 -8 L-3.5 0 M3 -8 L3.5 0', null, 2.6) +
+      circle(0, -34, 4.6, pal.ink) + circle(1, -40, 2.4, pal.ink) +
+      P('M-4 -26 L-7 -16 L-6 -10', null, 3) + arm);
   }
 
   /** The mended outrigger canoe under sail, its hull's left end at (x, y). */
@@ -132,6 +150,7 @@
       let b = seascape(r, 100, 150) + birds(r, 420, 40, 3, 60);
       b += rock(r, 120, 190, 280, 70) + rock(r, 470, 200, 300, 80) + rock(r, 300, 250, 420, 70);
       [[180, 205, 50], [400, 215, 64], [300, 230, 40]].forEach(([x, y, w]) => {
+        b += `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="${w * 0.22}" fill="${pal.paper}"/>`;
         b += `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="${w * 0.22}" fill="url(#hh)" stroke="${pal.ink}" stroke-width="1.2"/>`;
         b += `<ellipse cx="${x - w * 0.2}" cy="${y}" rx="${w * 0.3}" ry="${w * 0.06}" fill="none" stroke="${pal.paper}" stroke-width="1.5"/>`;
       });
@@ -344,6 +363,308 @@
       return framed(b, 'Sea cliffs crowded with birds');
     },
 
+    /**
+     * The Bird Rock: a tooth of black rock standing out of the open sea,
+     * streaked white with the droppings of the birds that wheel about it,
+     * with the surf breaking at its foot. `opts.ribs` shows the old Salem
+     * ship's timbers jammed into the cleft on its lee side.
+     */
+    birdrock(opts) {
+      opts = opts || {};
+      const r = rng(173);
+      let b = seascape(r, 150);
+      b += P('M282 206 L292 176 L300 162 L306 140 L318 120 L322 104 L336 90 L344 66 L356 52 L364 34 L372 30 L380 38 L388 36 L396 54 L404 70 L412 96 L424 108 L432 132 L446 150 L452 174 L466 186 L474 206Z', pal.ink, 1.4);
+      // ledges, and the white streaks that run down from them
+      b += P('M326 110 h44 M308 150 h70 M402 120 h30 M396 166 h56 M360 82 h22', null, 1.6, `stroke="${pal.paper}"`);
+      let streaks = '';
+      for (let i = 0; i < 18; i++) streaks += `M${f(310 + r() * 140)} ${f(70 + r() * 110)}v${f(6 + r() * 16)}`;
+      b += P(streaks, null, 1.4, `stroke="${pal.paper}"`);
+      // the cleft on the lee side, and in it, if shown, the bones of the Salem ship
+      b += P('M316 206 L326 176 L332 152 L338 172 L346 206', null, 1.2, `stroke="${pal.paper}"`);
+      if (opts.ribs) {
+        let ribs = '';
+        for (let i = 0; i < 6; i++) ribs += `M${300 + i * 9} 196 q-8 -22 4 -42`;
+        b += P(ribs, null, 2.6, `stroke="${pal.paper}"`) + P('M296 198 L352 186', null, 3, `stroke="${pal.paper}"`);
+      }
+      // the surf at its foot
+      b += P('M262 208 q14 -8 28 0 t28 0 t28 0 t28 0 t28 0 t28 0 t28 0', pal.paper, 1.1);
+      b += birds(r, 380, 70, 16, 240) + birds(r, 230, 110, 8, 160) + birds(r, 520, 90, 6, 120);
+      return framed(b, opts.ribs ? 'The bones of an old ship jammed into a cleft in a black rock' : 'A black rock in the open sea, streaked white, and wheeling with birds');
+    },
+
+    /** The Bird Rock's cleft, with the Salem ship's bones in it. */
+    salem: () => SCENES.birdrock({ ribs: 1 }),
+
+    /* ---------------- the places of the other islands ---------------- */
+
+    /** The Meridian's watering camp on the High Island: a stream across the sand, an old fire, cut stumps and a cask stave. */
+    watering() {
+      const r = rng(211);
+      let b = seascape(r, 96, 150);
+      // the forest behind the beach
+      b += P('M0 150 Q80 98 160 112 Q240 84 330 106 Q420 86 500 110 Q560 98 600 106 L600 160 L0 160Z', 'url(#h3)', 1);
+      b += ground('M0 158 C150 150 350 168 600 156', 'url(#dots)', 1.1);
+      // the stream coming down over the sand to the sea
+      b += P('M430 158 Q404 186 432 208 Q468 228 448 240 L506 240 Q526 224 486 204 Q456 186 464 158Z', pal.paper, 1.1);
+      b += P('M446 178 q10 4 14 12 M466 212 q10 4 16 12', null, 0.7);
+      // stumps of saplings cut with an axe
+      [[80, 192], [112, 200], [150, 188], [552, 190]].forEach(([x, y]) => {
+        b += P(`M${x - 5} ${y} V${y - 14} L${x + 5} ${y - 18} V${y}Z`, pal.paper, 1.1) + P(`M${x - 5} ${y - 14} L${x + 5} ${y - 18}`, null, 0.6);
+      });
+      // the old fire: a ring of stones round charred ends
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * Math.PI * 2;
+        b += circle(f(276 + Math.cos(a) * 30), f(206 + Math.sin(a) * 7), 4.5, pal.paper, 1);
+      }
+      b += P('M258 206 L292 198 M262 198 L296 210 M272 194 L282 212', null, 3.5);
+      // a broken cask stave on the sand
+      b += P('M318 226 Q350 216 382 226 L380 232 Q350 224 320 232Z', 'url(#h2)', 1) + P('M334 222 v6 M366 222 v6', null, 1.2);
+      b += tufts(r, 0, 400, 228, 8);
+      return framed(b, 'An old camp by a stream: a ring of fire-stones, cut stumps and a broken cask stave');
+    },
+
+    /** The grave on the rise above the watering camp: a long mound and a cross of two sticks, facing the sea. */
+    rise() {
+      const r = rng(221);
+      let b = seascape(r, 120) + birds(r, 440, 60, 5, 90);
+      b += P('M0 240 L0 160 Q120 138 250 146 Q360 154 430 196 Q460 218 480 240Z', 'url(#dots)', 1.4);
+      b += tufts(r, 10, 400, 170, 10);
+      // the mound, dug deep and long, and the cross at its head
+      b += P('M150 182 Q210 160 290 176 Q220 194 150 182Z', 'url(#h2)', 1.2);
+      b += P('M150 182 V114 M134 130 H166', null, 3.6) + P('M144 124 l12 12 M156 124 l-12 12', null, 1, `stroke="${pal.paper}"`);
+      return framed(b, 'A grave on a rise above the sea, under a cross of two sticks');
+    },
+
+    /** The High Island's forest: great buttressed trunks, a roof of leaves, tree ferns, and light along the stream. */
+    forest() {
+      const r = rng(231);
+      let b = backdrop('url(#h2)');
+      // the light that comes down the stream's course
+      b += P('M260 240 Q286 180 292 120 Q300 60 306 0 L356 0 Q350 80 342 140 Q334 190 366 240Z', pal.paper, 0);
+      b += P('M300 240 Q312 214 318 196 Q324 180 322 160', null, 0.7, 'stroke-dasharray="8 6"');
+      // great trunks with buttress roots, shadowed on one side
+      [[70, 26], [190, 18], [450, 30], [560, 20]].forEach(([x, w]) => {
+        b += P(`M${x - w * 2.2} 240 Q${x - w} 220 ${x - w / 2} 170 L${x - w / 2} 0 L${x + w / 2} 0 L${x + w / 2} 170 Q${x + w} 220 ${x + w * 2.2} 240Z`, pal.paper, 1.3);
+        b += `<rect x="${f(x + w * 0.1)}" y="0" width="${f(w * 0.4)}" height="200" fill="url(#h3)"/>`;
+      });
+      // the roof of leaves
+      for (let i = 0; i < 16; i++) b += circle(f(r() * 640 - 20), f(4 + r() * 30), f(24 + r() * 16), 'url(#h3)', 1);
+      // tree ferns, their fronds arching out from a crown
+      [[130, 200], [380, 206], [520, 214]].forEach(([x, y]) => {
+        b += P(`M${x} 240 V${y}`, null, 4);
+        for (let i = 0; i < 7; i++) b += leaf(x, y, 46 + r() * 16, -170 + i * 27 + (r() - 0.5) * 10, 0.16);
+      });
+      return framed(b, 'Tall forest with buttressed trees and tree ferns');
+    },
+
+    /** The waterfall pool: a narrow fall from a wall of fern into a deep pool, a dark hollow behind it, a flat stone at its edge. */
+    falls() {
+      const r = rng(241);
+      let b = backdrop('url(#hx)');
+      // the hollow in the rock behind the falls
+      b += P('M238 204 Q238 120 300 106 Q362 120 362 204Z', pal.ink, 1);
+      // the fall: a white ribbon from the lip to the pool
+      b += P('M284 0 L316 0 Q320 100 330 198 L270 198 Q280 100 284 0Z', pal.paper, 1.1);
+      let falls = '';
+      for (let x = 288; x < 314; x += 4) falls += `M${x} ${f(r() * 8)}L${f(x + (x - 300) * 0.4)} 198`;
+      b += P(falls, null, 0.7, 'stroke-dasharray="16 3"');
+      // ferns hanging from the lip and sprouting from the walls
+      for (let i = 0; i < 10; i++) {
+        const x = i < 5 ? 20 + i * 46 : 360 + (i - 5) * 50;
+        b += leaf(x, 4 + r() * 20, 60 + r() * 30, 60 + r() * 60, 0.18);
+      }
+      // the deep pool, and the flat stone at its edge where food may be left
+      b += `<ellipse cx="300" cy="212" rx="200" ry="24" fill="${pal.paper}"/>` +
+        `<ellipse cx="300" cy="212" rx="200" ry="24" fill="url(#h2)" stroke="${pal.ink}" stroke-width="1.2"/>` +
+        `<ellipse cx="300" cy="202" rx="40" ry="5" fill="${pal.paper}" stroke="${pal.ink}" stroke-width="0.8"/>`;
+      b += P('M430 226 Q474 210 520 222 L516 234 Q474 224 434 238Z', pal.paper, 1.4);
+      return framed(b, 'A waterfall dropping into a deep pool, with a flat stone at its edge');
+    },
+
+    /** The ridge of bare rock above the forest, cloud in the valleys, and the smoke of the Island of Fires far to the south. */
+    ridge() {
+      const r = rng(251);
+      const hz = 118;
+      let b = seascape(r, hz);
+      b += headland(r, 380, hz, 120, 16, 0) + P(`M420 ${hz - 14} c-4 -10 4 -18 0 -30 M452 ${hz - 16} c-4 -10 4 -18 0 -30`, null, 0.8);
+      b += P('M0 148 Q60 134 120 146 Q180 130 250 148 Q320 136 380 150 Q460 138 540 152 Q580 144 600 148 L600 172 L0 172Z', pal.paper, 1);
+      b += P('M0 240 L0 190 L40 176 L70 184 L110 160 L150 172 L190 152 L230 166 L270 158 L320 180 L380 170 L430 190 L480 182 L540 200 L600 196 L600 240Z', 'url(#h2)', 1.6);
+      b += P('M60 200 l30 -8 M150 186 l40 -10 M260 182 l36 6 M420 206 l40 -6', null, 1.6, `stroke="${pal.paper}"`);
+      b += stander(190, 154, 1.3, 1);
+      return framed(b, 'A bare ridge above the cloud, with smoke rising from a far island');
+    },
+
+    /** The old lookout on the headland: a cairn of stones with a carved spar lashed upright, and a bed of fern in its lee. */
+    lookout() {
+      const r = rng(261);
+      const hz = 132;
+      let b = seascape(r, hz) + birds(r, 440, 70, 6, 120);
+      b += P('M0 240 L0 182 Q120 170 260 178 Q360 186 420 212 Q446 226 464 240Z', 'url(#h1)', 1.4);
+      b += tufts(r, 10, 380, 194, 9);
+      // the spar, lashed upright and carved all over
+      b += P('M222 186 V40', null, 6) + P('M222 186 V40', null, 3.4, `stroke="${pal.paper}"`);
+      b += P('M220 60 h4 M220 70 h4 M220 82 h4 M220 92 h4 M220 104 h4', null, 0.8) + circle(222, 124, 4, pal.paper, 1.2);
+      // the cairn, stones piled round its foot
+      for (let k = 0; k < 4; k++) {
+        const n = 5 - k;
+        for (let i = 0; i < n; i++) {
+          b += `<ellipse cx="${222 - (n - 1) * 8 + i * 16}" cy="${186 - k * 11}" rx="9" ry="6.5" fill="${pal.paper}" stroke="${pal.ink}" stroke-width="1.1"/>`;
+        }
+      }
+      b += P('M214 150 l16 6 M214 158 l16 -6', null, 1.2);
+      // the bed of fern in its lee
+      for (let i = 0; i < 5; i++) b += leaf(280 + i * 14, 196, 40, -150 + i * 12, 0.2);
+      return framed(b, 'A cairn on a headland, a carved spar standing up from it');
+    },
+
+    /** The Bird Rock's ledges: the black face of the rock, ledge above ledge crowded with sitting birds. */
+    ledges() {
+      const r = rng(271);
+      let b = sky(r, SW, 0, 190, false) + sea(r, 220, 190, SH, false);
+      b += P('M150 240 L210 0 L600 0 L600 240Z', pal.ink, 1.2);
+      [[40, 236], [92, 222], [144, 206], [196, 190]].forEach(([y, x0]) => {
+        b += P(`M${x0} ${y} L600 ${y - 4} L600 ${y + 7} L${x0 - 2} ${y + 8}Z`, pal.paper, 1);
+        for (let x = x0 + 10; x < 590; x += 20 + r() * 10) {
+          b += P(`M${f(x)} ${y} q8 -15 18 0Z`, pal.paper, 1) + circle(f(x + 14), y - 11, 3, pal.paper, 1) + P(`M${f(x + 17)} ${y - 11} l5 1`, null, 1);
+          if (r() < 0.25) b += `<ellipse cx="${f(x - 4)}" cy="${y + 1}" rx="3" ry="2.2" fill="${pal.paper}" stroke="${pal.ink}" stroke-width="0.8"/>`;
+        }
+      });
+      let streaks = '';
+      for (let i = 0; i < 30; i++) streaks += `M${f(220 + r() * 380)} ${f(10 + r() * 220)}v${f(6 + r() * 14)}`;
+      b += P(streaks, null, 1.3, `stroke="${pal.paper}"`);
+      b += birds(r, 90, 90, 12, 140);
+      return framed(b, 'Ledge after ledge of nesting birds on a black rock');
+    },
+
+    /** The top of the Bird Rock: hand-cut steps, a slab carved with the Salem crew's words, and the wind. */
+    rocktop() {
+      const r = rng(281);
+      const hz = 148;
+      let b = seascape(r, hz) + P(`M460 ${hz} q30 -5 60 0`, null, 1.4);
+      b += P('M0 240 L0 178 Q150 166 300 172 Q450 166 600 182 L600 240Z', pal.ink, 1.2);
+      let steps = '';
+      for (let i = 0; i < 6; i++) steps += `M${30 + i * 20} ${238 - i * 10}h24v-10`;
+      b += P(steps, null, 1.6, `stroke="${pal.paper}"`);
+      b += P('M326 176 L334 104 L446 98 L452 172Z', pal.paper, 1.4);
+      let words = '';
+      for (let row = 0; row < 5; row++) {
+        for (let x = 346 + r() * 6; x < 430; x += 10 + r() * 14) words += `M${f(x)} ${116 + row * 11}h${f(4 + r() * 8)}`;
+      }
+      b += P(words, null, 1.4);
+      let wind = '';
+      for (let i = 0; i < 9; i++) wind += `M${f(r() * 300)} ${f(30 + r() * 100)}q40 -6 ${f(60 + r() * 60)} 0`;
+      b += P(wind, null, 0.6);
+      return framed(b, 'Words carved in a slab on top of a rock, steps cut up to it');
+    },
+
+    /** The canoe sheds on the Island of Fires: long open sheds with canoes in their shade, and a hull in the making. */
+    sheds() {
+      const r = rng(291);
+      let b = seascape(r, 104, 146) + ground('M0 146 C200 138 400 152 600 142', 'url(#dots)', 1.1);
+      [[40, 250], [340, 200]].forEach(([x, w]) => {
+        b += P(`M${x} 196 V140 M${x + w / 2} 196 V140 M${x + w} 196 V140`, null, 2.4);
+        b += `<rect x="${x}" y="140" width="${w}" height="56" fill="url(#h1)"/>`;
+        b += P(`M${x + 16} 190 Q${x + w / 2} 200 ${x + w - 16} 190 L${x + w - 10} 182 Q${x + w / 2} 192 ${x + 10} 182Z`, 'url(#h3)', 1.2);
+        b += P(`M${x - 20} 144 L${x} 112 L${x + w} 112 L${x + w + 20} 144Z`, 'url(#h2)', 1.2);
+        let thatch = '';
+        for (let tx = x - 12; tx < x + w + 14; tx += 6) thatch += `M${tx} 144 l4 -10`;
+        b += P(thatch, null, 0.7);
+      });
+      b += palm(r, 566, 232, 190, -18);
+      // a hull in the making on trestles, and the chips from the adze
+      b += P('M200 220 L208 236 M216 220 L208 236 M386 220 L394 236 M402 220 L394 236', null, 2);
+      b += P('M190 214 Q300 228 410 214 L414 204 Q300 216 186 204Z', pal.paper, 1.3) + P('M220 208 Q300 216 380 208', null, 0.8);
+      let chips = '';
+      for (let i = 0; i < 14; i++) chips += `M${f(180 + r() * 250)} ${f(230 + r() * 8)}l4 -2`;
+      b += P(chips, null, 1.2);
+      return framed(b, 'Long open sheds with canoes in their shade, and a new hull on trestles');
+    },
+
+    /** Tavake's house: long and low under a breadfruit tree, set a little apart, a ring of pebbles on the mat before it. */
+    tavake() {
+      const r = rng(301);
+      let b = seascape(r, 116, 156) + ground('M0 156 C200 148 400 164 600 152', 'url(#dots)', 1.1);
+      // the house, thatched almost to the ground, its doorway dark
+      b += P('M300 192 L334 110 L536 110 L570 192Z', 'url(#h2)', 1.3);
+      let thatch = '';
+      for (let x = 306; x < 566; x += 6) thatch += `M${x} 192 l${f((x - 435) * 0.04)} -14`;
+      b += P(thatch, null, 0.7) + P('M420 192 V164 Q434 154 448 164 V192Z', pal.ink, 1);
+      // the mat before the door, with the night's lesson laid out on it in pebbles
+      b += P('M380 206 L500 206 L510 222 L370 222Z', 'url(#hh)', 1);
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        b += circle(f(440 + Math.cos(a) * 26), f(214 + Math.sin(a) * 5), 1.8, pal.ink);
+      }
+      // the breadfruit tree: a thick trunk, broad leaves, round fruit
+      b += P('M140 234 Q150 170 146 110 L172 110 Q172 170 182 234Z', 'url(#h1)', 1.2);
+      b += P('M146 118 Q120 100 96 104 M172 116 Q200 96 226 100', null, 4);
+      b += P('M60 112 Q40 60 100 40 Q140 6 200 26 Q262 30 262 76 Q276 116 226 124 Q160 136 100 128 Q60 130 60 112Z', 'url(#h3)', 1.2);
+      for (let i = 0; i < 22; i++) {
+        const x = 80 + r() * 170;
+        const y = 34 + r() * 80;
+        b += leaf(f(x), f(y), 34 + r() * 16, f(r() * 360), 0.36);
+      }
+      [[110, 108], [186, 112], [150, 120], [220, 92]].forEach(([x, y]) => {
+        b += circle(x, y, 7, 'url(#dots2)', 1);
+      });
+      return framed(b, 'A long low house under a breadfruit tree');
+    },
+
+    /** The village on the Island of Fires: long low houses under the palms, smoke going up, canoes on the sand. */
+    village() {
+      const r = rng(311);
+      let b = seascape(r, 104, 150);
+      b += headland(r, 330, 104, 270, 40, 0);
+      b += ground('M0 150 C200 140 400 158 600 146', 'url(#dots)', 1.1);
+      [[30, 150], [200, 140], [362, 116]].forEach(([x, w]) => {
+        b += P(`M${x} 170 L${x + 20} 118 L${x + w - 20} 118 L${x + w} 170Z`, 'url(#h2)', 1.2);
+        let thatch = '';
+        for (let tx = x + 6; tx < x + w; tx += 6) thatch += `M${tx} 170 l2 -12`;
+        b += P(thatch, null, 0.7) + P(`M${x + w / 2 - 8} 170 V154 h16 V170Z`, pal.ink, 0.8);
+        b += P(`M${x + w / 2} 112 c-6 -12 6 -20 0 -34 c-6 -12 4 -18 0 -28`, null, 0.8, 'class="smoke"');
+      });
+      b += palm(r, 186, 186, 150, -10, 0.85) + palm(r, 520, 190, 160, 14, 0.9);
+      // canoes drawn up on the sand, and people about the houses
+      b += P('M260 214 Q320 224 380 214 l4 -6 Q320 218 256 208Z', 'url(#h3)', 1) + P('M268 200 h96 M286 200 v10 M346 200 v10', null, 1.6);
+      b += P('M420 222 Q470 230 520 222 l4 -6 Q470 226 416 216Z', 'url(#h3)', 1);
+      b += islander(120, 200, 1.1, 1) + islander(160, 204, 0.8, -1) + islander(470, 196, 1.05, -1);
+      return framed(b, 'A village of long thatched houses under palms, canoes on the beach');
+    },
+
+    /** The night reef: torches out along the reef in the dark, each canoe's light on the water. */
+    nightreef() {
+      const r = rng(321);
+      let b = sky(r, SW, 0, 100, true) + stars(r, SW, 90) + sea(r, SW, 100, SH, true);
+      b += P('M0 150 q40 -8 80 -2 q60 8 120 -2 q70 -8 140 2 q60 6 120 -4 q60 -6 140 2', pal.paper, 1);
+      let top = '';
+      [[70, 142, 0.5], [170, 146, 0.55], [280, 140, 0.6], [400, 146, 0.55], [520, 140, 0.5], [120, 198, 1], [360, 210, 1.1]].forEach(([x, y, s]) => {
+        top += P(`M${x - 40 * s} ${y} Q${x} ${y + 10 * s} ${x + 40 * s} ${y} L${x + 44 * s} ${y - 6 * s} Q${x} ${y + 2 * s} ${x - 44 * s} ${y - 6 * s}Z`, pal.ink, 0.8);
+        top += P(`M${x + 30 * s} ${y - 4 * s} V${y - 30 * s}`, null, 1.6 * s) + fire(x + 30 * s, y - 32 * s, 2, 0.24 * s * 2);
+        top += P(`M${x + 24 * s} ${y + 8 * s} h12 M${x + 26 * s} ${y + 14 * s} h8 M${x + 28 * s} ${y + 20 * s} h4`, null, 1.2 * s, `stroke="${pal.paper}"`);
+      });
+      top += islander(374, 204, 1.1, -1);
+      return framed(b, 'Torches on canoes along a reef at night', top);
+    },
+
+    /** The anchorage: a deep still bay between two points, rotted water casks on the beach and an old whaleboat; `opts.ship` puts a whaler at anchor in it. */
+    anchorage(opts) {
+      opts = opts || {};
+      const r = rng(331);
+      const hz = 100;
+      let b = sky(r, SW, 0, hz, false) + sea(r, SW, hz, 120, false);
+      b += headland(r, -20, hz + 6, 230, 70, 2) + headland(r, 400, hz + 4, 230, 60, 2);
+      // the bay, still as a pond
+      b += P('M0 120 H600 V196 H0Z', pal.paper, 0);
+      let still = '';
+      for (let y = 126; y < 196; y += 6 + (y - 120) * 0.05) still += `M${f(20 + r() * 80)} ${f(y)}h${f(120 + r() * 200)}M${f(360 + r() * 80)} ${f(y)}h${f(80 + r() * 120)}`;
+      b += P(still, null, 0.5);
+      if (opts.ship) b += ship(330, 168, 0.75, -1) + P('M300 140 c-6 -12 6 -20 0 -34', null, 0.8);
+      b += ground('M0 196 C150 188 350 204 600 192', 'url(#dots)', 1.1);
+      b += cask(130, 226, 1.2) + cask(156, 230, 1.1) + `<g transform="rotate(80 186 224)">${cask(186, 224, 1.1)}</g>`;
+      b += P('M330 222 Q400 236 470 222 L478 210 Q400 226 322 210Z', 'url(#h3)', 1.2) + P('M352 216 v-6 M400 220 v-6 M448 216 v-6', null, 1.4);
+      return framed(b, opts.ship ? 'A whaling ship at anchor in a still bay' : 'A deep still bay, with old casks and a whaleboat on the beach');
+    },
+
     /** A stand of tall pale trees, their trunks scored and weeping gum. */
     gumwood() {
       const r = rng(161);
@@ -375,7 +696,8 @@
     },
 
     /** An old stepped platform of fitted stones, upright slabs along its top, half swallowed by jungle. */
-    platform() {
+    platform(opts) {
+      opts = opts || {};
       const r = rng(181);
       let b = backdrop('url(#h1)');
       b += ground('M0 214 C200 206 400 220 600 210', pal.paper, 1);
@@ -387,11 +709,24 @@
         for (let jx = x + 20 + r() * 20; jx < x + w - 10; jx += 26 + r() * 20) joints += `M${f(jx)} ${y}v26`;
         b += P(`M${x} ${y}h${w}v26h${-w}Z`, pal.paper, 1.4) + P(joints, null, 0.8);
       }
-      [214, 262, 314, 366].forEach((x) => {
-        b += P(`M${x} 136 l4 -54 l20 0 l4 54Z`, 'url(#h3)', 1.2);
+      // the upright stones, each on its plinth, and the empty plinth in the middle of the row
+      [196, 244, 288, 332, 380].forEach((x) => {
+        b += P(`M${x - 4} 136 h36 v-8 h-36Z`, pal.paper, 1.1);
+        if (x !== 288) b += P(`M${x} 128 l4 -50 l20 0 l4 50Z`, 'url(#h3)', 1.2);
       });
+      if (opts.shells || opts.people) {
+        for (let i = 0; i < 12; i++) {
+          const a = (i / 12) * Math.PI * 2;
+          b += circle(f(306 + Math.cos(a) * 26), f(132 + Math.sin(a) * 5), 1.8, pal.paper, 0.6);
+        }
+      }
       for (let i = 0; i < 6; i++) b += leaf(i < 3 ? 10 + i * 30 : 500 + (i - 3) * 34, 220, 70 + r() * 20, i < 3 ? -50 : -130, 0.25);
-      return framed(b, 'An old stone platform in the jungle');
+      if (!opts.people) return framed(b, opts.shells ? 'The old stone platform, a ring of shells around its empty plinth' : 'An old stone platform in the jungle');
+
+      // night, and the people of the Island of Fires on the steps, by torchlight
+      let top = darkness(SW, SH, 306, 140, 170, 0.8);
+      top += islander(268, 162, 1.2, 1, { torch: 1 }) + islander(306, 136, 1.15, -1) + islander(352, 188, 1.25, -1, { torch: 1 }) + islander(230, 214, 1.3, 1);
+      return framed(b, 'People with torches on the old stone platform at night', top);
     },
 
     /** A storm breaking on the beach: palms bent flat, driving rain, the surf over the camp. */
@@ -423,6 +758,27 @@
       b += P('M0 218 C80 210 190 214 270 240 L0 240Z', pal.paper, 1.2);
       b += stander(120, 232, 1.1, 1);
       return framed(b, 'A glowing light in the sea at night');
+    },
+
+    /**
+     * The islet of the second chapter: a hump of sand and palms in the open
+     * sea, the castaway's island far off to the east. `opts.wreck` puts the
+     * broken raft on the reef in the foreground.
+     */
+    islet(opts) {
+      opts = opts || {};
+      const r = rng(171);
+      const hz = 112;
+      let b = seascape(r, hz) + headland(r, 430, hz, 150, 20, 2) + birds(r, 250, 40, 9, 150);
+      b += P('M170 196 C220 176 280 166 340 166 S470 178 520 196Z', 'url(#dots)', 1.2);
+      b += palm(r, 318, 170, 80, -14, 0.56) + palm(r, 364, 170, 64, 18, 0.46);
+      if (opts.wreck) {
+        // the reef's breakers, and the raft hung up on them with her mast snapped
+        b += P('M0 206 q40 -12 80 -4 q40 8 90 -4', null, 0.9, 'stroke-dasharray="6 5"');
+        b += `<g transform="rotate(-10 90 214)">${raft(30, 224, { hull: 1 }, 0.8)}</g>`;
+        b += P('M86 206 l8 -30 M94 176 l-22 -10', null, 2.4);
+      }
+      return framed(b, opts.wreck ? 'A broken raft on the reef of a small islet' : 'A small islet in the open sea, another island far off');
     },
 
     /** The finished raft under sail on the open sea. */

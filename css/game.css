@@ -199,6 +199,17 @@ svg.art {
   font-size: 0.8em;
 }
 
+/* a possession: its note on a line of its own beneath the name */
+.rows li.item {
+  display: block;
+}
+
+.rows li.item .sub {
+  display: block;
+  margin: -0.2em 0 0.25em 0.9em;
+  line-height: 1.25;
+}
+
 /* a resource that just changed flashes */
 .rows li.bump {
   animation: bump 0.9s ease;

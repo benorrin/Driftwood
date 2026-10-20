@@ -26,6 +26,7 @@
   function refreshContinue() {
     $('#btn-continue').classList.toggle('hidden', !load());
     $('#btn-records').classList.toggle('hidden', !G.records().tales);
+    $('#carried').classList.toggle('hidden', !G.carried());
   }
 
   /** Stops the game and returns to the title screen. */
@@ -75,7 +76,7 @@
     if (!saved) return;
     replaceState(saved);
     enterGame();
-    log('You return to the island. It has not forgotten you.');
+    log(G.atHome() ? 'You return to the island. It has not forgotten you.' : 'You return to the islet. The wind has not changed its mind.');
   }
 
   /** Shows the game screen for the current state, with fresh buttons and sounds to match. */
@@ -95,11 +96,19 @@
     save();
   }
 
+  G.enterGame = enterGame;
+
+  /** Plays the opening, after the prologue if this browser has never seen it. */
+  function opening() {
+    if (G.prologueSeen()) playIntro();
+    else G.playPrologue(playIntro);
+  }
+
   /** Starts a new game, first asking before overwriting a saved one. */
   function newGame() {
     AU.init();
     if (!load()) {
-      playIntro();
+      opening();
       return;
     }
     confirm(
@@ -110,7 +119,7 @@
         fn: () => {
           clearSave();
           closeModal();
-          playIntro();
+          opening();
         },
       },
       { label: 'never mind', fn: () => $('#modal').classList.add('hidden') },
@@ -145,7 +154,8 @@
     ['Explore', 'Before long you will draw a map. Explore the island to find places to put on it: the story tells you what to look for, a fruitless trip may still bring back a clue, and some places you may spot from somewhere else. Every trip costs supplies, and after dark you will need a torch to see your way. Some places can only be reached when the tide is out.'],
     ['Fight', 'Fights are turn based, and can be long. Strike, eat to heal, or flee. When a foe gathers itself for a heavy blow, brace yourself to turn it aside. Once you carry a blade, the island\'s creatures will start to come for you.'],
     ['Escape', 'There is more than one way off the island, and some of the choices you make along the way will follow you home.'],
-    ['Time', 'Time passes while you play, and stands still while a notice is open. Your progress is saved in this browser.'],
+    ['Sail', 'In time you may have a boat that will carry you between islands. She runs before the wind: see which way it blows before you choose a passage, and carry water for every day at sea. Load her with what you will need, no more than she will carry; the rest stays at the camp. A camp left to itself suffers; a camp somebody keeps does not.'],
+    ['Time', 'Time passes while you play, and stands still while a notice is open, or while you pause the game (press P, or pause at the top). Your progress is saved in this browser.'],
   ];
 
   /** Opens the rules of the game. */
@@ -163,6 +173,24 @@
 
   /** What changed in each release, newest first, as headed paragraphs. */
   const NEWS = [
+    {
+      date: '21 October 2026',
+      items: [
+        ['A prologue', 'Twenty years before you, a Liverpool brig struck the same reef. Before your first tale you hear how, from her cabin boy.'],
+        ['Chapter Two', 'The raft was never going to get you home. Where she does get you is the beginning of a second chapter: an archipelago of islands nobody could see from the summit, a chart of them, and a patched boat that only runs before the wind.'],
+        ['The wind', 'The trades, a westerly, or a flat calm, shifting every dawn. Fit your boat with leeboards, casks and an outrigger to go further, and in more weathers.'],
+        ['Loading', 'Before you put to sea, choose what to take aboard, up to what your boat will carry. Everything else stays at the camp, and will be there when you get back, less what the gulls have had.'],
+        ['Five islands', 'An islet, a high island with a stream and an old camp on it, a rock of ten thousand birds, a sandbar, and, far to the south, an island where fires burn at night. The three biggest have charts of their own, and places to find on them, just as your own island does.'],
+        ['Who keeps the fire', 'Leave the camp, and Hollis can come with you or keep it. A camp nobody keeps is a camp the gulls have.'],
+        ['A deserter', 'Somebody is hiding out among the islands. If you can coax him out, he has a story to tell, one evening at a time.'],
+        ['The canoe people', 'They still come back, once a moon, to the old stone platform. How they receive you depends on what you have done.'],
+        ['The Meridian', 'She still comes back. But she no longer stops.'],
+        ['What the tide brings', 'In the first days on the island, the sea may give back something of the <i>Meridian</i>\'s that you would rather it had kept. And the captain\'s Bible has an inscription you may not have read.'],
+        ['Pictures', 'Every place on the islands has a picture of its own: the watering camp, the waterfall pool, the lookout, the ledges of the Bird Rock, the canoe sheds, the night reef and more. And you can no longer see the sea through a mountain.'],
+        ['Pause', 'Press P, or pause at the top of the screen, and time on the island stands still until you come back.'],
+        ['Bound for Valparaíso', 'The second chapter ends aboard a whaler. A castaway who sails in her is kept for the third chapter, which is still to be written.'],
+      ],
+    },
     {
       date: '20 October 2026',
       items: [
@@ -205,14 +233,43 @@
     modal({ art: ART.scene('beach', { ball: 1 }), title: "What's New", text, choices: [leave('back')] });
   }
 
+  /* ---------------- pausing ---------------- */
+
+  /** Whether the pause card is the one showing. */
+  let paused = false;
+
+  /**
+   * Pauses the game: a card over everything, so that, as with any card,
+   * time stands still and nothing can be done until it is put away. Not
+   * while another card is open, which has stopped the clock already.
+   */
+  function pause() {
+    if (!session.running || G.modalOpen()) return;
+    paused = true;
+    AU.sfx('page');
+    modal({
+      art: ART.scene('night'),
+      title: 'Paused',
+      text: ['The island waits. The tide will not turn, nor the fire burn down, until you come back to it.'],
+      choices: [{ label: 'resume', fn: resume }],
+    });
+  }
+
+  /** Puts the pause card away, and time goes on. */
+  function resume() {
+    paused = false;
+    closeModal();
+  }
+
   /* ---------------- the ship's log ---------------- */
 
-  /** A tale in the ship's log, e.g. "Day 14: killed by the boar". */
+  /** A tale in the ship's log, e.g. "Day 14: killed by the boar", noting the chapter it reached past the first. */
   function taleLine(t) {
     const how = t.end === 'death'
       ? G.DEATH_NOTES[t.cause] || `killed by ${t.cause}`
-      : G.ENDINGS[t.end][1];
-    return `<p><b class="sc">Day ${t.day}.</b> ${G.cap(how)}.</p>`;
+      : (G.ENDINGS[t.end] ? G.ENDINGS[t.end][1] : G.RETIRED_ENDINGS[t.end]);
+    const chapter = t.chapter ? `, ${G.CHAPTERS[t.chapter].toLowerCase()}` : '';
+    return `<p><b class="sc">Day ${t.day}${chapter}.</b> ${G.cap(how)}.</p>`;
   }
 
   /** Opens the record of every tale told in this browser, with the endings still to find hidden. */
@@ -278,10 +335,15 @@
   /** The chart location a click or keypress landed on, if any. */
   const locationOf = (e) => e.target.closest('.loc');
 
+  /** Acts on a chart marker: a journey to a place on the island, or a passage to an island on the sea chart. */
+  const go = (loc) => (loc.dataset.isle ? G.setSail(loc.dataset.isle) : expedition(loc.dataset.loc));
+
   /** Draws the title screen, wires up every control, and starts the clock. */
   function boot() {
     ART.install($('#defs'));
     $('#title-art').innerHTML = ART.scene('title');
+    G.devFromAddress();
+    G.showDevLinks();
     refreshContinue();
     G.styleSeen(STY.current);
 
@@ -292,9 +354,19 @@
     $('#btn-help').onclick = openHelp;
     $('#btn-news').onclick = openNews;
     $('#btn-records').onclick = openRecords;
+    $('#btn-dev').onclick = G.openDev;
+    $('#btn-dev-game').onclick = G.openDev;
     $('#btn-achievements').onclick = G.openAchievements;
     $('#btn-achievements-game').onclick = G.openAchievements;
     $('#btn-restart').onclick = restart;
+    $('#btn-pause').onclick = pause;
+    // P pauses, and P again resumes; not while typing anywhere
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'p' && e.key !== 'P') return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest('input, textarea')) return;
+      if (paused) resume();
+      else pause();
+    });
     $('#tgl-music').onclick = $('#tgl-music-title').onclick = () => {
       AU.init();
       AU.toggleMusic();
@@ -308,13 +380,13 @@
     // the chart's location markers act as buttons
     $('#scene').addEventListener('click', (e) => {
       const loc = locationOf(e);
-      if (loc) expedition(loc.dataset.loc);
+      if (loc) go(loc);
     });
     $('#scene').addEventListener('keydown', (e) => {
       const loc = locationOf(e);
       if (loc && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
-        expedition(loc.dataset.loc);
+        go(loc);
       }
     });
 

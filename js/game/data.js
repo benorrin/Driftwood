@@ -15,6 +15,9 @@
   /** Where the ship's log of every tale told is kept. */
   G.RECORDS_KEY = 'driftwood-records-v1';
 
+  /** Where a castaway who has sailed for Valparaíso is kept, for the chapter still to come. */
+  G.CARRY_KEY = 'driftwood-carry-v1';
+
   /** Where the achievements earned in this browser are kept. */
   G.ACHIEVEMENTS_KEY = 'driftwood-achievements-v1';
 
@@ -35,7 +38,7 @@
   G.FIRE_DECAY = 40;
 
   /** Most entries kept in the log. */
-  G.LOG_MAX = 25;
+  G.LOG_MAX = 15;
 
   /** The fire's description at each level, 0–4. */
   G.FIRE_NAMES = ['cold', 'smouldering', 'flickering', 'burning', 'roaring'];
@@ -77,6 +80,8 @@
     locket: ["Hale's locket", 'J.H. from M.H.'],
     idol: ['a carved figure', 'it is watching you'],
     dollar: ['a Spanish dollar', 'of no use at all'],
+    bean: ['a black bean', 'from your jacket lining'],
+    shell: ['Tavake\'s shell', 'so it knows who you are'],
   };
 
   /**
@@ -88,6 +93,12 @@
     gather: ['gather wood', 'gathering wood', 'Hollis goes off into the palms with a rope over his shoulder, after wood and fibre.'],
     fish: ['fish the reef', 'fishing the reef', 'Hollis takes his spear down to the reef. He fishes like a heron: still, and then very fast.'],
     watch: ['keep watch', 'keeping watch', 'Hollis sits down by the stores with his spear across his knees, and feeds the fire, and watches.'],
+  };
+
+  /** What Jem can be set to do: [button label, what he is doing, the line logged on setting him to it]. */
+  G.JEM_JOBS = {
+    gather: ['gather wood', 'gathering wood', 'Jem goes along the tide line after wood, keeping well clear of Hollis.'],
+    fish: ['fish the shallows', 'fishing', 'Jem takes a line down to the rocks. He fishes like a Bristol boy, patient and cursing.'],
   };
 
   /**
@@ -125,6 +136,37 @@
    * close enough to the north headland to see a fire on the summit.
    */
   G.TRADE_WINDS_DAY = 12;
+
+  /** The chapters of the tale, by number. */
+  G.CHAPTERS = { 1: 'The Island', 2: 'The Archipelago' };
+
+  /**
+   * The winds of the second chapter: [name in the clock, the line logged
+   * when it sets in]. A crude raft can only run before the wind, so the
+   * trades carry it west and only a westerly brings it back.
+   */
+  G.WINDS = {
+    trades: ['the trades', 'The wind is back in the south-east: the trades, steady and warm, blowing away from home.'],
+    westerly: ['a westerly', 'The wind has backed into the west in the night: a soft, gusty wind, blowing east. It will not last.'],
+    calm: ['a flat calm', 'There is no wind at all. The sea lies flat as oil under a white sky.'],
+  };
+
+  /** Patching the boat the reef broke, in order: like the raft, each part may need another first. */
+  G.PATCH = [
+    { id: 'lash', label: 're-lash the hull', cost: { wood: 8, rope: 4 }, note: 'what the reef left of her', msg: 'You drag the wreck up the sand and lash her together again with fresh rope, and stuff the gaps with weed. She is uglier than she was. She floats.' },
+    { id: 'mast', label: 'step a jury mast', cost: { wood: 8, rope: 2 }, needs: 'lash', note: 'a spar from the tide line', msg: 'The straightest spar on the islet, stepped and stayed. It will carry a sail if you do not ask too much of it.' },
+    { id: 'sail', label: 'patch the sail', cost: { cloth: 3, fibre: 4 }, needs: 'mast', note: 'canvas eked out with woven fibre', msg: 'Rags of canvas stitched to a mat of woven fibre. It is more hole than sail, but it will catch a wind.' },
+  ];
+
+  /**
+   * Fitting out the patched boat at home, for passages she could not make
+   * as she is: crossing the wind, longer than two days, or in foul weather.
+   */
+  G.UPGRADES = [
+    { id: 'leeboards', label: 'hang leeboards', cost: { timber: 6, rope: 4, iron: 2 }, note: 'so she will sail across the wind', msg: 'Two broad boards on iron pins, one over each side, to be let down into the sea. With one down she will hold a course across the wind, crabwise and complaining, but she will hold it.' },
+    { id: 'casks', label: 'build water casks', cost: { timber: 5, iron: 6 }, note: 'water for passages of more than two days', msg: 'Two casks again, tight enough, lashed down amidships. You can go further now.' },
+    { id: 'outrigger', label: 'rig an outrigger', cost: { timber: 8, rope: 6, gum: 2 }, note: 'so she will not roll so easily in a blow', msg: 'A float on two booms, the way the old canoe had it. She sits up in the water now like a duck, and a squall that would have rolled her only shoves.' },
+  ];
 
   /**
    * The island's creatures: hp, damage per hit, chance to hit, the verbs
@@ -164,12 +206,12 @@
       heavy: 'drives the spear in with all his weight',
       intro: 'He howls, and comes at you with the spear.',
     },
-    crane: {
-      name: 'Mr Crane', art: 'crane', hp: 16, dmg: 2, hit: 0.65,
-      verbs: ['cuts at you with his cutlass', 'drives the hilt into your ribs', 'lays your arm open'],
-      tell: 'Crane steps back, takes the cutlass in both hands, and raises it over his head.',
-      heavy: 'brings the cutlass down with both hands',
-      intro: '"I gave you an island," says Crane, drawing his cutlass. "You might have had the sense to keep it."',
+    jem: {
+      name: 'Jem Rudd', art: 'jem', hp: 9, dmg: 1, hit: 0.6,
+      verbs: ['claws at your face', 'gets his teeth into your arm', 'cuts at you with a broken knife'],
+      tell: 'He backs against a rock, the broken knife held low, gathering himself.',
+      heavy: 'flies at you with the knife',
+      intro: 'He comes up off the ground with a broken knife in his fist, and his eyes are white all round.',
     },
     shark: {
       name: 'the shark', art: 'shark', hp: 20, dmg: 2, hit: 0.6,
@@ -203,6 +245,7 @@
     '<p class="dateline">The South Pacific. The Year of Our Lord 1846.</p>',
     'You were bosun\'s mate aboard the barque <i>Meridian</i>, eleven months out of Bristol, carrying iron for Valparaíso and a captain whose temper was harder than his cargo.',
     'When the crew rose against Captain Ashby, you would not stand with them. Nor would you stand against them. Mr Crane, the first mate, said that a man who would choose no side might have an island all to himself.',
+    'Of the night itself you remember very little: lanterns, shouting, a hat passed from hand to hand. Your head still aches with it.',
     'They rowed you ashore at first light, as the old custom demands: a flintlock with a single shot, a flask of water, a tin of ship\'s biscuit — and the Bible, so that you might make your peace.',
     'The <i>Meridian</i>\'s sails grow small against the sun. Behind you the island waits, green and silent. The tide is coming in.',
   ];
@@ -245,10 +288,15 @@
   /** The ways a tale can end well, or at least end: [title, a line for the ship's log]. */
   G.ENDINGS = {
     rescue: ['Rescue', 'taken off by the whaler <i>Perseverance</i>'],
-    landfall: ['Landfall', 'sailed the raft to the Society Islands'],
-    articles: ['The Articles', 'signed on with the mutineers'],
-    pitcairn: ["Pitcairn's Island", "paddled the old canoe to Pitcairn's Island"],
     stay: ['The Island', 'stayed, and made the island home'],
+    valparaiso: ['Bound for Valparaíso', 'sailed for Valparaíso in the <i>Perseverance</i>'],
+  };
+
+  /** Endings no longer in the tale, as old tales in the ship's log still name them. */
+  G.RETIRED_ENDINGS = {
+    articles: 'signed on with the mutineers',
+    landfall: 'sailed the raft to the Society Islands',
+    pitcairn: "paddled the old canoe to Pitcairn's Island",
   };
 
   /** How each way of dying that isn't a creature reads in the ship's log. */

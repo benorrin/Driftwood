@@ -25,7 +25,7 @@
   };
 
   /** The endings that take the castaway home. */
-  const HOMEWARD = ['rescue', 'landfall', 'pitcairn'];
+  const HOMEWARD = ['rescue', 'valparaiso'];
 
   /** Days within which a castaway must get home for "Fair Winds". */
   const FAIR_WINDS_DAYS = 15;
@@ -62,19 +62,29 @@
     { id: 'pyre', kind: 'deed', name: 'A Great Fire', desc: 'Build the signal pyre on the summit.', test: () => S.built.pyre },
     { id: 'raft', kind: 'deed', name: 'Shipwright', desc: 'Finish the raft.', test: () => G.RAFT.every((p) => S.raft[p.id]) },
     { id: 'shark', kind: 'deed', name: 'A Bigger Raft', desc: 'Fight off the shark at sea.' },
+    { id: 'reef', kind: 'deed', name: 'The Reef', desc: 'Reach the second chapter.', test: () => S.chapter >= 2 },
+    { id: 'homeAgain', kind: 'deed', name: 'Home Waters', desc: 'Sail the patched boat home from the islet.', test: () => S.flags.homeAgain },
+    { id: 'jem', kind: 'deed', name: 'Bread on the Waters', desc: 'Coax the deserter out of hiding.', test: () => S.flags.jem },
+    { id: 'beans', kind: 'deed', name: 'Every Bean Was Black', desc: 'Hear all that Jem has to tell.', test: () => S.n.jemTold >= 5 },
+    { id: 'tupa', kind: 'deed', name: 'Tupa and Tavake', desc: 'Be welcomed by the people who tend the marae.', test: () => S.flags.contact === 'warm' },
+    { id: 'promise', kind: 'deed', name: 'A Promise', desc: 'Promise to bring their god home.', test: () => S.flags.promise },
+    { id: 'fires', kind: 'deed', name: 'The Island of Fires', desc: 'Follow the canoes south.', test: () => S.landed && S.landed.smoke },
+    { id: 'wayfinder', kind: 'deed', name: 'Three Swells', desc: 'Learn to read the sea from Tavake.', test: () => S.flags.wayfinder },
+    { id: 'valparaiso', kind: 'deed', name: 'Bound for Valparaíso', desc: 'Sail in the <i>Perseverance</i>.' },
+    { id: 'witness', kind: 'deed', name: 'A Witness', desc: 'Persuade Jem to come to Valparaíso and speak.', test: () => S.flags.jemSails },
+    { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
-    { id: 'landfall', kind: 'deed', name: 'Landfall', desc: 'Sail the raft to the Society Islands.' },
-    { id: 'pitcairn', kind: 'deed', name: 'Another Mutiny', desc: 'Paddle the old canoe to Pitcairn\'s Island.' },
 
     { id: 'cartographer', kind: 'feat', name: 'Cartographer', desc: 'Put every place on the island on your map.', test: () => Object.keys(G.LOCS).every((id) => S.mapped[id]) },
     { id: 'forty', kind: 'feat', name: 'Forty Days and Forty Nights', desc: 'Live to see the fortieth day.', test: () => S.day >= 40 },
     { id: 'fairWinds', kind: 'feat', name: 'Fair Winds', desc: `Get home within ${FAIR_WINDS_DAYS} days.` },
     { id: 'flame', kind: 'feat', name: 'Keeper of the Flame', desc: 'Get home without once letting the fire go out.' },
-    { id: 'crane', kind: 'feat', name: 'Mutiny\'s End', desc: 'Stand your ground against Mr Crane, and beat him.', test: () => S.flags.killedCrane },
     { id: 'lastShot', kind: 'feat', name: 'The Last Shot', desc: 'Finish a foe with your last powder and shot.' },
     { id: 'boars', kind: 'feat', name: 'Swineherd', desc: `Kill ${BOARS} boar, over all your tales.` },
     { id: 'parcel', kind: 'feat', name: 'Special Delivery', desc: 'Carry the sealed parcel to Valparaíso.' },
     { id: 'stay', kind: 'feat', name: 'Monarch of All I Survey', desc: 'Make the island your home.' },
+    { id: 'charts', kind: 'feat', name: 'Charts of the Islands', desc: 'Put every place on the islands of the archipelago on your maps.', test: () => S.chapter > 1 && Object.values(G.ISLES).every((i) => Object.keys(i.locs || {}).every((id) => S.mapped[id])) },
+    { id: 'isles', kind: 'feat', name: 'Before the Wind', desc: 'Land on every island your boat can reach.', test: () => ['islet', 'high', 'rock', 'sandbar'].every((id) => S.landed && S.landed[id]) },
     { id: 'endings', kind: 'feat', name: 'Every Way Home', desc: 'Find every ending.' },
     { id: 'all', kind: 'feat', name: 'The Whole Log', desc: 'Earn every other achievement.' },
 
@@ -102,10 +112,12 @@
     { id: 'idolHome', kind: 'secret', name: 'It Wants to Go Home', desc: 'Return the carved figure to its people.', test: () => S.flags.idolReturned },
     { id: 'idolKept', kind: 'secret', name: 'Facing the Room', desc: 'Take the carved figure home with you.' },
     { id: 'remains', kind: 'secret', name: 'The Boots Fit', desc: 'Find what is left of the last castaway.', test: () => S.events.bones || S.events.lastRaft },
-    { id: 'overboard', kind: 'secret', name: 'Bristow!', desc: 'Lose your companion at sea.' },
+    { id: 'overboard', kind: 'secret', name: 'Bristow!', desc: 'Lose your companion at sea.', test: () => S.flags.bristowLost },
     { id: 'meridian', kind: 'secret', name: 'Good Riddance', desc: 'Know the <i>Meridian</i>, and let her sail on.' },
-    { id: 'articles', kind: 'secret', name: 'The Articles', desc: 'Sign on with the mutineers.' },
+    { id: 'glass', kind: 'secret', name: 'Through a Glass', desc: 'Light the pyre for the <i>Meridian</i>, and be watched.', test: () => S.flags.meridianClose },
+    { id: 'jemDead', kind: 'secret', name: 'Taken With Him', desc: 'Kill the deserter.', test: () => S.flags.jemDead },
     { id: 'notches', kind: 'secret', name: 'Thousands of Notches', desc: 'Kill the wild man.', test: () => S.flags.killedHollis },
+    { id: 'boyStayed', kind: 'secret', name: 'The Boy Who Stayed', desc: 'Leave Hollis with the people of the Island of Fires.', test: () => S.flags.hollisStayed },
     { id: 'greybeards', kind: 'secret', name: 'Two Grey Beards', desc: 'Grow old on the island with Hollis.' },
   ];
 
@@ -132,7 +144,8 @@
 
   /** Awards achievement `id`, announcing it, unless it was earned before. */
   G.achieve = function (id) {
-    if (!BY_ID[id] || G.achieved(id)) return;
+    // a tale started or nudged with the developer tools earns nothing
+    if (S.dev || !BY_ID[id] || G.achieved(id)) return;
     update((r) => {
       r.got[id] = new Date().toISOString().slice(0, 10);
     });
@@ -190,7 +203,6 @@
       if (S.items.parcel) G.achieve('parcel');
       if (S.items.locket && S.flags.buried) G.achieve('widow');
       if (S.items.idol) G.achieve('idolKept');
-      if (S.items.bristow && S.flags.sailing) G.achieve('overboard');
     }
     if (end === 'stay' && S.flags.ally) G.achieve('greybeards');
     const found = G.records().found;

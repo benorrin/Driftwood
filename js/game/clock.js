@@ -79,7 +79,7 @@
       log(pick(DAWNS));
     }
     if (hurt) damage(hurt, 'thirst');
-    else if (!fevered) heal(S.built.leanto ? 2 : 1);
+    else if (!fevered) heal(S.built.leanto && G.atHome() ? 2 : 1);
     if (S.ended) return;
     if (fevered && chance(FEVER_HARM)) {
       damage(1, 'fever');
@@ -111,8 +111,12 @@
         log(line, 'lore');
       }
     }
+    if (S.chapter >= 2) G.shiftWind();
+    G.jemDawn();
+    G.islandersDawn();
+    G.whalerDawn();
     G.offerStay();
-    if (S.built.pyre && S.flags.trades && !S.flags.sailing) {
+    if (S.built.pyre && S.flags.trades && !S.flags.sailing && G.atHome()) {
       S.n.pyreDays++;
       if (chance(0.1 + S.n.pyreDays * 0.06)) G.sailSighted();
     }
@@ -128,17 +132,18 @@
     const text = [];
     const lines = [];
     if (S.fire === 0) {
-      if (!S.built.leanto) {
+      if (!S.built.leanto || !G.atHome()) {
         damage(1, 'cold');
         if (S.ended) return;
-        text.push('There is no fire, and no shelter. The cold finds you in the dark, and you lie shaking until dawn.', gainLine('You lose 1 health. Keep a fire burning at night, or build a lean-to.'));
+        text.push('There is no fire, and no shelter. The cold finds you in the dark, and you lie shaking until dawn.',
+          gainLine(`You lose 1 health. Keep a fire burning at night${G.atHome() ? ', or build a lean-to' : ''}.`));
         lines.push('The cold found you in the dark.');
       } else {
         log('You huddle under the lean-to. The night is long without a fire.');
       }
     }
 
-    if (S.flags.footprints && !S.flags.hollisDone) {
+    if (S.flags.footprints && !S.flags.hollisDone && G.atHome()) {
       if (S.fire >= 3) {
         log('Beyond the firelight, two eyes catch the glow — and are gone.', 'lore');
       } else if (S.res.food > 0) {
@@ -150,6 +155,8 @@
       }
     }
     if (text.length) notice('In the Night', text, lines.join(' '), ART.scene('night'));
+    G.jemTale();
+    G.islandersNight();
   }
 
   /** The chance that a sail is the Meridian come back, until she has been seen once. */
@@ -174,6 +181,43 @@
     closeModal();
   }
 
+  /**
+   * The pyre is lit for the Meridian. She comes close, heaves to off the
+   * reef, and Crane looks the island over through a glass; then she sails
+   * on. Nobody lands: the castaway will not see her crew again until
+   * Valparaíso. `known` is whether the castaway knew her before lighting
+   * it. The pyre burns away either way, and must be built again.
+   */
+  function meridianPasses(known) {
+    AU.sfx('fire');
+    S.built.pyre = 0;
+    S.n.pyreDays = 0;
+    S.flags.meridianClose = 1;
+    modal({
+      art: ART.scene('summit', { ship: 1, pyre: 1, lit: 1 }),
+      title: 'The Pyre',
+      text: known
+        ? ['You know what she is, and you light it all the same. It goes up with a roar you feel in your teeth: a pillar of smoke a mile high.', 'For an hour she holds her course. Then, slowly, she comes about.']
+        : ['You run. Up the loose stones, up the narrow crack, lungs on fire, and put a burning stick to the pyre. It goes up with a roar you feel in your teeth: a pillar of smoke a mile high.',
+          'For an hour the ship holds her course. Then, slowly, she comes about, and as she comes on you see the patch in her fore-topsail, which you sewed yourself off the Horn. She is the <i>Meridian</i>. Mr Crane has brought her back north.'],
+      choices: [{
+        label: 'watch her come',
+        fn: () => modal({
+          art: ART.scene('summit', { ship: 1 }),
+          title: 'The Meridian',
+          text: [
+            'She comes in under topsails until you can count the men on her deck, and there are not enough of them. A mile off the reef she heaves to, and lies rolling in the swell with her sails slatting.',
+            'On her quarterdeck a man has a glass to his eye, and it is turned on you. You know the set of his shoulders. Mr Crane.',
+            'He looks for a long time. No boat is lowered. Nobody waves. Then he lowers the glass and says something to the man at the wheel, and the yards come round, and she fills, and stands away to the north.',
+            S.flags.ally ? 'Of Captain Ashby there is no sign. Beside you, Hollis lets out a breath he has been holding a long while.' : 'Of Captain Ashby there is no sign.',
+            gainLine('The pyre is ash, and must be built again.'),
+          ],
+          choices: [leave('go down to the camp', 'The Meridian came close enough to count her crew, and Crane watched you through a glass, and sailed on. Of Captain Ashby there was no sign.', 'lore')],
+        }),
+      }],
+    });
+  }
+
   /** Studies the sail before lighting the pyre. Knowing her takes time, and a whaler may not wait. */
   function studyShip(meridian) {
     if (!meridian && chance(LOST_WHILE_LOOKING)) {
@@ -194,7 +238,7 @@
       title: meridian ? 'The Meridian' : 'A Whaler',
       text: ['You shade your eyes and watch her come on.', meridian ? KNOW_MERIDIAN : KNOW_WHALER],
       choices: [
-        { label: meridian ? 'light the pyre anyway' : 'light the pyre!', fn: meridian ? () => G.meridianLands(true) : rescueEnding },
+        { label: meridian ? 'light the pyre anyway' : 'light the pyre!', fn: meridian ? () => meridianPasses(true) : rescueEnding },
         { label: 'let her pass', fn: () => letPass(meridian, true) },
       ],
     });
@@ -215,7 +259,7 @@
         : 'From the headland you see it, and do not believe it, and look again.',
       'A fleck of white on the northern horizon. A ship, beating south under topsails, five miles off and passing.',
     ];
-    const choices = [{ label: 'light the pyre!', fn: meridian ? () => G.meridianLands(S.flags.ally) : rescueEnding }];
+    const choices = [{ label: 'light the pyre!', fn: meridian ? () => meridianPasses(S.flags.ally) : rescueEnding }];
     if (S.flags.ally) {
       text.push(meridian
         ? `Hollis squints at her a long while. "No whaler, that," he says. "No boats on her davits, and she's in a hurry." Then you know her yourself. ${KNOW_MERIDIAN}`
@@ -243,7 +287,7 @@
   function tendFire() {
     if (S.fire === 0 || ++S.fireT < FIRE_DECAY) return;
     const hold = G.hollisJob() === 'watch' ? 3 : 2;
-    if (S.flags.ally && S.fire <= hold) {
+    if (G.withHollis() && S.fire <= hold) {
       S.fireT = 0;
       if (S.res.wood > 0 && S.fire < hold) {
         S.res.wood--;
@@ -262,9 +306,12 @@
     if (!session.running || S.ended || modalOpen()) return;
     S.t++;
     tendFire();
-    if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));
-    if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
-    if (S.flags.ally) {
+    if (G.atHome()) {
+      if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));
+      if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
+    }
+    if (G.withJem()) every('jem', 40, G.jemWorks);
+    if (G.withHollis()) {
       every('ally', 30, () => {
         const job = G.hollisJob();
         if (job === 'gather') {
@@ -276,7 +323,7 @@
       });
     }
     if (S.day > 1) every('event', EVENT_EVERY, () => chance(EVENT_CHANCE) && G.happening());
-    if (S.t === STORM_AT) G.stormCheck();
+    if (S.t === STORM_AT && G.atHome()) G.stormCheck();
     if (S.t === NIGHT_AT) nightfall();
     if (S.t >= DAY_LEN) {
       S.t = 0;
