@@ -172,19 +172,27 @@
 
   const PANELS = { beach: beachSections, chart: chartSections, raft: raftSections, sea: seaSections };
 
+  /** The panels aboard the whaler, in the third chapter: the deck, and the passage. */
+  const SHIP_PANELS = { beach: () => G.shipSections(), passage: () => G.passageSections() };
+
   /** Draws the action panel for the open tab. */
   function renderPanel() {
-    fill($('#panel'), PANELS[view.tab] ? PANELS[view.tab]() : []);
+    const panels = G.aboard() ? SHIP_PANELS : PANELS;
+    fill($('#panel'), panels[view.tab] ? panels[view.tab]() : []);
   }
 
   /* ---------------- tabs and scene ---------------- */
 
   /** Draws the tab bar, once there is more than one tab; unvisited tabs are marked new. */
   function renderTabs() {
-    const tabs = [['beach', shoreName()]];
-    if (G.hasMap()) tabs.push(['chart', 'The Map']);
-    if (S.flags.raftPlans || S.chapter >= 2) tabs.push(['raft', S.boat.kind === 'canoe' ? 'The Canoe' : 'The Raft']);
-    if (S.chapter >= 2) tabs.push(['sea', 'The Sea']);
+    const tabs = [['beach', G.aboard() ? 'The Deck' : shoreName()]];
+    if (G.aboard()) {
+      tabs.push(['passage', 'The Passage']);
+    } else {
+      if (G.hasMap()) tabs.push(['chart', 'The Map']);
+      if (S.flags.raftPlans || S.chapter >= 2) tabs.push(['raft', S.boat.kind === 'canoe' ? 'The Canoe' : 'The Raft']);
+      if (S.chapter >= 2) tabs.push(['sea', 'The Sea']);
+    }
     const nav = $('#tabs');
     if (tabs.length < 2) {
       nav.innerHTML = '';
@@ -237,6 +245,15 @@
 
   /** Draws the map (on the map tab), the camp or the islet, if it has changed since last drawn. */
   function renderScene() {
+    if (G.aboard()) {
+      const passage = view.tab === 'passage';
+      const st = passage ? G.passageState() : G.deckState();
+      const key = (passage ? 'passage' : 'deck') + JSON.stringify(st);
+      if (key === view.sceneKey) return;
+      view.sceneKey = key;
+      $('#scene').innerHTML = passage ? ART.passage(st) : ART.deck(st);
+      return;
+    }
     const chart = view.tab === 'chart';
     const kind = chart ? 'chart' : view.tab === 'sea' ? 'sea' : atHome() ? 'camp' : 'islet';
     const data = chart ? knownLocs() : { sea: seaState, camp: campState, islet: isletState }[kind]();
@@ -266,6 +283,10 @@
 
   /** Draws the clock, the castaway's health, and the fire. */
   function renderStatus() {
+    if (G.aboard()) {
+      renderShipStatus();
+      return;
+    }
     const wind = S.chapter >= 2 && S.wind ? `, ${WINDS[S.wind][0]}` : '';
     $('#clock').textContent = `Day ${S.day}, ${phase()}${G.tideKnown() ? `, ${G.lowTide() ? 'low' : 'high'} tide` : ''}${wind}`;
     const hp = Math.max(0, S.health);
@@ -273,6 +294,17 @@
     $('#status').innerHTML =
       `<div class="stat"><h3>Condition</h3>health ${hp} / ${mh}${meter((hp / mh) * 100, hp <= 3)}${ailments()}</div>` +
       (S.flags.fireLit ? `<div class="stat">the fire is ${FIRE_NAMES[S.fire]}${meter(S.fire * 25)}</div>` : '');
+  }
+
+  /** Draws the clock and the castaway's condition aboard the whaler: the watch, the wind, the scurvy, and the hands' regard. */
+  function renderShipStatus() {
+    $('#clock').textContent = `Day ${S.day}, ${G.watchName()}, ${G.SHIP_WINDS[S.ship.wind][0]}`;
+    const hp = Math.max(0, S.health);
+    const mh = maxHealth();
+    const scurvy = G.scurvy() ? `<div class="ail">${G.SCURVY[G.scurvy()]}</div>` : '';
+    $('#status').innerHTML =
+      `<div class="stat"><h3>Condition</h3>health ${hp} / ${mh}${meter((hp / mh) * 100, hp <= 3)}${ailments()}${scurvy}</div>` +
+      `<div class="stat">the hands think you ${G.standingName()}${meter(S.ship.standing * 10, S.ship.standing < 2)}</div>`;
   }
 
   /** One row of a list in the stores: a label, and an optional value or italic note. */
@@ -290,7 +322,9 @@
   /** Draws the stores, possessions and camp, flashing any resource that just changed. */
   function renderStores() {
     const res = RES_ORDER.filter((k) => S.seen[k]).map((k) => {
-      const warn = (k === 'water' || k === 'food') && !S.res[k] ? ' <span class="sub">none!</span>' : '';
+      // aboard the whaler the ship feeds every man, and only short allowance makes provisions of your own matter
+      const needed = G.aboard() ? k === 'food' && S.ship.allowance === 'short' : k === 'water' || k === 'food';
+      const warn = needed && !S.res[k] ? ' <span class="sub">none!</span>' : '';
       return `<li class="${bumps[k] ? 'bump' : ''}"><span>${RES[k]}${warn}</span><span>${S.res[k] || 0}</span></li>`;
     });
     Object.keys(bumps).forEach((k) => delete bumps[k]);
@@ -298,6 +332,10 @@
     const items = Object.keys(ITEMS).filter((k) => S.items[k]).map((k) => item(ITEMS[k][0], ITEMS[k][1]));
 
     const built = [];
+    if (G.aboard()) {
+      $('#stores').innerHTML = (res.length ? list('Stores', res) : '') + list('Possessions', items) + list('The Ship', G.shipRows(row));
+      return;
+    }
     if (!atHome()) {
       const patched = PATCH.filter((p) => S.boat[p.id]).length;
       built.push(row(S.boat.kind === 'canoe' ? 'the canoe' : 'the raft', null, patched < PATCH.length ? `${patched} of ${PATCH.length} patched` : 'drawn up on the beach'));

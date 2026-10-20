@@ -129,6 +129,33 @@
     return s;
   }
 
+  /** Chapter 3, coming aboard the Perseverance with Tupa, Hollis and Jem, as if from the Island of Fires. */
+  function aboard() {
+    const s = atFires();
+    s.items.shell = 1;
+    delete s.flags.hollisSawFires;
+    Object.assign(s.flags, { metSwain: 1, hollisSails: 1, jemSails: 1 });
+    return G.whalerState(s);
+  }
+
+  /** Chapter 3, `miles` from Valparaíso, with the passage's beats before that point already behind her. */
+  function atSea(miles) {
+    const s = aboard();
+    const run = s.ship.total - miles;
+    s.day += Math.round(run / 170);
+    s.ship.miles = miles;
+    s.ship.calmed = miles <= 1700 ? 1 : 0;
+    s.items.statement = 1;
+    Object.assign(s.flags, { statementAsked: 1, statement: 'honest', shortAllowance: 1 });
+    s.ship.allowance = 'short';
+    if (miles <= 1400) {
+      Object.assign(s.flags, { gam: 1, reward: 1, pell: 'spared', jemSafe: 1 });
+      s.n.gamDay = s.day - 3;
+      s.ship.marks.push({ miles: 1450, label: 'gam with the Catherine' });
+    }
+    return s;
+  }
+
   /**
    * The points in the story a tale can be started from: [label, what it
    * builds, and anything to do once the game is on screen].
@@ -142,6 +169,9 @@
     ['Chapter 2, Jem at the fire', withJem],
     ['Chapter 2, the promise made', promised],
     ['Chapter 2, at the Island of Fires', atFires],
+    ['Chapter 3, aboard the Perseverance', aboard],
+    ['Chapter 3, before the gam', () => atSea(1700)],
+    ['Chapter 3, nearing Juan Fernández', () => atSea(560)],
   ];
 
   /** Starts a tale from jump `j`, marked as a developer's tale. */
@@ -170,7 +200,7 @@
     G.render();
   };
 
-  /** The things that can be done to the tale in progress. */
+  /** The things that can be done to the tale in progress: [label, what it does, the line logged, and when it is offered, if not always]. */
   const NUDGES = [
     ['fill the stores', () => RES_ORDER.forEach((k) => G.add(k, 20)), 'twenty of everything.'],
     ['heal fully', () => {
@@ -179,12 +209,20 @@
     }, 'healed.'],
     ['skip to nightfall', () => (S.t = NIGHT_AT - 1), 'it is nearly night.'],
     ['skip to dawn', () => (S.t = DAY_LEN - 1), 'it is nearly dawn.'],
-    ['map this island', () => mapAll(S, S.isle), 'every place on the map.'],
+    ['map this island', () => mapAll(S, S.isle), 'every place on the map.', () => !G.aboard()],
     ['every possession', () => Object.keys(ITEMS).forEach((k) => (S.items[k] = 1)), 'every possession.'],
     ['shift the wind', () => {
       const ids = Object.keys(WINDS);
       S.wind = ids[(ids.indexOf(S.wind) + 1) % ids.length];
-    }, 'the wind has shifted.'],
+    }, 'the wind has shifted.', () => S.chapter === 2],
+    ['shift the ship\'s wind', () => {
+      const ids = ['fair', 'foul', 'calm'];
+      G.setShipWind(ids[(ids.indexOf(S.ship.wind) + 1) % ids.length]);
+    }, null, () => G.aboard()],
+    ['run 300 miles', () => {
+      S.ship.miles = Math.max(1, S.ship.miles - 300);
+    }, 'three hundred miles nearer Valparaíso.', () => G.aboard()],
+    ['raise whales', () => G.blows(), null, () => G.aboard() && !S.ship.blowing],
     ['a happening', () => G.happening(), null],
   ];
 
@@ -197,7 +235,9 @@
       closeModal();
       G.playPrologue(G.toTitle);
     } });
-    if (playing) NUDGES.forEach(([label, fn, line]) => choices.push({ label, note: 'this tale', fn: nudge(fn, line) }));
+    if (playing) {
+      NUDGES.filter((n) => !n[3] || n[3]()).forEach(([label, fn, line]) => choices.push({ label, note: 'this tale', fn: nudge(fn, line) }));
+    }
     choices.push(leave('close'));
     modal({
       art: ART.scene('bottle'),

@@ -54,6 +54,7 @@
       camp: null,
       charted: {},
       landed: {},
+      memories: {},
       ended: false,
     };
   };
@@ -219,6 +220,8 @@
     s.boat = s.boat || {};
     s.landed = s.landed || (s.chapter > 1 ? { islet: 1 } : {});
     s.charted = s.charted || (s.chapter > 1 ? { islet: 1, high: 1, rock: s.flags.homeAgain ? 1 : 0 } : {});
+    // saved before anything came back to the castaway as a recollection
+    s.memories = s.memories || {};
     // saved before the other islands had places of their own: put on the map what was already found there
     const been = (ids) => ids.forEach((id) => {
       s.mapped[id] = 1;
@@ -282,6 +285,8 @@
    * would last, and whether Bristow was with them.
    */
   G.leaveRemains = function (cause) {
+    // nothing of a castaway who died aboard the whaler comes back to the island
+    if (S.chapter >= 3) return;
     const keep = {};
     for (const k in KEPT) {
       const n = Math.min(KEPT[k], Math.ceil((S.res[k] || 0) / 2));

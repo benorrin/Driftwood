@@ -76,11 +76,12 @@
     G.recordTale('death', cause);
     endGame('silent');
     AU.sfx('death');
-    const why = DEATHS[cause] || `You fell to ${cause}. The island is patient; it was always going to win.`;
+    const aboard = G.aboard();
+    const why = DEATHS[cause] || (aboard ? `You fell to ${cause}. They sewed you into your hammock and buried you at sea, and Captain Swain read over you.` : `You fell to ${cause}. The island is patient; it was always going to win.`);
     modal({
-      art: ART.scene('grave'),
+      art: aboard ? ART.deck({ night: true, wind: 'calm' }) : ART.scene('grave'),
       title: 'Here Lies a Sailor',
-      text: [why, gainLine(`You survived ${S.day} day${S.day === 1 ? '' : 's'} upon the island.`)],
+      text: [why, gainLine(aboard ? `You lived ${S.day} day${S.day === 1 ? '' : 's'} after the <i>Meridian</i> left you.` : `You survived ${S.day} day${S.day === 1 ? '' : 's'} upon the island.`)],
       choices: [BEGIN_AGAIN],
     });
   };

@@ -217,7 +217,7 @@
           : 'Jem knows who rigged the lots, and Jem is not coming. Whatever you prove in Valparaíso, you will have to prove without him.',
       gainLine(`${S.day} days in the islands.`),
       '<p class="dateline">End of Chapter Two</p>',
-      '<p class="dateline">Chapter Three, The Whaler, is to come</p>',
+      '<p class="dateline">Chapter Three, The Whaler, goes on from the title screen</p>',
     );
     // keep the castaway as they are, for the chapter still to come
     storage.setJSON(CARRY_KEY, Object.assign({}, S, { chapter: 3, isle: 'sea', ended: false, carriedAt: S.day }));

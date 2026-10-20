@@ -53,6 +53,10 @@
    * longer the wait, the likelier.
    */
   function dawn() {
+    if (G.aboard()) {
+      G.shipDawn();
+      return;
+    }
     AU.sfx('bell');
     let hurt = 0;
     const lack = [];
@@ -128,6 +132,10 @@
    * a big fire keeps them off.
    */
   function nightfall() {
+    if (G.aboard()) {
+      G.shipNight();
+      return;
+    }
     log(pick(NIGHTFALLS));
     const text = [];
     const lines = [];
@@ -310,8 +318,9 @@
       if (S.built.catcher) every('catcher', 30, () => add('water', S.built.catcher));
       if (S.built.trap) every('trap', 40, () => add('food', S.built.trap * (S.built.rack ? 2 : 1)));
     }
-    if (G.withJem()) every('jem', 40, G.jemWorks);
-    if (G.withHollis()) {
+    if (G.aboard()) G.shipTick();
+    else if (G.withJem()) every('jem', 40, G.jemWorks);
+    if (G.withHollis() && !G.aboard()) {
       every('ally', 30, () => {
         const job = G.hollisJob();
         if (job === 'gather') {

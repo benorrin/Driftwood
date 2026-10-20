@@ -47,6 +47,7 @@
   G.RES = {
     water: 'fresh water',
     food: 'provisions',
+    fruit: 'fresh fruit',
     wood: 'driftwood',
     fibre: 'palm fibre',
     rope: 'rope',
@@ -57,11 +58,12 @@
     hide: 'boar hide',
     gum: 'tree gum',
     torch: 'torch',
+    tobacco: 'plug tobacco',
     shot: 'powder & shot',
   };
 
   /** The order resources are listed in the stores. */
-  G.RES_ORDER = ['water', 'food', 'wood', 'fibre', 'rope', 'stone', 'timber', 'cloth', 'iron', 'hide', 'gum', 'torch', 'shot'];
+  G.RES_ORDER = ['water', 'food', 'fruit', 'wood', 'fibre', 'rope', 'stone', 'timber', 'cloth', 'iron', 'hide', 'gum', 'torch', 'tobacco', 'shot'];
 
   /** Possessions: [name, note shown beside it]. */
   G.ITEMS = {
@@ -82,6 +84,7 @@
     dollar: ['a Spanish dollar', 'of no use at all'],
     bean: ['a black bean', 'from your jacket lining'],
     shell: ['Tavake\'s shell', 'so it knows who you are'],
+    statement: ['your statement', 'the ship\'s company, in your hand'],
   };
 
   /**
@@ -138,7 +141,7 @@
   G.TRADE_WINDS_DAY = 12;
 
   /** The chapters of the tale, by number. */
-  G.CHAPTERS = { 1: 'The Island', 2: 'The Archipelago' };
+  G.CHAPTERS = { 1: 'The Island', 2: 'The Archipelago', 3: 'The Whaler' };
 
   /**
    * The winds of the second chapter: [name in the clock, the line logged
@@ -290,6 +293,7 @@
     rescue: ['Rescue', 'taken off by the whaler <i>Perseverance</i>'],
     stay: ['The Island', 'stayed, and made the island home'],
     valparaiso: ['Bound for Valparaíso', 'sailed for Valparaíso in the <i>Perseverance</i>'],
+    arrived: ['Valparaíso', 'came into Valparaíso in the <i>Perseverance</i>'],
   };
 
   /** Endings no longer in the tale, as old tales in the ship's log still name them. */
@@ -306,6 +310,10 @@
     fall: 'died of a fall',
     fever: 'died of a fever',
     storm: 'lost in a storm',
+    scurvy: 'died of the scurvy',
+    hunger: 'starved on short allowance',
+    aloft: 'fell from aloft',
+    whale: 'killed by a whale',
   };
 
   /** Epitaphs for each way of dying that isn't a creature. */
@@ -315,5 +323,9 @@
     fall: 'A fall. Such a small thing, after all the sea had done.',
     fever: 'The fever burned for three days, and on the fourth you did not wake.',
     storm: 'The storm took the raft, and you with it. The sea keeps what it is given.',
+    scurvy: 'The scurvy opened every old wound you ever had, one after another, and then it was done. They sewed you into your hammock with the last stitch through your nose, as the custom is, and Captain Swain read over you.',
+    hunger: 'Short allowance, and nothing of your own to eke it out, day after day, until one morning you did not come on deck. They buried you at sea.',
+    aloft: 'The yard was wet, and the ship rolled, and your hand was not where you thought it was. They buried you at sea the next morning.',
+    whale: 'The whale came up under the boat. The others were picked up. You were not.',
   };
 })();

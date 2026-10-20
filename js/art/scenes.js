@@ -847,6 +847,107 @@
       return framed(b, 'A driftwood cross above the tide line');
     },
 
+    /** A gam: two whalers hove to within hail of each other, and a boat pulling between them. */
+    gam() {
+      const r = rng(211);
+      const hz = 126;
+      let b = sky(r, SW, 0, hz, false) + sun(300, 40, 13, true) + sea(r, SW, hz, SH, false);
+      b += ship(150, 186, 0.95, 1) + ship(452, 180, 0.85, -1);
+      b += P('M180 152 c-6 -12 6 -20 0 -34 M420 148 c-6 -12 6 -20 0 -34', null, 0.8);
+      b += longboat(300, 212, 1.1) + P('M276 216 q-30 4 -60 0 M324 216 q30 4 60 0', null, 0.6, 'stroke-dasharray="4 5"');
+      return framed(b, 'Two whaling ships hove to, and a boat pulling between them');
+    },
+
+    /** The hunt: a whaleboat fast to a sperm whale, the line taut, the harpooner standing in the bow. */
+    hunt() {
+      const r = rng(221);
+      const hz = 100;
+      let b = sky(r, SW, 0, hz, false) + sea(r, SW, hz, SH, false);
+      // the whale's great square head and back, rolling up out of the sea, and the white water about it
+      b += P('M330 196 Q336 150 390 146 Q460 142 520 160 Q560 172 600 190 L600 214 Q470 204 330 214Z', pal.ink, 1.2);
+      b += P('M352 170 q10 -6 22 -4', null, 1.4, `stroke="${pal.paper}"`) + circle(372, 184, 2.4, pal.paper);
+      b += P('M332 156 q-10 -26 -26 -36 M336 154 q-2 -26 -12 -40 M340 154 q6 -22 2 -38', null, 1);
+      let foam = '';
+      for (let i = 0; i < 30; i++) foam += `M${f(320 + r() * 280)} ${f(206 + r() * 14)}q6 -5 12 0`;
+      b += P(foam, null, 1, `stroke="${pal.paper}"`);
+      // the boat, her crew at the oars and the harpooner up in the bow, the line running out to the whale
+      b += P('M70 210 L250 210 Q238 226 210 228 L100 228 Q76 224 70 210Z', 'url(#h3)', 1.4);
+      b += P('M96 210 l-18 20 M126 210 l-18 20 M156 210 l-18 20 M186 210 l-18 20', null, 1.6);
+      [92, 122, 152, 182].forEach((x) => {
+        b += circle(x, 198, 4.6, pal.ink) + P(`M${x - 4} 208 v-6`, null, 6);
+      });
+      b += stander(236, 210, 1.3, 1) + P('M76 206 l-22 -24', null, 2);
+      b += P('M250 196 Q300 200 352 178', null, 1);
+      return framed(b, 'A whaleboat fast to a sperm whale');
+    },
+
+    /** Juan Fernández: sheer green peaks under a cap of cloud, and a ship anchored in the bay beneath them. */
+    juan() {
+      const r = rng(231);
+      const hz = 170;
+      let b = sky(r, SW, 0, hz, false) + sea(r, SW, hz, SH, false);
+      b += P('M0 172 L40 120 L70 132 L112 64 L140 90 L176 30 L196 58 L226 44 L262 92 L300 80 L340 120 L388 110 L430 150 L470 140 L520 172Z', 'url(#h2)', 1.4);
+      b += P('M112 64 L120 120 M176 30 L170 100 M226 44 L236 112 M300 80 L292 140', null, 0.8);
+      b += P('M150 40 q20 -20 50 -10 q30 -16 60 0 q20 4 16 16 q-60 10 -126 -6Z', pal.paper, 1);
+      b += ship(420, 204, 0.7, -1);
+      return framed(b, 'Sheer green peaks under a cap of cloud, and a ship at anchor beneath them');
+    },
+
+    /** Valparaíso: a town climbing its hills round a crowded bay, and the mountains far beyond. */
+    valparaiso() {
+      const r = rng(241);
+      const hz = 150;
+      let b = sky(r, SW, 0, hz, false);
+      b += P('M0 70 L60 50 L110 62 L170 22 L210 48 L260 40 L330 60 L380 34 L430 56 L520 44 L600 64 V90 H0Z', pal.paper, 0.9);
+      b += P('M170 22 l-10 14 h20Z M380 34 l-8 10 h16Z', 'url(#h1)', 0);
+      b += P('M0 150 Q60 90 140 104 Q200 70 280 96 Q360 76 430 104 Q520 88 600 120 V150Z', 'url(#dots)', 1.2);
+      // the houses, crowded up the hillsides
+      for (let i = 0; i < 46; i++) {
+        const x = f(20 + r() * 560);
+        const y = f(108 + r() * 36 - (x > 120 && x < 460 ? 12 : 0));
+        b += P(`M${x} ${y}h9v7h-9Z`, pal.paper, 0.8) + P(`M${x - 1} ${y}l5.5 -4l5.5 4`, null, 0.8);
+      }
+      b += sea(r, SW, hz, SH, false);
+      b += ship(140, 200, 0.6, 1) + ship(460, 210, 0.75, -1) + ship(300, 184, 0.45, 1);
+      return framed(b, 'A town on its hills round a crowded bay');
+    },
+
+    /** The corposants: blue fire burning at the yard-arms of a ship in a black night of rain. */
+    corposants() {
+      const r = rng(251);
+      let b = sky(r, SW, 0, SH, true);
+      let rain = '';
+      for (let i = 0; i < 120; i++) rain += `M${f(r() * 700)} ${f(r() * 240)}l-12 26`;
+      b += P(rain, null, 0.7, `stroke="${pal.paper}"`);
+      b += P('M190 240 V20 M410 240 V30', null, 5);
+      [[190, 60, 120], [190, 120, 150], [410, 70, 120], [410, 130, 150]].forEach(([x, y, w]) => {
+        b += P(`M${x - w / 2} ${y} H${x + w / 2}`, null, 3);
+        [x - w / 2, x + w / 2].forEach((ex) => {
+          b += circle(ex, y - 4, 7, pal.paper) + P(`M${ex - 14} ${y - 4}h6M${ex + 8} ${y - 4}h6M${ex} ${y - 18}v6`, null, 1, `stroke="${pal.paper}"`);
+        });
+      });
+      b += circle(190, 18, 6, pal.paper) + circle(410, 28, 6, pal.paper);
+      b += P('M0 210 Q150 196 300 214 Q450 230 600 206 V240 H0Z', pal.ink, 1);
+      return framed(b, 'Blue fire burning at the yard-arms in the night');
+    },
+
+    /** The master's cabin of a whaler: a swinging lamp, a table with paper and ink, and the stern windows over the wake. */
+    cabin() {
+      const r = rng(261);
+      let b = `<rect width="${SW}" height="${SH}" fill="url(#h1)"/>`;
+      // the stern windows, and the sea astern through them
+      b += P('M150 30 H450 V120 H150Z', pal.paper, 2);
+      b += at(150, 0, 0.5, 1, sea(r, SW, 80, 118, false));
+      b += P('M150 80 H450', null, 0.8) + P('M225 30 V120 M300 30 V120 M375 30 V120 M150 75 H450', null, 2.4);
+      // the lamp on its gimbals, and the table
+      b += P('M300 0 V44', null, 1.2) + P('M290 44 h20 l-4 18 h-12Z', pal.paper, 1.2);
+      b += P('M60 180 H540 L560 200 H40Z', 'url(#h2)', 1.4) + P('M80 200 V240 M520 200 V240', null, 6);
+      b += P('M220 172 l70 -6 l8 12 l-70 6Z', pal.paper, 1) + P('M232 174 h48 M234 178 h40', null, 0.5);
+      b += P('M330 170 h16 v-10 h-16Z', pal.ink, 1) + P('M340 160 l22 -26', null, 1);
+      b += P('M390 176 h44 v-12 h-44Z', 'url(#h3)', 1);
+      return framed(b, 'A ship\'s cabin by lamplight, paper and ink on the table');
+    },
+
     /** Night by the fire, and a pair of eyes beyond the firelight. */
     night() {
       const r = rng(161);

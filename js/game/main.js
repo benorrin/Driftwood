@@ -22,11 +22,23 @@
     window.scrollTo(0, 0);
   }
 
-  /** Offers "continue" only when there is a saved game, and the ship's log once a tale has ended. */
+  /** What the title screen says of a castaway kept for a chapter to come, by the chapter they are kept for. */
+  const CARRIED = {
+    3: 'a castaway is at sea, bound for Valparaíso &middot; their tale goes on in Chapter Three',
+    4: 'a castaway has come ashore at Valparaíso &middot; their tale goes on in Chapter Four, which is still to be written',
+  };
+
+  /**
+   * Offers "continue" only when there is a saved game, the ship's log once
+   * a tale has ended, and the next chapter when a castaway is kept for it.
+   */
   function refreshContinue() {
+    const carry = G.carried();
     $('#btn-continue').classList.toggle('hidden', !load());
     $('#btn-records').classList.toggle('hidden', !G.records().tales);
-    $('#carried').classList.toggle('hidden', !G.carried());
+    $('#btn-chapter').classList.toggle('hidden', !carry || carry.chapter !== 3);
+    $('#carried').classList.toggle('hidden', !carry);
+    if (carry) $('#carried').innerHTML = CARRIED[carry.chapter] || CARRIED[3];
   }
 
   /** Stops the game and returns to the title screen. */
@@ -76,7 +88,8 @@
     if (!saved) return;
     replaceState(saved);
     enterGame();
-    log(G.atHome() ? 'You return to the island. It has not forgotten you.' : 'You return to the islet. The wind has not changed its mind.');
+    log(G.aboard() ? 'You come back on deck. The <i>Perseverance</i> has kept her course without you.'
+      : G.atHome() ? 'You return to the island. It has not forgotten you.' : 'You return to the islet. The wind has not changed its mind.');
   }
 
   /** Shows the game screen for the current state, with fresh buttons and sounds to match. */
@@ -126,6 +139,32 @@
     );
   }
 
+  /**
+   * Goes on to the third chapter with the castaway kept at the end of the
+   * second, first asking before overwriting a saved game. The kept
+   * castaway stays kept, so the chapter can be begun again.
+   */
+  function nextChapter() {
+    AU.init();
+    if (!load()) {
+      G.beginChapterThree();
+      return;
+    }
+    confirm(
+      'Go On?',
+      'A tale is already under way. Going on to Chapter Three with the castaway bound for Valparaíso will forget it.',
+      {
+        label: 'go on',
+        fn: () => {
+          clearSave();
+          closeModal();
+          G.beginChapterThree();
+        },
+      },
+      { label: 'never mind', fn: () => $('#modal').classList.add('hidden') },
+    );
+  }
+
   /** Asks before abandoning the game in progress. */
   function restart() {
     confirm(
@@ -155,6 +194,7 @@
     ['Fight', 'Fights are turn based, and can be long. Strike, eat to heal, or flee. When a foe gathers itself for a heavy blow, brace yourself to turn it aside. Once you carry a blade, the island\'s creatures will start to come for you.'],
     ['Escape', 'There is more than one way off the island, and some of the choices you make along the way will follow you home.'],
     ['Sail', 'In time you may have a boat that will carry you between islands. She runs before the wind: see which way it blows before you choose a passage, and carry water for every day at sea. Load her with what you will need, no more than she will carry; the rest stays at the camp. A camp left to itself suffers; a camp somebody keeps does not.'],
+    ['Aboard', 'At sea in the whaler, you stand your watch on deck and go below by turns. Work in your watch on deck, or the mate will mark you down; sleep in your watch below, or you will not mend. What the hands think of you matters. On short allowance, eke out the ship\'s rations with provisions of your own, and eat fresh fruit while it lasts, against the scurvy.'],
     ['Time', 'Time passes while you play, and stands still while a notice is open, or while you pause the game (press P, or pause at the top). Your progress is saved in this browser.'],
   ];
 
@@ -349,6 +389,7 @@
 
     $('#btn-new').onclick = newGame;
     $('#btn-continue').onclick = continueGame;
+    $('#btn-chapter').onclick = nextChapter;
     $('#btn-style').onclick = openStyles;
     $('#btn-style-title').onclick = openStyles;
     $('#btn-help').onclick = openHelp;

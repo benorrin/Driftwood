@@ -640,8 +640,8 @@
     },
   ];
 
-  /** Something happens around the camp (or wherever the castaway is cast away), if anything can. */
-  G.happening = () => (G.atHome() ? happen(AT_CAMP) : G.awayHappening());
+  /** Something happens around the camp (or wherever the castaway is cast away, or aboard the whaler), if anything can. */
+  G.happening = () => (G.aboard() ? G.shipHappening() : G.atHome() ? happen(AT_CAMP) : G.awayHappening());
 
   G.happen = happen;
 

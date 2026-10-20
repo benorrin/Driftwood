@@ -74,6 +74,13 @@
     { id: 'witness', kind: 'deed', name: 'A Witness', desc: 'Persuade Jem to come to Valparaíso and speak.', test: () => S.flags.jemSails },
     { id: 'consigned', kind: 'deed', name: 'Consigned', desc: 'Find where the <i>Meridian</i> took on water.', test: () => S.flags.meridianCamp },
     { id: 'rescue', kind: 'deed', name: 'Thee Had Better Come Aboard', desc: 'Be taken off by a whaler.' },
+    { id: 'whaler', kind: 'deed', name: 'The Whaler', desc: 'Reach the third chapter.', test: () => S.chapter >= 3 },
+    { id: 'statement', kind: 'deed', name: 'In Your Own Hand', desc: 'Write down the <i>Meridian</i>\'s company for Captain Swain.' },
+    { id: 'recollection', kind: 'deed', name: 'It Comes Back', desc: 'Remember a moment of the <i>Meridian</i>\'s voyage.' },
+    { id: 'sleighRide', kind: 'deed', name: 'A Nantucket Sleigh Ride', desc: 'Go fast to a whale.' },
+    { id: 'greasy', kind: 'deed', name: 'Greasy Luck', desc: 'Help to kill a whale.' },
+    { id: 'gam', kind: 'deed', name: 'A Gam', desc: 'Meet a man you know in another ship\'s fo\'c\'sle.' },
+    { id: 'arrived', kind: 'deed', name: 'Valparaíso', desc: 'Come into Valparaíso in the <i>Perseverance</i>.' },
 
     { id: 'cartographer', kind: 'feat', name: 'Cartographer', desc: 'Put every place on the island on your map.', test: () => Object.keys(G.LOCS).every((id) => S.mapped[id]) },
     { id: 'forty', kind: 'feat', name: 'Forty Days and Forty Nights', desc: 'Live to see the fortieth day.', test: () => S.day >= 40 },
@@ -85,6 +92,8 @@
     { id: 'stay', kind: 'feat', name: 'Monarch of All I Survey', desc: 'Make the island your home.' },
     { id: 'charts', kind: 'feat', name: 'Charts of the Islands', desc: 'Put every place on the islands of the archipelago on your maps.', test: () => S.chapter > 1 && Object.values(G.ISLES).every((i) => Object.keys(i.locs || {}).every((id) => S.mapped[id])) },
     { id: 'isles', kind: 'feat', name: 'Before the Wind', desc: 'Land on every island your boat can reach.', test: () => ['islet', 'high', 'rock', 'sandbar'].every((id) => S.landed && S.landed[id]) },
+    { id: 'oneOfThem', kind: 'feat', name: 'One of Them', desc: 'Win over the <i>Perseverance</i>\'s fo\'c\'sle.', test: () => S.ship && S.ship.standing >= 8 },
+    { id: 'recollections', kind: 'feat', name: 'Wide Awake', desc: 'Remember every moment that comes back aboard the <i>Perseverance</i>.', test: () => ['glass', 'helm', 'corposants'].every((id) => S.memories && S.memories[id]) },
     { id: 'endings', kind: 'feat', name: 'Every Way Home', desc: 'Find every ending.' },
     { id: 'all', kind: 'feat', name: 'The Whole Log', desc: 'Earn every other achievement.' },
 
@@ -102,6 +111,8 @@
     { id: 'hoard', kind: 'folly', name: 'Kindling', desc: 'Hoard a hundred driftwood.', test: () => S.res.wood >= 100 },
     { id: 'abandon', kind: 'folly', name: 'Second Thoughts', desc: 'Abandon a life and begin again.' },
     { id: 'styles', kind: 'folly', name: 'A Change of Scene', desc: 'See the island in every visual style.' },
+    { id: 'jonah', kind: 'folly', name: 'Jonah', desc: 'Be named a Jonah all over again.' },
+    { id: 'scurvy', kind: 'folly', name: 'Soft Gums', desc: 'Get the scurvy.', test: () => S.ship && S.ship.scurvy >= 7 },
 
     { id: 'numbers', kind: 'secret', name: 'The Numbers', desc: 'Find six numbers carved in a palm.', test: () => S.events.numbers },
     { id: 'dollar', kind: 'secret', name: 'Not Here Either', desc: 'Dig up a buried treasure.', test: () => S.items.dollar },
@@ -118,6 +129,9 @@
     { id: 'jemDead', kind: 'secret', name: 'Taken With Him', desc: 'Kill the deserter.', test: () => S.flags.jemDead },
     { id: 'notches', kind: 'secret', name: 'Thousands of Notches', desc: 'Kill the wild man.', test: () => S.flags.killedHollis },
     { id: 'boyStayed', kind: 'secret', name: 'The Boy Who Stayed', desc: 'Leave Hollis with the people of the Island of Fires.', test: () => S.flags.hollisStayed },
+    { id: 'selkirk', kind: 'secret', name: 'Where Selkirk Sat', desc: 'Climb to the lookout on Juan Fernández.' },
+    { id: 'pellSpared', kind: 'secret', name: 'Ned Gardner', desc: 'Keep a shipmate\'s secret.' },
+    { id: 'pellGiven', kind: 'secret', name: 'The One Side', desc: 'Give a shipmate up.' },
     { id: 'greybeards', kind: 'secret', name: 'Two Grey Beards', desc: 'Grow old on the island with Hollis.' },
   ];
 
@@ -205,6 +219,7 @@
       if (S.items.idol) G.achieve('idolKept');
     }
     if (end === 'stay' && S.flags.ally) G.achieve('greybeards');
+    if (end === 'arrived' && S.items.parcel) G.achieve('parcel');
     const found = G.records().found;
     if (Object.keys(G.ENDINGS).every((id) => found[id])) G.achieve('endings');
   };

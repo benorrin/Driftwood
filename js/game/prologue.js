@@ -126,7 +126,16 @@
    * Plays the prologue on the intro screen, then calls `done`. The intro's
    * skip link skips the rest of it. Either way it counts as seen.
    */
-  G.playPrologue = function (done) {
+  G.playPrologue = (done) => G.playPages(PAGES, () => {
+    DW.storage.set(SEEN_KEY, '1');
+    done();
+  });
+
+  /**
+   * Plays `pages` (shaped like PAGES) on the intro screen, one paragraph
+   * per click, then calls `done`. The intro's skip link skips the rest.
+   */
+  G.playPages = function (pages, done) {
     const box = $('#intro-text');
     const art = $('#intro-art');
     const next = $('#btn-intro-next');
@@ -136,9 +145,8 @@
     let i = 0;
     let asked = false;
 
-    /** Puts away the prologue's furniture and moves on. */
+    /** Puts away the pages' furniture and moves on. */
     const finish = () => {
-      DW.storage.set(SEEN_KEY, '1');
       art.classList.add('hidden');
       art.innerHTML = '';
       picks.innerHTML = '';
@@ -149,7 +157,7 @@
 
     /** Clears the screen for page `n` and shows its first paragraph. */
     const open = (n) => {
-      const p = PAGES[n];
+      const p = pages[n];
       box.innerHTML = '';
       art.innerHTML = ART.scene(p.art);
       art.classList.remove('hidden');
@@ -181,18 +189,18 @@
 
     /** Shows the next paragraph, or the page's choices, or the next page. */
     const step = () => {
-      const p = PAGES[page];
+      const p = pages[page];
       if (i < lines.length) {
         AU.sfx('page');
         box.insertAdjacentHTML('beforeend', paragraph(lines[i]));
         i++;
         const ask = i >= lines.length && p.choices && !asked;
-        next.querySelector('span').textContent = !ask && i >= lines.length && page === PAGES.length - 1 ? 'go on' : '…';
+        next.querySelector('span').textContent = !ask && i >= lines.length && page === pages.length - 1 ? 'go on' : '…';
         if (ask) offer(p);
         return;
       }
       page++;
-      if (page >= PAGES.length) finish();
+      if (page >= pages.length) finish();
       else open(page);
     };
 
