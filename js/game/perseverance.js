@@ -49,7 +49,7 @@
     AU.sfx('sail');
     if (S.isle === 'smoke') {
       queueModal({
-        art: ART.scene('rescue'),
+        art: ART.scene('anchorage', { ship: 1 }),
         title: 'A Sail',
         text: ['At first light the whole village is on the beach, pointing. A ship is standing in toward the reef under topsails, deep-laden, her boats in their davits and a smudge of try-works smoke hanging over her deck.', quote('"<i>Perseverance</i>," Tupa says. "She is here."')],
         choices: [leave('go on', 'The Perseverance is lying in the anchorage on the Island of Fires. She will sail in a few days.', 'lore')],
@@ -79,7 +79,7 @@
   function goAboard() {
     S.flags.metSwain = 1;
     modal({
-      art: ART.scene('rescue'),
+      art: ART.scene('anchorage', { ship: 1 }),
       title: 'The Perseverance',
       text: [
         'She is the whaler <i>Perseverance</i>, of New Bedford, three years out. Her captain is on the beach, trading nails for water casks: a lean Nantucket Quaker named Eli Swain, in a black coat in all this heat.',

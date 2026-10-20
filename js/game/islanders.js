@@ -327,7 +327,7 @@
   function whalers() {
     S.flags.whalerKnown = 1;
     modal({
-      art: ART.scene('rescue'),
+      art: ART.scene('anchorage'),
       title: 'The Anchorage',
       text: [
         'Round the eastern point is a deep bay, still as a pond, where a ship could lie safe in any weather. On the beach above it stand rotted water casks, and a whaleboat\'s broken oar, and on a flat rock a dozen ships\' names have been cut by bored men waiting for a boat.',
@@ -375,7 +375,7 @@
     },
     locs: {
       ifVillage: {
-        name: 'The Village', x: 268, y: 226, cost: {}, time: 3, art: 'landfall',
+        name: 'The Village', x: 268, y: 226, cost: {}, time: 3, art: 'village',
         findable: () => true,
         sees: [
           ['ifSheds', 1, 'Along the beach to the west, long open sheds, and canoes drawn up under them.'],
@@ -397,21 +397,21 @@
         ]), { food: 2 }),
       },
       ifSheds: {
-        name: 'The Canoe Sheds', x: 196, y: 252, cost: {}, time: 3, art: 'lagoon',
+        name: 'The Canoe Sheds', x: 196, y: 252, cost: {}, time: 3, art: 'sheds',
         findable: () => !!S.visits.ifVillage,
         sighted: 'Along the beach to the west, long open sheds, and canoes drawn up under them.',
         first: () => canoeSheds(true),
         repeat: () => canoeSheds(false),
       },
       ifTavake: {
-        name: 'Tavake\'s House', x: 336, y: 206, cost: {}, time: 3, art: 'grove',
+        name: 'Tavake\'s House', x: 336, y: 206, cost: {}, time: 3, art: 'tavake',
         findable: () => !!S.visits.ifVillage,
         sighted: 'Set a little apart under a breadfruit tree, Tavake\'s house.',
         first: () => tavakesHouse(),
         repeat: () => tavakesHouse(),
       },
       ifReef: {
-        name: 'The Night Reef', x: 420, y: 296, cost: {}, time: 4, art: 'glow',
+        name: 'The Night Reef', x: 420, y: 296, cost: {}, time: 4, art: 'nightreef',
         blocked: byNight,
         findable: () => !!S.visits.ifVillage,
         clue: 'At dusk the canoes go out to the reef with torches. You will have to be here after dark to go with them.',
@@ -420,7 +420,7 @@
         repeat: () => done('ifReef', pick(['You fish the reef by torchlight with Tupa and his cousins, and spear a fish of your own, at last.', 'The torches go out along the reef, and you go with them, and come back with more than you can carry.']), { food: rand(3, 5) }),
       },
       ifAnchorage: {
-        name: 'The Anchorage', x: 478, y: 214, cost: { food: 1 }, time: 4, art: 'rescue',
+        name: 'The Anchorage', x: 478, y: 214, cost: { food: 1 }, time: 4, art: 'anchorage',
         findable: () => !!S.visits.ifVillage,
         clue: 'Tupa says there is a bay round the eastern point where the whale-ships come. It is a long walk, and the day is already hot.',
         sighted: 'Round the eastern point, a deep, still bay where a ship could anchor.',
@@ -471,7 +471,7 @@
     }
     text.push(`For six nails, Tupa says, they will give your ${G.boatName()} a float and booms, lashed the way they lash their own. She would not roll then.`);
     modal({
-      art: ART.scene('lagoon'),
+      art: ART.scene('sheds'),
       title: 'The Canoe Sheds',
       text,
       choices: [
@@ -499,7 +499,7 @@
       return;
     }
     modal({
-      art: ART.scene('grove'),
+      art: ART.scene('tavake'),
       title: 'Tavake\'s House',
       text: [S.n.lessons ? 'Tavake is waiting for you under the breadfruit tree.' : 'Tavake sits in the shade under her breadfruit tree, mending a net. She looks at you for a long time, and then says something to Tupa, who grins. "She says you sail like a pig swims," he says. "She says, sit down."'],
       choices: [{ label: 'sit with her', fn: lesson }, leave('go back to camp')],

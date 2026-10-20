@@ -185,6 +185,7 @@
         ['The canoe people', 'They still come back, once a moon, to the old stone platform. How they receive you depends on what you have done.'],
         ['The Meridian', 'She still comes back. But she no longer stops.'],
         ['What the tide brings', 'In the first days on the island, the sea may give back something of the <i>Meridian</i>\'s that you would rather it had kept. And the captain\'s Bible has an inscription you may not have read.'],
+        ['Pictures', 'Every place on the islands has a picture of its own: the watering camp, the waterfall pool, the lookout, the ledges of the Bird Rock, the canoe sheds, the night reef and more. And you can no longer see the sea through a mountain.'],
         ['Pause', 'Press P, or pause at the top of the screen, and time on the island stands still until you come back.'],
         ['Bound for Valparaíso', 'The second chapter ends aboard a whaler. A castaway who sails in her is kept for the third chapter, which is still to be written.'],
       ],

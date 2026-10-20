@@ -53,7 +53,7 @@
       'The food you left is gone again.',
     ][Math.min(S.n.jemFood || 0, 2)];
     modal({
-      art: ART.scene('spring'),
+      art: ART.scene('falls'),
       title: 'The Waterfall Pool',
       text: first
         ? ['A waterfall drops into a deep green pool. And behind the curtain of the falls, in a hollow of the rock: a bed of cut fern, fish bones, a fire\'s ashes, a sailor\'s knife with a broken blade. Somebody lives here. Nobody is at home.', 'By the pool is a flat stone, worn smooth. A good place to leave something.']
@@ -89,7 +89,7 @@
   function meet() {
     AU.sfx('page');
     modal({
-      art: ART.scene('spring'),
+      art: ART.scene('falls'),
       title: 'The Deserter',
       text: [
         'He is crouched by the stone, eating with both hands. When he sees you he does not run. He stares at you the way a man stares at a ghost.',
@@ -120,7 +120,7 @@
     S.n.jemToldDay = S.day;
     AU.sfx('pickup');
     modal({
-      art: ART.scene('spring'),
+      art: ART.scene('falls'),
       title: 'Jem Rudd',
       text: [
         'You sit down on the other side of the stone, and after a long while he goes on eating, watching you all the time.',

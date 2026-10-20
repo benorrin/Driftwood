@@ -158,7 +158,7 @@
       again: () => isleCard('spring', 'The High Island', ['The stream is still running, and the forest is still loud with birds.'], null),
       locs: {
         hiCamp: {
-          name: 'The Watering Camp', x: 400, y: 258, cost: { food: 1 }, time: 4, art: 'sealers',
+          name: 'The Watering Camp', x: 400, y: 258, cost: { food: 1 }, time: 4, art: 'watering',
           findable: () => true,
           clue: 'Along the beach to the east, the stumps of saplings cut with an axe. Somebody camped near here.',
           sighted: 'East along the beach, round a point of rock, there is a scar in the trees where somebody has been cutting saplings.',
@@ -167,7 +167,7 @@
           repeat: () => G.done('hiCamp', 'The fire-ring is cold, and the fern beds are flattened by the rain. They are not coming back.'),
         },
         hiGrave: {
-          name: 'The Grave on the Rise', x: 356, y: 230, cost: { food: 1 }, time: 3, art: 'grave',
+          name: 'The Grave on the Rise', x: 356, y: 230, cost: { food: 1 }, time: 3, art: 'rise',
           findable: () => !!S.visits.hiCamp,
           sighted: 'Above the watering camp, on a little rise looking out to sea, a long mound of earth.',
           first() {
@@ -182,7 +182,7 @@
           ]),
         },
         hiForest: {
-          name: 'The Forest', x: 246, y: 206, cost: { water: 1 }, time: 5, art: 'jungle',
+          name: 'The Forest', x: 246, y: 206, cost: { water: 1 }, time: 5, art: 'forest',
           findable: () => true,
           clue: 'Inland the forest comes right down to the stream, and there are pig tracks in the mud. You turn back before it gets dark.',
           sighted: 'Inland, behind the beach, the forest: tall, dark, and full of birds.',
@@ -202,7 +202,7 @@
           },
         },
         hiPool: {
-          name: 'The Waterfall Pool', x: 330, y: 150, cost: { food: 1 }, time: 5, art: 'spring',
+          name: 'The Waterfall Pool', x: 330, y: 150, cost: { food: 1 }, time: 5, art: 'falls',
           findable: () => !!(S.flags.highFootprint || S.visits.hiForest),
           clue: 'Following the stream inland, you hear falling water; but the way is choked with fern, and you turn back.',
           sighted: 'Up the stream, under a wall of fern, a waterfall drops into a deep green pool.',
@@ -210,7 +210,7 @@
           repeat: () => G.jemPool(false),
         },
         hiRidge: {
-          name: 'The Ridge', x: 290, y: 108, cost: { water: 2, food: 1 }, time: 7, art: 'summit',
+          name: 'The Ridge', x: 290, y: 108, cost: { water: 2, food: 1 }, time: 7, art: 'ridge',
           findable: () => !!(S.visits.hiCamp || S.visits.hiForest),
           clue: 'A path of sorts goes up from the stream toward the heights, but the cloud comes down on it, and you turn back.',
           sighted: 'Above the forest, a ridge of bare rock runs along the island\'s spine. From up there you could see everything.',
@@ -219,7 +219,7 @@
           repeat: () => G.done('hiRidge', 'You can see the whole archipelago from here: your island, the islet, the Bird Rock, and far to the south, the smoke of the Island of Fires.'),
         },
         hiLookout: {
-          name: 'The Old Lookout', x: 172, y: 170, cost: { water: 1, food: 1 }, time: 6, art: 'cliffs',
+          name: 'The Old Lookout', x: 172, y: 170, cost: { water: 1, food: 1 }, time: 6, art: 'lookout',
           findable: () => !!S.visits.hiRidge,
           sighted: 'Out on the western headland, a heap of stones too regular to be natural, and a pole standing up from it.',
           first() {
@@ -291,14 +291,14 @@
           repeat: () => G.done('brCleft', 'The old ship groans when the wind gets into her, as if she would still be off, if she could.'),
         },
         brLedges: {
-          name: 'The Ledges', x: 368, y: 148, cost: { water: 1 }, time: 3, art: 'birdrock',
+          name: 'The Ledges', x: 368, y: 148, cost: { water: 1 }, time: 3, art: 'ledges',
           findable: () => true,
           sighted: 'Up the seaward face of the rock, ledge after ledge of nesting birds.',
           first: () => G.done('brLedges', 'Ledge after ledge of birds, so many that the rock moves. They scream at you, and you take their eggs anyway.', { food: rand(3, 4) }, 'The ledges on the Bird Rock are thick with eggs, if you will brave the birds.'),
           repeat: () => G.done('brLedges', 'The birds have laid again.', { food: rand(2, 4) }),
         },
         brTop: {
-          name: 'The Top of the Rock', x: 300, y: 126, cost: { water: 1, food: 1 }, time: 4, art: 'birdrock',
+          name: 'The Top of the Rock', x: 300, y: 126, cost: { water: 1, food: 1 }, time: 4, art: 'rocktop',
           findable: () => !!S.visits.brCleft,
           clue: 'Behind the old wreck, steps go up the rock: cut by hand. They are slick with droppings, and you do not trust them yet.',
           sighted: 'Behind the wreck, steps cut by hand go up to the top of the rock.',
