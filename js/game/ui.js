@@ -19,8 +19,9 @@
   /**
    * Opens the modal card. `o` has art (SVG markup), title, text (an array
    * of paragraphs; plain strings are wrapped in <p>) and choices. Each
-   * choice is { label, fn, cost? }: a choice with a cost is disabled until
-   * it can be paid, and pays it when chosen.
+   * choice is { label, fn, cost?, note? }: a choice with a cost is disabled
+   * until it can be paid, and pays it when chosen; a note is a word of
+   * warning under the label, such as that the choice ends the tale.
    */
   G.modal = function (o) {
     $('#modal').classList.remove('hidden');
@@ -30,7 +31,8 @@
     const box = $('#modal-choices');
     box.innerHTML = '';
     (o.choices || []).forEach((ch) => {
-      const b = el('button', 'btn', `<span>${ch.label}</span>${ch.cost ? `<span class="cost">${costText(ch.cost)}</span>` : ''}`);
+      const sub = [ch.cost ? costText(ch.cost) : '', ch.note || ''].filter(Boolean).join(' · ');
+      const b = el('button', 'btn', `<span>${ch.label}</span>${sub ? `<span class="cost">${sub}</span>` : ''}`);
       if (ch.cost && !has(ch.cost)) b.disabled = true;
       b.onclick = () => {
         AU.sfx('click');

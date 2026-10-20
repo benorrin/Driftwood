@@ -107,7 +107,7 @@
       art: ART.scene('beach'),
       title: 'After the Storm',
       text,
-      choices: [leave('begin again', 'The storm has passed. You set about putting the camp to rights.', 'lore')],
+      choices: [leave('set the camp to rights', 'The storm has passed. You set about putting the camp to rights.', 'lore')],
     });
   }
 

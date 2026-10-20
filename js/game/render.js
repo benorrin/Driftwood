@@ -281,6 +281,9 @@
     (value != null ? `<span>${value}</span>` : '') +
     (note != null ? `<span class="sub">${note}</span>` : '') + '</li>';
 
+  /** A possession in the stores column: its name, and under it, if it has one, its note. */
+  const item = (name, note) => `<li class="item"><span>${name}</span>${note ? `<span class="sub">${note}</span>` : ''}</li>`;
+
   /** A headed list for the stores column. */
   const list = (title, rows) => `<h3>${title}</h3><ul class="rows">${rows.join('')}</ul>`;
 
@@ -292,7 +295,7 @@
     });
     Object.keys(bumps).forEach((k) => delete bumps[k]);
 
-    const items = Object.keys(ITEMS).filter((k) => S.items[k]).map((k) => row(ITEMS[k][0], null, ITEMS[k][1]));
+    const items = Object.keys(ITEMS).filter((k) => S.items[k]).map((k) => item(ITEMS[k][0], ITEMS[k][1]));
 
     const built = [];
     if (!atHome()) {

@@ -144,7 +144,8 @@
 
   /** Awards achievement `id`, announcing it, unless it was earned before. */
   G.achieve = function (id) {
-    if (!BY_ID[id] || G.achieved(id)) return;
+    // a tale started or nudged with the developer tools earns nothing
+    if (S.dev || !BY_ID[id] || G.achieved(id)) return;
     update((r) => {
       r.got[id] = new Date().toISOString().slice(0, 10);
     });

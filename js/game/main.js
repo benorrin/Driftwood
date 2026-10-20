@@ -97,6 +97,8 @@
     save();
   }
 
+  G.enterGame = enterGame;
+
   /** Plays the opening, after the prologue if this browser has never seen it. */
   function opening() {
     if (G.prologueSeen()) playIntro();
@@ -341,6 +343,8 @@
   function boot() {
     ART.install($('#defs'));
     $('#title-art').innerHTML = ART.scene('title');
+    G.devFromAddress();
+    G.showDevLinks();
     refreshContinue();
     G.styleSeen(STY.current);
 
@@ -355,6 +359,8 @@
       AU.init();
       G.playPrologue(G.toTitle);
     };
+    $('#btn-dev').onclick = G.openDev;
+    $('#btn-dev-game').onclick = G.openDev;
     $('#btn-achievements').onclick = G.openAchievements;
     $('#btn-achievements-game').onclick = G.openAchievements;
     $('#btn-restart').onclick = restart;

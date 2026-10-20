@@ -217,9 +217,10 @@
       text: [
         'You go to cut the morning\'s notch in the palm by the fire, and find you have lost count. You cannot remember when you last looked for a sail.',
         'The fire is burning. The water is sweet. The dead are in their graves, and no one on this island wishes you harm.',
+        'You could stop waiting for a sail. You could stay here, and let the island be the end of your story.',
       ],
       choices: [
-        { label: 'stay', fn: stay },
+        { label: 'stay here for good', note: 'this ends your tale', fn: stay },
         leave('not yet', 'You cut the notch, and look at the sea for a long while.', 'lore'),
       ],
     });

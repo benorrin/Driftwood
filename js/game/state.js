@@ -255,6 +255,8 @@
 
   /** Writes the tale just ended into the ship's log: `end` is an ENDINGS key, or 'death' by `cause`. */
   G.recordTale = function (end, cause) {
+    // a developer's tale is not written in the ship's log
+    if (S.dev) return;
     const r = G.records();
     r.tales++;
     r.best = Math.max(r.best, S.day);
