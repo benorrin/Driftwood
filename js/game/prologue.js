@@ -4,7 +4,7 @@
  * telling on the intro screen, page by page, with a few small choices that
  * change a line and nothing else. It stops before the cave, which is
  * Chapter 1's to find from Hale's letter, log and journal, and it must agree
- * with them. Played before a castaway's first tale; replayable from the title. */
+ * with them. Played before a browser's first tale, and from the developer tools. */
 (function () {
   'use strict';
 

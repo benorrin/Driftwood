@@ -26,7 +26,6 @@
   function refreshContinue() {
     $('#btn-continue').classList.toggle('hidden', !load());
     $('#btn-records').classList.toggle('hidden', !G.records().tales);
-    $('#btn-prologue').classList.toggle('hidden', !G.prologueSeen());
     $('#carried').classList.toggle('hidden', !G.carried());
   }
 
@@ -177,7 +176,7 @@
     {
       date: '21 October 2026',
       items: [
-        ['A prologue', 'Twenty years before you, a Liverpool brig struck the same reef. Before your first tale you hear how, from her cabin boy; afterwards it waits on the title screen.'],
+        ['A prologue', 'Twenty years before you, a Liverpool brig struck the same reef. Before your first tale you hear how, from her cabin boy.'],
         ['Chapter Two', 'The raft was never going to get you home. Where she does get you is the beginning of a second chapter: an archipelago of islands nobody could see from the summit, a chart of them, and a patched boat that only runs before the wind.'],
         ['The wind', 'The trades, a westerly, or a flat calm, shifting every dawn. Fit your boat with leeboards, casks and an outrigger to go further, and in more weathers.'],
         ['Loading', 'Before you put to sea, choose what to take aboard, up to what your boat will carry. Everything else stays at the camp, and will be there when you get back, less what the gulls have had.'],
@@ -355,10 +354,6 @@
     $('#btn-help').onclick = openHelp;
     $('#btn-news').onclick = openNews;
     $('#btn-records').onclick = openRecords;
-    $('#btn-prologue').onclick = () => {
-      AU.init();
-      G.playPrologue(G.toTitle);
-    };
     $('#btn-dev').onclick = G.openDev;
     $('#btn-dev-game').onclick = G.openDev;
     $('#btn-achievements').onclick = G.openAchievements;

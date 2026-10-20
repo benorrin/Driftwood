@@ -33,7 +33,7 @@ Gather driftwood. Keep the fire alive. Explore the island and learn what happene
 
 The tale is told in chapters, after a prologue:
 
-- **Prologue: the *Calliope*.** 1826, the night a Liverpool brig strikes the reef, told by her fourteen-year-old cabin boy. A short telling before your first tale, and from the title screen after.
+- **Prologue: the *Calliope*.** 1826, the night a Liverpool brig strikes the reef, told by her fourteen-year-old cabin boy. A short telling before your first tale.
 
 1. **The Island.** Survive, learn the island's history, and get off it.
 2. **The Archipelago.** Your raft won't carry you home, but it will carry you between the islands nobody could see from the summit. Sail on the wind, meet the deserter who knows what really happened aboard the *Meridian*, and the people who tend the old stone platform, and make them a promise.
